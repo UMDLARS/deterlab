@@ -30,7 +30,6 @@ int main() {
         // Second, using diff to save the agony of writing C for file comparisons.
         snprintf(command, sizeof(command), "diff -q \"%s\" %s > /dev/null", studentAns, key);
         int check = system(command);
-        printf(command);
 
         // Remove the file.
         snprintf(command, sizeof(command), "rm -f %s", key);
