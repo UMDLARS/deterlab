@@ -2,8 +2,10 @@
 
 mkdir -p "$1"
 cd "$1" || exit
-# In case the directory already existed:
-rm -f *
+# If listdiff.txt already exists, then exit the script. No need to recreate the list files.
+if [ -f listdiff.txt ]; then
+    exit 1
+fi
 
 # Generate the random strings and append to the file.
 for i in {1..1000}; do
