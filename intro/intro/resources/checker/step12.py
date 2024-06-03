@@ -8,13 +8,13 @@ def main():
     sorted_nums = os.path.expanduser("~/sortednumbers.txt")
 
     if (os.path.exists(sorted_nums)):
+        # Retrieving the numbers.txt file:
+        orig_file = open(nums, "r")
+        orig_file = orig_file.readlines()
+        
         # Retrieving the student's answer.
         file = open(sorted_nums, "r")
         sorted_list = file.readlines()
-
-        # Sorting the numbers.txt file:
-        orig_file = open(nums, "r")
-        orig_file = orig_file.readlines()
 
         # Checking to make sure that they're sorted.
         if (sorted(orig_file) == sorted_list):

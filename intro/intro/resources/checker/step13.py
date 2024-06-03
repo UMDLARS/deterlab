@@ -5,7 +5,7 @@ import sys
 import os
 
 def main():
-    path = orig_file = os.path.expanduser("~/message.sh")
+    path = os.path.expanduser("~/message.sh")
 
     # Check to see if the text file is made:
     ret = os.path.exists(path)

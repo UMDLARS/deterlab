@@ -6,6 +6,7 @@ import os
 
 def main():
     path = os.path.expanduser("~/data.tar.gz")
+    imp_data = os.path.expanduser("Important Data/")
     ret = os.path.exists(path)
 
     if ret:
@@ -19,6 +20,7 @@ def main():
             # Checking if all files are in there.
             files = ["output.txt", "output_copy.txt", "lists/", "lists/list1.txt", "lists/list2.txt", "lists/listdiff.txt"]
             for name in files:
+                name = imp_data + name
                 if not os.path.exists("/tmp/step10/" + name):
                     subprocess.run("rm -r /tmp/step10", shell=True)
                     # A file doesn't exist.

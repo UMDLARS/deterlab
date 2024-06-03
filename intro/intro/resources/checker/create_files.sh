@@ -2,9 +2,13 @@
 
 mkdir -p "$1"
 cd "$1" || exit
-# If listdiff.txt already exists, then exit the script. No need to recreate the list files.
+
+# In case listdiff.txt already exists, do not change the list/ directory.
 if [ -f listdiff.txt ]; then
+    echo "listdiff.txt already exists. Exiting."
     exit 1
+else
+    rm -f *
 fi
 
 # Generate the random strings and append to the file.

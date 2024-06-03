@@ -16,9 +16,21 @@ int main() {
     // Creating two variables: Path to sowpods.txt and path to output.txt.
     char path[128];
     char studentAns[128];
-
     snprintf(path, sizeof(path), "%s/sowpods.txt", homedir);
-    snprintf(studentAns, sizeof(studentAns), "%s/output.txt", homedir);
+
+    // First, check to see if Important Data/ already exists. This step would've been previously passed.
+    char imp_data[128];
+    snprintf(imp_data, sizeof(imp_data), "%s/Important Data/", homedir);
+
+    if (access(imp_data, F_OK) == 0) {
+        // This will need to be converted into "Important\\ Data" after we call access on it,
+        // since Unix requires escape characters when using spaces in directories.
+        snprintf(studentAns, sizeof(studentAns), "%s/Important Data/output.txt", homedir);
+    }
+
+    else {
+        snprintf(studentAns, sizeof(studentAns), "%s/output.txt/", homedir);
+    }
 
     // Check to make sure that the sowpods.txt file exists.
     if (access(path, F_OK) == 0) {
@@ -26,13 +38,18 @@ int main() {
         if (access(studentAns, F_OK) == 0) {
             // The answer exists, so we will generate a key.
 
+            // Before generating a key, check to see if studentAns is in Important Data. If so, convert it to Unix format.
+            if (strstr(studentAns, "Important Data") != NULL) {
+                snprintf(studentAns, sizeof(studentAns), "%s/Important\\ Data/output.txt", homedir);
+            }
+
             // Command buffer used for the following two checks. First, to create the key.
             char command[2048];
             snprintf(command, sizeof(command), "grep '^CAMP' %s > /tmp/.sowpods_camp_ans.txt", path);
             system(command);
 
             // Second, using diff to save the agony of writing C for file comparisons.
-            snprintf(command, sizeof(command), "diff -q %s /tmp/.sowpods_camp_ans.txt > /dev/null", studentAns);
+            snprintf(command, sizeof(command), "diff -q %s /tmp/.sowpods_camp_ans.txt", studentAns);
             int check = system(command);
 
             // Remove the file.

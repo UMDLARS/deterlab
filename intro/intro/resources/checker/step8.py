@@ -21,7 +21,7 @@ def main():
         if (output.returncode == 0):
             # Files are the same.
             # For the next step:
-            subprocess.run(f'bash ~/../checker/create_files.sh "{new_dir}" "{target_file}"', shell=True)
+            subprocess.run(f'bash ~/../.checker/create_files.sh "{new_dir}" "{target_file}"', shell=True)
             sys.exit(1)
         # Files are NOT the same.
         else:
