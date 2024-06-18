@@ -20,7 +20,7 @@ cp /home/labs/* $LABS
 # Configure all labs to work with the current username.
 pushd $LABS > /dev/null 2>&1
 for notebook in *.ipynb; do
-    sed -i "s/umdsecXX_home/$USER/g" "$notebook"
+    sed -i "s/umdsecXX/$USER/g" "$notebook"
 done
 
 echo -e "\033[0;32mDone. You can find your notebooks in $LABS. Please refresh your browser's tab before starting a lab.\033[0m"
