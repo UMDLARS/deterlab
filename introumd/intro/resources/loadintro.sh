@@ -33,5 +33,5 @@ fi
 popd
 
 # Clean up.
-#rm -f /tmp/${USER}_intro.tar.gz
-#rm -r $TMP
+rm -f /tmp/${USER}_intro.tar.gz
+rm -r $TMP

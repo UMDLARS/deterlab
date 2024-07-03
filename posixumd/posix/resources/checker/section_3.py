@@ -63,10 +63,15 @@ def main():
 
         # Checking step 12.
         elif (sys.argv[1] == "12"):
+            # First, saving the student's answer:
+            f = open("/home/.checker/responses/step_12_answer.txt", "w+")
+            f.write(sys.argv[2])
+            f.close()
+            
             # Simply just checking true or false.
-            if (sys.argv[2] == "True"):
+            if (sys.argv[2] == "False"):
                 sys.exit(1)
-            elif (sys.argv[2] == "False"):
+            else:
                 sys.exit(0)
 
         # In case an invalid step number was given.
