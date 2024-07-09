@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 import os
 import sys
-import re
+import subprocess
+import mysql.connector
 
 # Function to execute the student's SQL queries and return results.
 def execute_query(query):
@@ -57,24 +58,27 @@ def main():
         # Will not check to see if $sql has a "?" in it. A SQLi attack will occur later, and if
         # "?" isn't in $sql, then the test will fail. Only checking to see if the required statements
         # are used.
-        required_stmt = ["mysqli_prepare", "mysqli_stmt_bind_param", "mysqli_execute", "mysqli_stmt_get_result", "mysqli_stmt_num_rows"]
+        required_stmt = ["prepare", "bind_param", "execute", "get_result"]
 
-        # Check all lines in the mysqli_statements array.
+        # Check all lines in the "required statements" array.
         for line in mysqli_statements:
             # Iterate through the required statements to see if it exists. If so, delete it from the array.
             for stmt in required_stmt:
                 if (stmt in line):
-                    required_stmt.pop(stmt)
+                    required_stmt.remove(stmt)
 
         # If all required statements exist in the file, the length of the array should be zero.
         if (len(required_stmt) == 0):
             # Now, perform a SQLi attack.
             result = subprocess.run("/home/.checker/perform_attack.py php_practice", shell=True, capture_output=True, text=True)
+            attack_output = result.stdout
             # Check the result's output and see if it printed every row from the table.
             db_result = execute_query("SELECT * FROM students")
             # Perform a loop to check to see if each element in the database was printed in the table.
+            # Only going to check the names.
             for row in db_result:
-                if (row not in result):
+                # If anyone's name appears, then it's a failed check.
+                if (row[1] in result.stdout):
                     # Failure. Return 0.
                     sys.exit(0)
 

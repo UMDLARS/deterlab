@@ -44,19 +44,19 @@ def main():
     if (int(step) >= 12 and int(step) <= 14):
         # Next, clear the database based on which step that the student is on.
         subprocess.run("/home/.checker/reset_db.py " + step, shell=True)
-        
+
         # We are testing a SQLi payload for each step. Therefore, create a POST request.
         # Creating the URL for the php_practice.php file.
         url = 'http://localhost/php_practice.php'
-        
+
         # Defining the payload
         data = {
             'student_id': query
         }
-        
+
         # Send the POST request.
         response = requests.post(url, data=data)
-        
+
         # Check if the request was successful.
         if (response.status_code == 200):
             # Take the response of the server, then write it to a file for the student's response.
@@ -70,7 +70,7 @@ def main():
 
             # Now, checking to see if the response is correct for the payload.
             expected_rows = []
-            
+
             if (step == "12"):
                 expected_rows = [
                     (100, 'Taylor', 'B'),

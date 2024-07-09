@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Creating the pathname(s).
+export RESOURCES="/tmp/xss/resources"
+export CHECKER="/home/.checker"
+
+# Installing the required library.
+apt-get update
+apt-get install gcc -y
+
+# Moving the checker scripts over.
+mkdir $CHECKER
+chown $USER $CHECKER 
+cp $RESOURCES/checker/* $CHECKER
+
+# Moving the save/load scripts.
+cp $RESOURCES/*xss.sh $CHECKER
+
+# Moving into the /home/.checker directory.
+pushd $CHECKER/
+
+# Return to the /tmp directory.
+popd
+
+# Need more stuff here in the future.
+
+# Create the responses directory.
+sudo mkdir /home/.checker/responses
+
+# Giving ownership to the students so that the checker will work.
+chown -R $USER $CHECKER 
+
+# Clean up.
+# rm -rf *
