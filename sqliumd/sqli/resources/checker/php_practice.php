@@ -23,13 +23,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
     // String are concatenated in PHP with a "." in between them.
     $sql = "SELECT student_id, student_name, student_grade FROM students WHERE student_id = $student_id;";
 
-    // Take the query, then send it to the SQL database.
-    // mysqli_multi_query allows you to execute multiple queries in one call. Careful with this!
-    // mysqli_query will only allow you to call one query. Still unsafe if you don't sanitize user input!
-    mysqli_multi_query($conn, $sql);
+    // Execute the query
+    $conn->multi_query($sql);
 
     // Place the result inside of a PHP variable called $result.
-    $result = mysqli_store_result($conn);
+    $result = $conn->store_result();
 
     // Before printing the results, print the SQL statement that was just processed.
     echo "<p><u>Your SQL statement:</u> SELECT student_id, student_name, student_grade FROM students WHERE student_id = <u>$student_id</u></p>";
@@ -37,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
     // Check if the query was successful.
     if ($result) {
         // If there are more than zero results in the SQL query...
-        if (mysqli_num_rows($result) > 0) {
+        if ($result->num_rows > 0) {
             // First, print off the start of the table element. Do not close it yet.
             echo "<table border='1' style='margin-bottom: 10px;'>
                     <tr>
@@ -48,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
 
             // For each of the rows in the SQL query...
             // The "fetch_assoc" function turns the query into an array. It will iterate through each row.
-            while ($row = mysqli_fetch_assoc($result)) {
+            while ($row = $result->fetch_assoc()) {
                 // Create an entry in the table.
                 echo "<tr>
                         <td>{$row['student_id']}</td>
@@ -68,11 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
 
     // If no result could be retrieved, there was a SQL error. Display the error.
     else {
-        echo "Error: " . mysqli_error($conn);
+        echo "Error: " . $conn->error;
     }
 
     // Close the database connection
-    mysqli_close($conn);
+    $conn->close();
 }
 
 // If the student_id field was not entered or was never submitted, it will return an error.
