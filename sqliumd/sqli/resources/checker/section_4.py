@@ -198,7 +198,7 @@ def main():
                     # If the check_value is zero, then that specific function was not found.
                     if (check_value == 0):
                         # Get the name of the function that wasn't used.
-                        output += required_statements[function_index] + " cannot be found. "
+                        output += "\"" + required_statements[function_index] + "\" cannot be found. "
                     function_index += 1
 
                 # Check if the output string was changed. If so, there was an error in the block. Exit after printing.
