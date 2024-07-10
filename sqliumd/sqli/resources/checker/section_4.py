@@ -238,7 +238,7 @@ def main():
                 sys.exit(3)
 
         elif (result.returncode == 0):
-            # Failure. Return 5 for this, since an error occurred with testing the payload, but the SQL statements were fixed.
+            # Failure. Return 4 for this, since an error occurred with testing the payload, but the SQL statements were fixed.
             sys.exit(4)
 
 main()
