@@ -39,7 +39,7 @@ def main():
 
     else:
         step_num = int(sys.argv[1])
-        if (step_num >= 4 and step_num <= 9):
+        if (step_num >= 4 and step_num <= 15):
             # Including Step 7, in case the UPDATE command broke the student's table. Reverts them back to Step 6.
             if (step_num >= 4 and step_num <= 7):
                 query = """
@@ -67,7 +67,7 @@ def main():
                 """
                 execute_query(query)
 
-            elif (step_num == 9):
+            elif (step_num == 9 or step_num == 12):
                 query = """
                 DROP TABLE students;
                 CREATE TABLE students (student_id SMALLINT UNSIGNED PRIMARY KEY,
@@ -76,6 +76,43 @@ def main():
                 INSERT INTO students (student_id, student_name, student_grade) VALUES (100, "Aaron", "B");
                 INSERT INTO students (student_id, student_name, student_grade) VALUES (101, "Danny", "B");
                 INSERT INTO students (student_id, student_name, student_grade) VALUES (102, "Hannah", "D");
+                """
+                execute_query(query)
+
+            elif (step_num == 13):
+                query = """
+                DROP TABLE students;
+                CREATE TABLE students (student_id SMALLINT UNSIGNED PRIMARY KEY,
+                                       student_name VARCHAR(64),
+                                       student_grade CHAR(1));
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (100, "Taylor", "B");
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (101, "Danny", "B");
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (102, "Hannah", "D");
+                """
+                execute_query(query)
+
+            elif (step_num == 14):
+                query = """
+                DROP TABLE students;
+                CREATE TABLE students (student_id SMALLINT UNSIGNED PRIMARY KEY,
+                                       student_name VARCHAR(64),
+                                       student_grade CHAR(1));
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (100, "Taylor", "B");
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (101, "Danny", "B");
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (102, "Hannah", "B");
+                """
+                execute_query(query)
+
+            elif (step_num == 15):
+                query = """
+                DROP TABLE students;
+                CREATE TABLE students (student_id SMALLINT UNSIGNED PRIMARY KEY,
+                                       student_name VARCHAR(64),
+                                       student_grade CHAR(1));
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (100, "Taylor", "B");
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (101, "Danny", "B");
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (102, "Hannah", "B");
+                INSERT INTO students (student_id, student_name, student_grade) VALUES (200, "Jason", "F");
                 """
                 execute_query(query)
 

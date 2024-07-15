@@ -16,14 +16,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
 
     // Check connection. Shouldn't give an error, unless the database was named incorrectly.
     if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        die('Connection error: ' . $conn->connect_error);
     }
 
     // First, this is the SQL query that is being called to the database.
     // String are concatenated in PHP with a "." in between them.
-    $sql = "SELECT student_id, student_name, student_grade FROM students WHERE student_id = $student_id;";
+    $sql = "SELECT student_id, student_name, student_grade FROM students WHERE student_id = $student_id";
 
-    // Execute the query
+    // Take the query, then send it to the SQL database.
+    // multi_query allows you to execute multiple queries in one call. Careful with this!
+    // query will only allow you to call one query. Still unsafe if you don't sanitize user input!
     $conn->multi_query($sql);
 
     // Place the result inside of a PHP variable called $result.
@@ -66,10 +68,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
 
     // If no result could be retrieved, there was a SQL error. Display the error.
     else {
-        echo "Error: " . $conn->error;
+        echo "There was an error with your result. Error message (if any): " . $stmt->error;
     }
 
-    // Close the database connection
+    // Close the database connection.
     $conn->close();
 }
 
