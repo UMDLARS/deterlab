@@ -67,7 +67,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // If the POST request is writing a note.
-    else if (isset($_POST["note"]) && $_POST["note"] != "") {
+    else if ((isset($_POST["username"]) && $_POST["username"] != "") && 
+            (isset($_POST["note"]) && $_POST["note"] != "")) {
         // Add the note to the database.
         $username = $_POST["username"];
         if ($username != "") {
@@ -95,15 +96,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             else if ($_POST["xss_action"] == "Reset Victim's Notes") {
-                $sql .= "DELETE FROM notes WHERE username = 'Hacker'";
+                $sql .= "DELETE FROM notes WHERE username = 'Hacker'; ";
+
+                // Additionally, we need to keep a few notes on the victim's site. These will add the notes back:
+                $sql .= 'INSERT INTO notes (username, note) VALUES ("Hacker", "Credit card number to purchase the company some new merch: 4816284615375930");
+                         INSERT INTO notes (username, note) VALUES ("Hacker", "Pay tax return soon. Keep $481 in savings at FrobozzCo Community Credit Union.");
+                         INSERT INTO notes (username, note) VALUES ("Hacker", "Birthday gift ideas: New computer, coffee mug, plant.");';
             }
 
-            mysqli_query($conn, $sql);
+            mysqli_multi_query($conn, $sql);
+
+            // This is to prevent an error from occurring when printing the student's notes after running the multi_query command.
+            while (mysqli_next_result($conn));
         }
 
-        // Otherwise, if we're "peeking", we will need to use a headless browser.
-        // phantom.js is installed. We're going to call a script for that.
-        shell_exec("phantomjs peek.js");
+        // Otherwise, if we're "peeking", we will show the student what payloads will be executed
+        // upon accessing the website.
+        else if ($_POST["xss_action"] == "Peek") {
+            // Get all of the notes for the victim.
+            $sql = "SELECT note FROM notes WHERE username = 'Hacker'";
+            $result = mysqli_query($conn, $sql);
+
+            echo '<p><em>You are peeking at the victim\'s notes to view any working payloads.</em><p>';
+            echo '<p><em>Note that these are not executed until you check your step(s) in your XSS notebook.</em><p>';
+
+            // We will need to match any <script> tags, then remove them before printing. Do not want to
+            // infect ourselves when testing!
+            $pattern = "/(?<=<script>)(.*?)(?=<\/script>)/si";
+
+            // This will be toggled on to see if any payloads were printed. Used to tell student if no payloads were found.
+            $has_script_tags = False;
+
+            // Counter to show the student how many payloads will be executed. Should only be 1.
+            $counter = 1;
+
+            while ($row = mysqli_fetch_array($result)) {
+                $note = $row[0];
+
+                // If the note contains a <script> block, sanitize it, then print it. Switch $has_script_tags to True.
+                if (preg_match($pattern, $note)) {
+                    echo '<span><u>Payload #' . $counter . '</u>: <span style="font-family: monospace;">' . htmlspecialchars($note) . '</span></span>';
+                    ++$counter;
+                    $has_script_tags = True;
+                }
+            }
+
+            if (!$has_script_tags) {
+                echo '<p><strong>There are no infected payloads on the victim\'s profile.</strong><p>';
+            }
+
+            // After printing all payloads, add a divider so that it looks cleaner.
+            echo '<hr style="width: 25%; margin-left: 0;">';
+        }
     }
 }
 
@@ -136,7 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p><em>Some additional buttons for the lab:</em></p>
         <form action="' . $_SERVER["REQUEST_URI"] . '" method="post">
             <input type="submit" name="xss_action" value="Reset Your Notes">
-            <input type="submit" name="xss_action" value="Peek as Victim">
+            <input type="submit" name="xss_action" value="Peek">
             <input type="submit" name="xss_action" value="Reset Victim\'s Notes">
         </form>
         ';
@@ -186,3 +230,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </body>
 </html>
+
+<?php
+// Close the connection at the very end.
+mysqli_close($conn);
+?>
