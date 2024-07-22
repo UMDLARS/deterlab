@@ -160,6 +160,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>XSS Practice</title>
 </head>
 <body>
+    <!-- To stop form resubmission on refresh. -->
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
+    
     <?php
     // Checking to see if the user is signed in.
     if (isset($username) && $username != "") {

@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# Creating the pathnames.
+export RESOURCES="/tmp/server/resources"
+export CHECKER="/home/.checker"
+
+# Going into the server directory, where all files are stored.
+cd /tmp/server
+
+# Installing the required libraries.
+apt-get update
+apt-get install mariadb-server mariadb-client apache2 libcurl3-dev php7.4 php7.4-dev php7.4-http php7.4-mysql php7.4-curl libapache2-mod-php7.4 php7.4-cli libcurl3-dev python3-pip nodejs npm -y
+
+# These are libraries to get NodeJS and Puppeteer working properly.
+nvm install 16.20.2; nvm alias default 16.20.2; nvm use 16.20.2; npm i puppeteer
+apt-get install -y wget xdg-utils libgbm1 libxshmfence1 libnss3 libcups2 libxrandr2 libasound2 libatk1.0-0 libatk-bridge2.0-0 libpangocairo-1.0-0 libpango-1.0-0 libcairo2 libatspi2.0-0 libgtk-3-0
+
+# Additionally, downloaded a couple pip libraries for the checker scripts.
+pip install mysql-connector-python requests
+
+# Moving the checker scripts over.
+mkdir $CHECKER
+
+# Giving ownership to the students so that the checker will work.
+chown -R $USER $CHECKER
+
+# Transferring the resources over.
+cp $RESOURCES/checker/* $CHECKER
+chmod +x $CHECKER/reset.sh
+
+# Temporarily access $CHECKER to install npm and nvm, required for Puppeteer.
+pushd $CHECKER
+npm init -y
+
+# Installing nvm.
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Sourcing .bashrc to apply changes.
+source ~/.bashrc
+
+# Installing Puppeteer.
+nvm install 16.20.2
+nvm alias default 16.20.2
+nvm use 16.20.2
+
+# Note: npm will warn you to update. No need, and doing so will give an error.
+npm i puppeteer
+
+# Moving the save/load scripts.
+# cp $RESOURCES/*xss.sh $CHECKER
+
+# Create the responses directory.
+mkdir /home/.checker/responses
+chmod a+w /home/.checker/responses
+
+# Remove the SQLi password.
+mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '';"
+
+# Show PHP errors on the screen.
+sed -i 's/display_errors = Off/display_errors = On/' /etc/php/7.4/apache2/php.ini
+
+# Reset apache2 to reflect changes.
+systemctl restart apache2
+
+# Now, navigate into the web_files folder to distribute everything properly.
+pushd $RESOURCES/web_files
+
+# Add the two databases required for the lab.
+mysql -uroot < xss.sql
+
+# Insert the two users for the XSS table. Create random authentication tokens.
+UMDSEC_AUTH=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32; echo)
+VICTIM_AUTH=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32; echo)
+mysql -u root -e "INSERT INTO xss.users (username, password, auth) VALUES ('umdsec', 'hacker123', '$UMDSEC_AUTH');"
+mysql -u root -e "INSERT INTO xss.users (username, password, auth) VALUES ('hacker', 'NoPeeking!@#', '$VICTIM_AUTH');"
+
+# Transfer all forum source code.
+cp -r forum/* /var/www/html
+
+# Transfer the xss_practice.php file.
+cp xss_practice.php /var/www/html
+
+# Giving write perms to sanitize.php, since it's needed for the checker script.
+chmod a+w /var/www/html/sanitize.php
+
+# Change ownership for the /var/www/html files. This was in the old install script, so I'm leaving it in.
+chown root:www-data /var/www/html/*
+chown root:www-data /var/www/html/images/*
+
+# section_2.js need their authentication tokens updated.
+sed -i "s|const umdsec_url = \"http://10.0.1.1/xss_practice.php?auth=XXX\";|const umdsec_url = \"http://10.0.1.1/xss_practice.php?auth=$UMDSEC_AUTH\";|" /home/.checker/section_2.js
+
+sed -i "s|const victim_url = \"http://10.0.1.1/xss_practice.php?auth=XXX\";|const victim_url = \"http://10.0.1.1/xss_practice.php?auth=$VICTIM_AUTH\";|" /home/.checker/section_2.js
+
+# All done. Perform cleanup.
+popd
+# rm -rf *

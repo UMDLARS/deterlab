@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export LAB="client"
+export BASE="/tmp"
+export THISLAB="$BASE/$LAB"
+pushd $THISLAB
+
+apt-get update
+
+DEBIAN_FRONTEND=noninteractive apt-get install libcurl3-dev apache2 php7.4 php7.4-dev libapache2-mod-php7.4 php7.4-cli php7.4-curl php-http -y
+
+touch /etc/php/7.4/mods-available/http.ini
+echo "extension=http.so" >> /etc/php/7.4/mods-available/http.ini
+/etc/init.d/apache2 restart

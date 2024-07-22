@@ -1,0 +1,146 @@
+html {
+    height: 100%;
+}
+body {
+    background-color: 0;
+    text-align: center;         /* make sure IE centers the page too */
+    height: 100%;
+} 
+#wrapper {
+    display: block;
+    height: 100%;
+    width: 900px;
+    margin: 0 auto;             /* center the page */
+}
+#banner {
+    width: 100%;
+    height: 75px;
+}
+#sunglasses_sloth_right {
+    float: left;
+    position: relative;
+    height: 100%;
+    width: auto;
+}
+#sunglasses_sloth_left {
+    float: right;
+    position: relative;
+    height: 100%;
+    width: auto;
+} 
+#content {
+    background-color: #fff;
+    float: left;
+    font-family: Arial;
+    padding: 20px 5%;
+    text-align: left;
+    width: 90%;                /* fill up the entire div */
+}
+ 
+#menu {
+    float: left;
+    border-bottom: none;        /* avoid a double border */
+    clear: both;                /* clear:both makes sure the content div doesn't float next to this one but stays under it */
+    width: 90%;
+    height:20px;
+    padding: 5px 5% 0 5%;
+    background-color: #FFF;
+    text-align: left;
+    font-size: 85%;
+}
+ 
+#menu a:hover {
+    background-color: #009FC1;
+}
+ 
+#userbar {
+    background-color: #fff;
+    float: right;
+    width: 250px;
+}
+ 
+#footer {
+    clear: both;
+}
+ 
+/* begin table styles */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+ 
+table a {
+    color: #000;
+}
+ 
+table a:hover {
+    color:#373737;
+    text-decoration: none;
+}
+ 
+th {
+    background-color: #B40E1F;
+    color: #F0F0F0;
+}
+ 
+td {
+    padding: 5px;
+}
+ 
+/* Begin font styles */
+#title {
+text-shadow: 0 1px 0 #ccc,
+               0 2px 0 #c9c9c9,
+               0 3px 0 #bbb,
+               0 4px 0 #b9b9b9,
+               0 5px 0 #aaa,
+               0 6px 1px rgba(0,0,0,.1),
+               0 0 5px rgba(0,0,0,.1),
+               0 1px 3px rgba(0,0,0,.3),
+               0 3px 5px rgba(0,0,0,.2),
+               0 5px 10px rgba(0,0,0,.25),
+               0 10px 10px rgba(0,0,0,.2),
+               0 20px 20px rgba(0,0,0,.15);
+}
+h3 {margin: 0; padding: 0;}
+ 
+/* Menu styles */
+.item {
+    background-color: #00728B;
+    border: 1px solid #032472;
+    color: #FFF;
+    font-family: Arial;
+    padding: 3px;
+    text-decoration: none;
+}
+ 
+.leftpart {
+    width: 70%;
+}
+ 
+.rightpart {
+    width: 30%;
+}
+ 
+.small {
+    font-size: 75%;
+    color: #373737;
+}
+#footer {
+    font-size: 65%;
+    padding: 3px 0 0 0;
+}
+ 
+.topic-post {
+    height: 100px;
+    overflow: auto;
+}
+ 
+.post-content {
+    padding: 30px;
+}
+ 
+textarea {
+    width: 500px;
+    height: 200px;
+}
