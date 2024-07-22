@@ -1,4 +1,0 @@
-from mergexp import *
-net = Network('sqli', addressing==ipv4)
-nodes = [net.node(name, image == 'bullseye-edu') for name in [ 'sqli' ]]
-experiment(net)
