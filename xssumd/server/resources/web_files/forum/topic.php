@@ -1,6 +1,7 @@
 <?php
 include 'connect.php';
 include 'header.php';
+include 'sanitize.php';
 
 $sql = "SELECT topic_subject FROM topics WHERE topic_id = " . mysqli_real_escape_string($link, $_GET['id']);
 $result = mysqli_query($link, $sql);
@@ -34,7 +35,7 @@ else {
       echo date('d-m-Y', strtotime($row['post_date']));
       echo "</td>";
       echo "<td class='post-content'>";
-      echo $row["post_content"];
+      echo sanitize($row["post_content"]);
       echo "</td></tr>";
     }
   }

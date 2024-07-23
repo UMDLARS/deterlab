@@ -18,7 +18,7 @@ def update_sanitize_routine(routine_number):
     for routine in all_routines:
         body = routine[1]
         if not body.startswith('/**'):
-            commented_body = f"/**\n{body}*/\n"
+            commented_body = f"/**\n{body}*/"
             content = content.replace(body, commented_body)
 
     # Step 1.5: Comment out the custom routine (routine 5)
@@ -28,7 +28,7 @@ def update_sanitize_routine(routine_number):
     if custom_match:
         body = custom_match.group(2)
         if not body.startswith('/**'):
-            commented_body = f"/**\n{body}*/\n"
+            commented_body = f"/**\n{body}*/"
             content = content.replace(body, commented_body)
 
     # Step 2: Uncomment the specific routine.
@@ -74,7 +74,7 @@ def main():
     if (sys.argv[2] != "1" and sys.argv[2] != "0"
          and int(sys.argv[1]) >= 7 and int(sys.argv[1]) <= 11):
         print("<keep_work> must be 1 (True) or 0 (False). If you are on Step 5, provide the victim's credit card number instead.")
-        sys.exit(0)
+        sys.exit(2)
 
     step = sys.argv[1]
     keep_work = sys.argv[2]
@@ -87,7 +87,7 @@ def main():
 
     if (int(step) < 7 and int(step) > 11):
         print("Step must be between 7 and 11.")
-        sys.exit[1]
+        sys.exit(2)
 
     # If keep_work == 0, then we will have to test the entire website and see if XSS occurred.
     if (keep_work == "0"):
@@ -142,11 +142,37 @@ def main():
 
     # If splitting only returned one result, then that means the response was "No response".
     if (len(responses) == 1):
+        # Payload did not work.
         sys.exit(0)
 
     # All checks should be done now. Time to parse the results and see if the Eagles category was made.
     pattern = re.compile(f'<a href="category\.php\?id=[0-9]+">Eagles<\/a><\/h3>Where to find those delicious sloths!<\/td><td class="rightpart">')
-    if (re.search(pattern, responses[1])):
+
+    # Eagles wasn't made. However, check if it's Step 11 before exiting with failure.
+    if (step == "11"):
+        # Check if htmlspecialchars was used.
+        if (os.path.exists("/var/www/html/sanitize.php")):
+            f = open("/var/www/html/sanitize.php")
+            output = f.read()
+            f.close()
+
+            # Check if the sanitization function is in the file and if Eagles is not printed.
+            if ("htmlspecialchars" in output and not re.search(pattern, responses[1])):
+                sys.exit(1)
+
+            # htmlspecialchars was not created. Note, this might pick up from a comment in the fi>
+            elif ("htmlspecialchars" not in output):
+                sys.exit(5)
+
+            # Somehow, htmlspecialchars was used and still printed Eagles. Use special exit code.
+            else:
+                sys.exit(4)
+
+        # sanitize.php was somehow deleted.
+        else:
+            sys.exit(2)
+
+    elif (re.search(pattern, responses[1]) and step != "11"):
         # Now, check to see if a payload was in the forum.
         # There should always be two responses after splitting from the divider.
         if ("steal.php" in responses[0]):
@@ -157,7 +183,34 @@ def main():
             # No occurrence of steal.php means that there was no payload.
             sys.exit(0)
 
-    # Eagles wasn't made, so exit with failure.
+    # Eagles wasn't made. However, check if it's Step 11 before exiting with failure.
+    elif (step == "11"):
+        # Check if htmlspecialchars was used.
+        if (os.path.exists("/var/www/html/sanitize.php")):
+            f = open("/var/www/html/sanitize.php")
+            output = f.read()
+            f.close()
+
+            print("E1")
+
+            # Check if the sanitization function is in the file and if Eagles is not printed.
+            if ("htmlspecialchars" in output and not re.search(pattern, responses[1])):
+                print("E2")
+                sys.exit(1)
+
+            # htmlspecialchars was not created. Note, this might pick up from a comment in the file.
+            elif ("htmlspecialchars" not in output):
+                sys.exit(0)
+
+            # Somehow, htmlspecialchars was used and still printed Eagles. Use special exit code.
+            else:
+                sys.exit(4)
+
+        # sanitize.php was somehow deleted.
+        else:
+            sys.exit(2)
+
+    # Otherwise, exit with failure.
     else:
         sys.exit(0)
 

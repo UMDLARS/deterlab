@@ -1,7 +1,6 @@
 <?php
 include 'connect.php';
 include 'header.php';
-include 'sanitize.php';
  
 if($_SERVER['REQUEST_METHOD'] != 'POST')
 {
@@ -23,7 +22,7 @@ else
                           post_date,
                           post_topic,
                           post_by) 
-                VALUES ('" . sanitize(mysqli_real_escape_string($link, $_POST['reply-content'])) . "',
+                VALUES ('" . mysqli_real_escape_string($link, $_POST['reply-content']) . "',
                         NOW(),
                         " . mysqli_real_escape_string($link, $_GET['id']) . ",
                         " . $_SESSION['user_id'] . ")";

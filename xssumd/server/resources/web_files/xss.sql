@@ -136,7 +136,6 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'root','dc76e9f0c0006e8f919e0c515c66dbba3982f785','root@slothsunlimited.com','2024-07-16 17:37:34',1),(2,'SlothFromHoth','e1edba0a29c527e40f85eb56a1b0d6bd023c043a','sloth@slothunlimited.com','2024-07-16 17:37:34',0),(3,'TheSleuthSloth','5b6a97edda71c4cd0fd6c69c8b4f39a73604155e','sleuth@slothsunlumited.com','2024-07-16 17:37:34',0),(4,'Slowbro','fc26f2d188b5aae67b64f7ef479c7428b6821153','slowbro@slothsunlimited.com','2024-07-16 17:37:34',0),(5,'SpeedySteve','f1e20513b01be8d0c6a5b4b8c1f305e80baa6d7b','speedy@slothsunlimited.com','2024-07-16 17:37:34',0),(6,'asdf','3da541559918a808c2402bba5012f6c60b27661c','asdf@asdf.com','2024-07-18 17:00:14',0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -169,7 +168,6 @@ CREATE TABLE `notes` (
 
 LOCK TABLES `notes` WRITE;
 /*!40000 ALTER TABLE `notes` DISABLE KEYS */;
-INSERT INTO `notes` VALUES ('Hacker','Credit card number to purchase the company some new merch: 4816284615375930'),('Hacker','Pay tax return soon. Keep $481 in savings at FrobozzCo Community Credit Union.'),('Hacker','Birthday gift ideas: New computer, coffee mug, plant.'),('umdsec','Wow, this website is insecure!');
 /*!40000 ALTER TABLE `notes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -189,6 +187,17 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES ('hacker','NoPeeking!@#','XXXX'),('umdsec','hacker123','XXX');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -197,4 +206,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-07-21 14:30:53
+-- Dump completed on 2024-07-22 23:09:10

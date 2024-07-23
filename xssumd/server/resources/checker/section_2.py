@@ -108,7 +108,7 @@ def main():
                 # If this was Step 4, then we need to do one more check.
                 elif (step == "4"):
                     # Check if the second response contains the URL of the victim.
-                    if ("http://10.0.1.1/xss_practice.php?auth=FaHyOnofllkfeD9D56ctAEtWBB4jTwrr" in responses[1]):
+                    if ("http://10.0.1.1/xss_practice.php?auth=XXX" in responses[1]):
                         sys.exit(1)
 
                     else:
@@ -135,9 +135,6 @@ def main():
             cursor.execute('SELECT note FROM notes WHERE username = "Hacker"')
 
             result = cursor.fetchall()
-
-            # In case there was an insertion/deletion, commit to save the changes.
-            conn.commit()
 
             # Close the connection/cursor, then return the query result.
             conn.close()
