@@ -7,13 +7,14 @@ import re
 
 def main():
     # Check the usage.
-    if len(sys.argv) != 3:
-        print("Usage: ./section_4.py <step_num> <payload>")
+    if len(sys.argv) != 4:
+        print("Usage: ./section_4.py <step_num> <payload> <0 - test, 1 - fix>")
         sys.exit(2)
 
     # Create the step/payload.
     step = sys.argv[1]
     payload = sys.argv[2]
+    check_test = sys.argv[3]
 
     # Get the student's username from the last line of /etc/passwd.
     with open('/etc/passwd') as f:
@@ -22,11 +23,21 @@ def main():
         last_line = line
         username = last_line.split(":")[0]
 
+    # Depending if check_test is 0 or 1, we will need to check to see if the student is running the unedited or fixed Wormwood.
+    if (check_test == "0"):
+        check_test = "test"
+
+    elif (check_test == "1"):
+        check_test = "fix"
+
+    else:
+        sys.exit(2)
+
     # Step 17, 19, and 20 are the steps that can be properly tested.
     if (step != "18"):
         # Create the Wormwood directory so that we can navigate into it.
         # There's a strange glitch where ./run.sh won't work unless you're in the directory.
-        wormwood_dir = f"/home/" + username + "/topic_4"
+        wormwood_dir = f"/home/" + username + "/topic_4/wormwood_" + check_test
 
         # The file that needs to be called to use Wormwood.
         wormwood = f"{wormwood_dir}/run.sh"
@@ -61,7 +72,7 @@ def main():
                         # print("Sent newline")
 
                     # Get the output and error with a timeout.
-                    output, error = process.communicate(timeout=10)  # Timeout in seconds
+                    output, error = process.communicate(timeout=5)  # Timeout in seconds
 
                     # If the program reaches here, then the program exited. We can see if it crashed.
                     if ("The reactor failed catastrophically" in output):
@@ -82,9 +93,7 @@ def main():
 
         elif (step == "19" or step == "20"):
             # Splitting the "double new line".
-            payload = payload.replace('\\n', '\n')
-            payloads = payload.split('\n')
-            filtered_payloads = [item for item in payloads if item]
+            filtered_payloads = payload.split(" ")
 
             try:
                 # Change the working directory to where run.sh is located.
@@ -136,7 +145,7 @@ def main():
                     time.sleep(0.5)
 
                     # Get the output and error with a timeout.
-                    output, error = process.communicate(timeout=30)  # Increased timeout to 30 seconds
+                    output, error = process.communicate(timeout=5)
 
                     # If the program reaches here, then the program exited. We can see if it crashed.
                     if "The reactor failed catastrophically" in output:
@@ -150,16 +159,10 @@ def main():
                 # If the timer expires, then the program never crashed.
                 except subprocess.TimeoutExpired:
                     process.terminate()
-                    print("Timed out!")
-                    output, error = process.communicate()  # Retrieve whatever output is available
-                    print("Output from the process:")
-                    print(output)
-                    print("Error from the process:")
-                    print(error, file=sys.stderr)
                     sys.exit(2)
 
             except Exception as e:
-                print(f"An error occurred: {e}", file=sys.stderr)
+                # print(f"An error occurred: {e}", file=sys.stderr)
                 sys.exit(2)
 
 

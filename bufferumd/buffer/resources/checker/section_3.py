@@ -8,7 +8,7 @@ import difflib
 
 # This function will re-test the student's vulnerability to ensure it was patched.
 def check_vulnerability(step):
-    result = subprocess.run("./section_2.py " + step, shell=True)
+    result = subprocess.run("/home/.checker/section_2.py " + step, shell=True)
     if (result.returncode == 1):
         return True
 
@@ -100,7 +100,7 @@ def main():
             sys.exit(3)
 
         # Run the file.
-        result = subprocess.run(temp_path + "step_" + step + "_temp", shell=True, text=True, capture_output=True)
+        result = subprocess.run(temp_path + "step_" + step + "_temp > /dev/null", shell=True)
 
         # Delete the temporary file.
         os.remove(temp_path + "step_" + step + "_temp")
@@ -120,7 +120,7 @@ def main():
             else:
                 # Dependencies should've already been installed. Begin cloning.
                 if (not os.path.exists("/home/" + username + "/topic_4/")):
-                    subprocess.run('git clone https://github.com/UMDLARS/wormwood /home/' + username + '/topic_4/ >/dev/null', shell=True)
+                    subprocess.run('/home/.checker/create_topic_4.sh', shell=True)
 
             sys.exit(1)
 

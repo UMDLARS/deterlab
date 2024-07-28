@@ -178,38 +178,39 @@ def main():
 
     # Check Step 6. This requires user input!
     elif (step == "6"):
-        # The answer is correct. Before exiting with code 1, we need to create a new file for the student for the next step.
-        # If it already exists, do not overwrite it. This may lose progress if the student is checking all their answers.
-        if (not os.path.exists(pathname + "/step_7.c")):
-            # This is the source code for Step 7:
-            step_7_outline = """
-            #include <stdio.h>
-
-            void sum(int* a, int* b, int* c) {
-                // Your answer here.
-            }
-
-            int main() {
-                int a, b, c;
-
-                a = 1;
-                b = 2;
-                c = 0;
-
-                // Your answer here.
-
-                printf("%d\n", c);
-                return 0;
-            }
-            """
-
-            # Remove leading whitespace and extra newline
-            step_7_outline = textwrap.dedent(step_7_outline).strip()
-
-            f = open(pathname + "/step_7.c", "w+")
-            f.write(step_7_outline)
-            f.close()
-
+        if (sys.argv[2] == "0"):
+            # The answer is correct. Before exiting with code 1, we need to create a new file for the student for the next step.
+            # If it already exists, do not overwrite it. This may lose progress if the student is checking all their answers.
+            if (not os.path.exists(pathname + "/step_7.c")):
+                # This is the source code for Step 7:
+                step_7_outline = """
+                #include <stdio.h>
+    
+                void sum(int* a, int* b, int* c) {
+                    // Your answer here.
+                }
+    
+                int main() {
+                    int a, b, c;
+    
+                    a = 1;
+                    b = 2;
+                    c = 0;
+    
+                    // Your answer here.
+    
+                    printf("%d\n", c);
+                    return 0;
+                }
+                """
+    
+                # Remove leading whitespace and extra newline
+                step_7_outline = textwrap.dedent(step_7_outline).strip()
+    
+                f = open(pathname + "/step_7.c", "w+")
+                f.write(step_7_outline)
+                f.close()
+    
             # Now, exit.
             sys.exit(1)
 
@@ -242,8 +243,11 @@ def main():
             if (result.returncode == 1):
                 sys.exit(3)
 
+            # Remove the newline.
+            answer = result.stdout[0]
+            
             # Check to see if the output is 3.
-            if (result.stdout == "3\n" or result.stdout == "3"):
+            if (answer == "3"):
                 # Before exiting successfully, create a new file for the next step.
                 if (not os.path.exists(pathname + "/step_8.c")):
                     step_8_outline = """
@@ -287,8 +291,8 @@ def main():
                     f.write(step_8_outline)
                     f.close()
 
-                    # Now exit.
-                    sys.exit(1)
+                # Now exit.
+                sys.exit(1)
 
             else:
                 sys.exit(0)

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Creating the pathname(s).
+export RESOURCES="/tmp/buffer/resources"
+export CHECKER="/home/.checker"
+
+# The username is required for this lab. It's available on the last line of the /etc/passwd file.
+export USER=$(cat /etc/passwd | tail -n 1 | awk -F: '{print $1}')
+
+# Installing the required libraries.
+apt-get update
+apt-get install build-essential cmake libncurses-dev pkg-config git -y
+
+# Moving the checker scripts over.
+mkdir $CHECKER
+cp $RESOURCES/checker/* $CHECKER
+
+# Create the responses directory.
+mkdir /home/.checker/responses
+
+# Moving the save/load scripts.
+cp $RESOURCES/*buffer.sh $CHECKER
+
+# Change ownership of the checker directory so that the screen command works in run_inotify.sh.
+chgrp -R $USER /home/.checker
+chown -R $USER /home/.checker
+
+# Make the responses directory writeable so that the wire_log.txt file can be made.
+chmod o+w /home/.checker/responses
+
+# Clean up.
+rm -rf *
