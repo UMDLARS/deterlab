@@ -1,0 +1,7 @@
+from mergexp import *
+
+net = Network('pathname', addressing==ipv4)
+
+nodes = [net.node(name, image == 'bullseye-edu') for name in [ 'pathname' ]]
+
+experiment(net)
