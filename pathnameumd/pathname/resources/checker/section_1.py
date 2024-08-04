@@ -78,7 +78,7 @@ def main():
             sys.exit(result.returncode)
 
     # Check Step 4 and 5.
-    elif (step == "4"):
+    elif (step == "4" or step == "5"):
         # This file should've already been made.
         if (not os.path.exists("/lab/memo.py")):
             sys.exit(2)
@@ -154,7 +154,46 @@ def main():
                 else:
                     sys.exit(0)
 
+        # This check doesn't need to be ran in the C file.
         elif (step == "5"):
-            result = subprocess.run("/home/.checker/section_1 5", shell=True, capture_output=True, text=True)
+            # First, creating a test memo.
+            f = open("/lab/memos/9999", "w+")
+            f.write("test")
+            f.close()
+
+            # Perform a cURL call to delete it.
+            result = subprocess.run("curl -X POST -v http://127.0.0.1:5010/delete_memo/9999", shell=True, text=True, capture_output=True)
+
+            # Check the result:
+            if ("Accept: */*" not in result.stderr):
+                process.terminate()
+                sys.exit(0)
+
+            # Close the process and check the result from the pipe.
+            process.terminate()
+            process.wait()
+            process_output, process_errors = process.communicate()
+
+            process_errors = process_errors.strip()
+
+            # Check if the POST was successful.
+            # Note: There are ANSI escape characters in terminal code. You can read these with
+            # print(repr(process_errors)). Instead of decoding them, just read this directly.
+            if ('"\x1b[32mPOST /delete_memo/9999 HTTP/1.1\x1b[0m" 302 -' in process_errors):
+                # POST was successful, but check to see if the file was actually deleted.
+                if (not os.path.exists("/lab/memos/9999")):
+                    sys.exit(1)
+
+                # POST succeeded, but did not remove the file.
+                else:
+                    os.remove("/lab/memos/9999")
+                    sys.exit(0)
+
+            # POST was unsuccessful. Shouldn't happen because of the student's work.
+            else:
+                sys.exit(2)
+
+    else:
+        sys.exit(2)
 
 main()
