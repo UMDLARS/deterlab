@@ -1,0 +1,16 @@
+from mergexp import *
+
+# Create a network topology object. This network will automatically
+# add IP addresses to all node interfaces and configure static routes
+# between all experiment nodes. 
+
+net = Network('firewalls', addressing==ipv4, routing==static)
+
+# Creating the node.
+server,client = [net.node(name, image == 'bullseye-edu') for name in [ 'server', 'client' ]]
+
+# Create a link connecting the two nodes.
+link = net.connect([server,client])
+
+# Making the experiment runnable.
+experiment(net)

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# This installation script is super simple. We just need net-tools installed.
+apt-get update
+apt-get install net-tools -y
