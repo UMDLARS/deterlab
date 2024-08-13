@@ -69,6 +69,7 @@ def main():
         for ip in ips:
             # Student is using a valid IP for Google. Now, use a regular expression to check the rest of
             # the student's answer.
+            print(ips)
             if (ip in answer):
                 pattern = r"(?=.*-s 10\.0\.1\.1)(?=.*-d " + re.escape(ip) + r"\.\d+\.\d+)(?=.*--dport 1234)"
                 # Student has all three, required parameters for the step. IP address likely matches the one

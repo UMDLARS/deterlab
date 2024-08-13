@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Creating the pathname(s).
-export RESOURCES="/tmp/firewalls/resources"
+export RESOURCES="/tmp/server/resources"
 export CHECKER="/home/.checker"
 
 # The username is required for setting up this lab.
@@ -9,7 +9,7 @@ export USER=$(grep umdsec /etc/passwd | cut -d: -f1)
 
 # Installing the required libraries.
 apt-get update
-apt-get install apache2 apache2-bin mariadb-server mariadb-client net-tools -y
+apt-get install apache2 apache2-bin mariadb-server mariadb-client net-tools iptables -y
 
 # Moving the checker scripts over.
 mkdir $CHECKER
@@ -23,6 +23,7 @@ cp $RESOURCES/*firewalls.sh $CHECKER
 chown -R $USER $CHECKER
 
 # Make the responses directory writeable so that student's progress will save.
+mkdir /home/.checker/responses
 chmod o+w /home/.checker/responses
 
 # Clean up.

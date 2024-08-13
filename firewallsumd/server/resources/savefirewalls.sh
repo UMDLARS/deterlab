@@ -25,6 +25,7 @@ ssh client "rm -f /tmp/client-rules.v4"
 # Create the tarball while preserving permissions and ownerships.
 tar --same-owner -cvpzf ${USER}_firewalls.tar.gz \
     --exclude="${USER}_firewalls.tar.gz" \
+    /home/.checker/responses \
     server-rules.v4 \
     client-rules.v4
 

@@ -43,9 +43,16 @@ def main():
         # Split the answers.
         answers = answer.split("\n")
 
+        required_params = ["-l", "-p 10000"]
+
+        other_components_present = all(component in answers[0] for component in required_params)
+
         # Check the two solutions.
-        if (answers[0] == "nc -l 10000" and answers[1] == "nc server 10000"):
+        if (answers[0].startswith("nc") and other_components_present and answers[1] == "nc server 10000"):
             sys.exit(1)
+
+        else:
+            sys.exit(0)
 
         else:
             sys.exit(0)
