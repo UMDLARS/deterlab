@@ -64,6 +64,40 @@ def main():
             if (network_id not in ips):
                 ips.append(network_id)
 
+        # Check Step 12.
+    if (step == "12"):
+        # NOTE: Google's IP address changes depending on which server that gets pinged.
+        # To allow this step to work over the world, get some "wildcard" IP addresses.
+        ips = []
+        for i in range(10):
+            result = subprocess.run("dig google.com +short", shell=True, capture_output=True, text=True)
+            # Get the first part of the network ID.
+            split_ip = (result.stdout.strip()).split('.')
+            network_id = '.'.join(split_ip[:2])
+            if (network_id not in ips):
+                ips.append(network_id)
+
+        # Additionally, get the IP from telnet, since it may sometimes not appear from dig.
+        process = subprocess.Popen(["telnet", hostname], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        ip_address = None
+
+        # Read the output with a limited number of attempts.
+        for _ in range(max_attempts):
+            output = process.stdout.readline()
+            if "Trying" in output:
+                # Extract the IP address using a regular expression.
+                match = re.search(r"Trying\s+([\d\.]+)\s*", output)
+                if match:
+                    ip_address = match.group(1)
+                    break
+
+        ips.append(ip_address)
+
+        # Terminate the process.
+        process.terminate()
+        process.wait()
+
         # All potential IPs that the student can use are now in an array. Check to see if any of them
         # are used in the students answer.
         for ip in ips:
