@@ -9,7 +9,7 @@ def main():
     print(labname)
 
     # Check to see if the node is reachable.
-    if (labname == "xss"):
+    if (labname == "xss" or labname == "firewalls"):
         process = subprocess.run('ping -c 3 server', shell=True, stdout=subprocess.DEVNULL)
     else:
         process = subprocess.run('ping -c 3 ' + labname, shell=True, stdout=subprocess.DEVNULL)
@@ -20,7 +20,7 @@ def main():
 
     # Successfully pinged. Moving data.
     elif (process.returncode == 0):
-        if (labname == "xss"):
+        if (labname == "xss" or labname == "firewalls"):
             # Node is available. Proceed to transfer over the backup.
             process = subprocess.run("scp -i /home/umdsectc/.ssh/merge_key /home/umdsectc/notebooks/saves/umdsectc_" + labname + ".tar.gz umdsectc@server:/tmp", shell=True, stdout=subprocess.DEVNULL)
         else:
@@ -33,7 +33,7 @@ def main():
 
         # Start to validate that the tarball was transferred.
         while (transfer_success == False):
-            if (labname == "xss"):
+            if (labname == "xss" or labname == "firewalls"):
                 process = subprocess.run("ssh -i /home/umdsectc/.ssh/merge_key server 'test -f /tmp/umdsectc_" + labname + ".tar.gz'", shell=True, stdout=subprocess.DEVNULL)
             else:
                 process = subprocess.run("ssh -i /home/umdsectc/.ssh/merge_key " + labname + " 'test -f /tmp/umdsectc_" + labname + ".tar.gz'", shell=True, stdout=subprocess.DEVNULL)
@@ -41,7 +41,7 @@ def main():
                 transfer_success = True
 
         # Transfer validated. Begin the load command for the respective lab.
-        if (labname == "xss"):
+        if (labname == "xss" or labname == "firewalls"):
             process = subprocess.run("ssh -i /home/umdsectc/.ssh/merge_key server '/home/.checker/load" + labname + ".sh'", shell=True, stdout=subprocess.DEVNULL)
 
         else:

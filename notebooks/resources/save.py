@@ -11,10 +11,15 @@ def main():
     process = subprocess.run('rm -f /home/umdsectc/notebooks/saves/umdsectc_' + labname + '.tar.gz', shell=True, stdout=subprocess.DEVNULL)
     print("File removed from ~/notebooks/saves.")
 
-    # Generate the backup.
+    # Generate the backup. XSS has two nodes, so needs a slightly different statement.
     if (labname == "xss"):
         process = subprocess.run("ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server '/home/.checker/save" + labname + ".sh'", shell=True, stdout=subprocess.DEVNULL)
 
+    # The firewalls lab needs a special SSH statement, since it relies on environment variables.
+    elif (labname == "firewalls"):
+        process = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server "bash -l -c \'/home/.checker/savefirewalls.sh\'"', shell=True, stdout=subprocess.DEVNULL)
+
+    # Everything else can be saved the same way.
     else:
         process = subprocess.run("ssh -i /home/umdsectc/.ssh/merge_key umdsectc@" + labname + " '/home/.checker/save" + labname + ".sh'", shell=True, stdout=subprocess.DEVNULL)
         
@@ -23,7 +28,7 @@ def main():
 
     
     # Get the backup into the XDC, then transfer it.
-    if (labname == "xss"):
+    if (labname == "xss" or labname == "firewalls"):
         process = subprocess.run("scp -i /home/umdsectc/.ssh/merge_key umdsectc@server:~/umdsectc_" + labname + ".tar.gz /home/umdsectc/notebooks/saves &> /dev/null", shell=True, stdout=subprocess.DEVNULL)
 
     else:
@@ -41,7 +46,7 @@ def main():
 
     
     # Delete the lab's tarball remotely.
-    if (labname == "xss"):
+    if (labname == "xss" or labname == "firewalls"):
         process = subprocess.run("ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server 'rm -f umdsectc_" + labname + ".tar.gz &> /dev/null'", shell=True, stdout=subprocess.DEVNULL)
 
     else:
