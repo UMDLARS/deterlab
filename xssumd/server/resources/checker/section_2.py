@@ -23,7 +23,7 @@ def main():
     # Before running the command, switch it to v16.20.2 so that it will work.
     # This will set the PATH variable within the Python environment. This will not work
     # if you just update it in the server node (for some reason).
-    os.environ['PATH'] = '/home/umdsectc/.nvm/versions/node/v16.20.2/bin:' + os.environ['PATH']
+    os.environ['PATH'] = '/home/USERNAME_GOES_HERE/.nvm/versions/node/v16.20.2/bin:' + os.environ['PATH']
 
     # Each of these steps (except Step 5) need to call a JavaScript file.
     if (step == "2"):

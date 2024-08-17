@@ -34,7 +34,7 @@ def main():
         
         
     # First, check to see if the student has already answered this.
-    result = subprocess.run('ssh -o StrictHostKeyChecking=no -i /home/umdsectc/.ssh/merge_key umdsectc@server "cat /home/.checker/responses/step_' + step + '_answer.txt 2> /dev/null"', capture_output=True, text=True, shell=True)
+    result = subprocess.run('ssh -o StrictHostKeyChecking=no -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "cat /home/.checker/responses/step_' + step + '_answer.txt 2> /dev/null"', capture_output=True, text=True, shell=True)
     answer = result.stdout
 
     # Student has an answer already.
@@ -103,11 +103,11 @@ def main():
             # We will need to get the list of firewall rules from the server node. Used for saving later if successful.
             rules = ""
             if (step == "14" or step == "15"):
-                result = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server "bash -l -c \'sudo iptables -S\'"', shell=True, capture_output=True, text=True)
+                result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "bash -l -c \'sudo iptables -S\'"', shell=True, capture_output=True, text=True)
                 rules = result.stdout
 
             elif (step == "16" or step == "17"):
-                result = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@client "bash -l -c \'sudo iptables -S\'"', shell=True, capture_output=True, text=True)
+                result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@client "bash -l -c \'sudo iptables -S\'"', shell=True, capture_output=True, text=True)
                 rules = result.stdout
     
             # Remove all of the predefined rules. Only capture the current rules that the student added.
@@ -120,7 +120,7 @@ def main():
     
             # Now, we can begin the test. Navigate into client to test the connection.
             # Call -tt parameter to fix the pseudoterminal error.
-            process = subprocess.Popen(["ssh", "-tt", "-i", "/home/umdsectc/.ssh/merge_key", "umdsectc@client"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            process = subprocess.Popen(["ssh", "-tt", "-i", "/home/USERNAME_GOES_HERE/.ssh/merge_key", "USERNAME_GOES_HERE@client"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     
             # Wait to prevent a race condition.
             time.sleep(2)
@@ -200,7 +200,7 @@ def main():
                     # Write the file before returning successfully.
                     content = rules + "\n-DIVIDER-\n" + stdout
                     # The content[:-1] will remove the newline that gets made.
-                    result = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
+                    result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
                     sys.exit(1)
 
                 # Shouldn't happen.
@@ -226,7 +226,7 @@ def main():
                 # Write the student's response as a file so that it can be used later for quicker checks.
                 content = rules + "\n-DIVIDER-\n" + stdout
                 # The content[:-1] will remove the newline that gets made.
-                result = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
+                result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
                 sys.exit(1)
 
             # Simply check to see if the client node was able to connect to the server node.
@@ -238,7 +238,7 @@ def main():
                     # Write the student's response as a file so that it can be used later for quicker checks.
                     content = rules + "\n-DIVIDER-\n" + stdout
                     # The content[:-1] will remove the newline that gets made.
-                    result = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
+                    result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
                     sys.exit(1)
                 
             # Not sure if this will happen, but if it does, return unsuccessful.
@@ -248,7 +248,7 @@ def main():
         # Special check for Step 18.
         elif (step == "18"):
             # Rules should be applied to the server node.
-            result = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server "bash -l -c \'sudo iptables -S\'"', shell=True, capture_output=True, text=True)
+            result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "bash -l -c \'sudo iptables -S\'"', shell=True, capture_output=True, text=True)
             rules = result.stdout
 
             # Check to see if the rule is using 10000:10005.
@@ -260,8 +260,8 @@ def main():
             for i in range(10005, 10007):
                 # Now, we can begin the tests. Navigate into both nodes.
                 # Call -tt parameter to fix the pseudoterminal error.
-                process1 = subprocess.Popen(["ssh", "-tt", "-i", "/home/umdsectc/.ssh/merge_key", "umdsectc@server"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                process2 = subprocess.Popen(["ssh", "-tt", "-i", "/home/umdsectc/.ssh/merge_key", "umdsectc@client"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                process1 = subprocess.Popen(["ssh", "-tt", "-i", "/home/USERNAME_GOES_HERE/.ssh/merge_key", "USERNAME_GOES_HERE@server"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                process2 = subprocess.Popen(["ssh", "-tt", "-i", "/home/USERNAME_GOES_HERE/.ssh/merge_key", "USERNAME_GOES_HERE@client"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     
                 time.sleep(2)
     
@@ -304,7 +304,7 @@ def main():
                     content = rules + "\n-DIVIDER-\n" + stdout
                     # The content[:-1] will remove the newline that gets made.
                     # This is going to be a little illegible, but still won't have "Hello!" in it...
-                    result = subprocess.run('ssh -i /home/umdsectc/.ssh/merge_key umdsectc@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
+                    result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
                     sys.exit(1)
 
             # Should've exited successfully from here.

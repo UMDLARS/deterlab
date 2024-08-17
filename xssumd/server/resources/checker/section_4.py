@@ -80,7 +80,7 @@ def main():
     keep_work = sys.argv[2]
 
     # Forces NodeJS to run in 16.20.2, which is required for Puppeteer to work.
-    os.environ['PATH'] = '/home/umdsectc/.nvm/versions/node/v16.20.2/bin:' + os.environ['PATH']
+    os.environ['PATH'] = '/home/USERNAME_GOES_HERE/.nvm/versions/node/v16.20.2/bin:' + os.environ['PATH']
 
     # This is used for gathering the student's payload and the result from the home page.
     responses = []
