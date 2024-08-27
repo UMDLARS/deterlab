@@ -22,12 +22,10 @@ cd "$TEMP_DIR" || exit
 
 # Checking to see if the notebooks have already been made.
 if [ $(find "$LABS" -maxdepth 1 -type f -name "*.ipynb" | wc -l) -eq 8 ]; then
-    echo -e "\033[0;31mNotebooks already exist. Updating your notebooks...\033[0m"
+    echo -e "\033[0;31mA notebook directory already exists. Updating your notebooks...\033[0m"
     if [ -d "$LABS/.git" ]; then
         cd "$LABS" || exit
-        git pull origin main
-    else
-        echo -e "\033[0;31mThe $LABS directory is not a Git repository. Skipping update.\033[0m"
+        git pull --quiet
     fi
 else
     # Clone the repository.
@@ -110,4 +108,4 @@ for notebook in *.ipynb; do
 done
 popd > /dev/null 2>&1
 
-echo -e "\033[0;32mDone. You can find your notebooks in $LABS and other files in $EDUCATION. Please refresh your browser's tab before starting a lab.\033[0m"
+echo -e "\033[0;32mDone. You can find your notebooks in $LABS. Please refresh your browser's tab before starting a lab.\033[0m"
