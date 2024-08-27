@@ -1,4 +1,0 @@
-from mergexp import *
-net = Network('posix', addressing==ipv4)
-nodes = [net.node(name, image == 'bullseye-edu') for name in [ 'posix' ]]
-experiment(net)
