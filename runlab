@@ -1,0 +1,33 @@
+#!/usr/bin/bash
+# specify labname and options
+function usage {
+    echo $(basename $0) [-o] labname
+    echo -e "\t-o look for scripts and info in /organization folder"
+    return
+}
+
+OPTSTRING=":o"
+
+if [ $# -lt 1 ] ; then
+   usage
+   exit 1;
+fi
+lab=${@: -1} 
+labpath="/home/.education"
+while getopts ${OPTSTRING} opt; do
+   case ${opt} in
+      o)
+	labpath="/organization"
+	;;
+      ?)
+        echo "Invalid option =${OPTARG}"
+        usage
+        exit 1
+	;;
+    esac
+done
+for n in `cat $labpath/$lab/nodes` ; do
+    scp -o StrictHostKeyChecking=no -r $labpath/$lab/$n $n:/tmp
+    ssh -o StrictHostKeyChecking=no $n "cd /tmp/$n; echo `whoami` > user"
+    ssh -o StrictHostKeyChecking=no $n "cd /tmp/$n; sudo bash install" &
+done

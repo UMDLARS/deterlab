@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+cmd=$@
+echo "Runr command $cmd"
+output=`$cmd 2>&1`
+result=$?
+echo "Result $result output $output"
+tries=0
+while [[ $result -ne 0 && tries -le 10 ]] ; do
+     output=`$cmd 2>&1`
+     result=$?
+     echo "Result $result output $output"
+     tries=$(($tries+1))
+     sleep 1
+done

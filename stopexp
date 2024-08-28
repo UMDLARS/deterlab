@@ -1,0 +1,111 @@
+#!/usr/bin/bash
+
+# specify labname, assume password is stored in pass.txt file or $PASSWORD
+# and flags
+function usage {
+    echo $(basename $0) [-n expname] [-p projname] labname
+    echo -e "\t-n look for experiment with the given name, instead of labname"
+    echo -e "\t-p look for experiment in the given project"
+    return
+}
+
+OPTSTRING=":n:p:"
+
+# specify labname, assume password is stored in pass.txt file or $PASSWORD 
+if [ $# -lt 1 ] ; then
+    usage
+    exit 1
+fi
+
+RETRIES=${RETRIES:-10}
+
+user=$(whoami)
+proj=$user
+lab=${@: -1} 
+exp=$lab
+while getopts ${OPTSTRING} opt; do    
+  case ${opt} in
+    n)
+	exp=${OPTARG}
+	;;
+    p)
+	proj=${OPTARG}
+	;;    
+    :)
+	echo "Option ${OPTARG} requires an argument"
+	usage
+	exit 1
+	;;
+    ?)
+        echo "Invalid option =${OPTARG}"
+        usage
+        exit 1
+	;;
+    esac
+done
+echo "Path $labpath lab $lab name $exp proj $proj";
+
+PATH=$PATH:/home
+
+if [ -e $HOME/pass.txt ]; then
+    pass=$(cat $HOME/pass.txt)
+else
+    pass=${PASSWORD}
+fi
+
+if [[ -z $pass ]]; then
+    echo Password not set. Please create $HOME/pass.txt or set environment variable \$PASSWORD.
+    exit 1
+fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# load util functions
+. $SCRIPT_DIR/functions
+
+echo Configuring mrg
+mrg config set server grpc.mod.deterlab.net
+
+echo Logging $user into Merge
+runr mrg login $user -p $pass
+if [[ $? -ne 0 ]]; then 
+    echo Error logging in.
+    exit 1
+fi
+
+mzid=real.$exp.$proj
+
+# We just relinquish the realization if it exists. Merge is smart enough
+# to demtz and detach xdcs when doing this.
+echo Checking if the experiment is realized. 
+isrlz=0
+rev=$(mrg list realization -j | jq --arg PROJ $proj --arg EXP $exp -r '.results[].realization | select(.eid == $EXP and .pid == $PROJ) | .xhash')
+if [[ -z $rev ]]; then
+    echo Error reading $lab revision.
+    echo Deleting entire experiment.
+
+    runr mrg delete exp $exp.$proj
+    if [[ $? -ne 0 ]]; then
+        echo Error deleting the experiment. Please consult with your TA, professor, or Merge operators.
+        exit 
+    fi
+
+    sleep 10 
+else 
+    isrlz=1
+fi
+
+# rev is there, relinquish it.
+if [[ $isrlz -eq 1 ]]; then 
+    echo Relinquishing the experiment realization.
+    runr mrg relinquish $mzid
+    if [[ $? -ne 0 ]]; then
+        echo Error deleting the experiment. Please consult with your TA, professor, or Merge operators.
+        exit 
+    fi
+
+    # give it time to demtz if needed.
+    sleep 10
+else 
+    echo Experiment not realized. Nothing to do.
+fi

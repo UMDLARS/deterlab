@@ -1,0 +1,267 @@
+#!/usr/bin/bash
+
+function usage {
+    echo $(basename $0) [-n expname] [-o] [-p projname] [-s] labname
+    echo -e "\t-n assign the given name to the experiment, instead of labname"
+    echo -e "\t-o look for model in /organization folder"
+    echo -e "\t-p create an experiment in the given project"
+    echo -e "\t-s set up nodes for the lab after the experiment is ready"
+    return
+}
+
+OPTSTRING=":n:op:s"
+
+# specify labname, assume password is stored in pass.txt file or $PASSWORD 
+if [ $# -lt 1 ] ; then
+    usage
+    exit 1
+fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+RETRIES=${RETRIES:-10}   # needed for runr
+
+user=$(whoami)
+proj=$user
+lab=${@: -1} 
+exp=$lab
+run=0
+labpath="/home/.education"
+org=""
+while getopts ${OPTSTRING} opt; do    
+  case ${opt} in
+      o)
+	org="-o"
+	labpath="/organization"
+	if [ $exp == $lab ] ; then
+	    exp=$lab$user
+	fi
+	;;
+    n)
+	exp=${OPTARG}
+	;;
+    p)
+	proj=${OPTARG}
+	;;    
+    :)
+	echo "Option ${OPTARG} requires an argument"
+	usage
+	exit 1
+	;;
+    s)
+	run=1
+	;;
+    ?)
+        echo "Invalid option =${OPTARG}"
+        usage
+        exit 1
+	;;
+    esac
+done
+echo "Path $labpath lab $lab name $exp proj $proj";
+
+PATH=$PATH:/home
+
+# load util functions
+. $SCRIPT_DIR/functions
+
+checklab $labpath $lab
+DEBUG=${DEBUG:-0}
+RETRYSLEEP=3
+
+# we require jq for mrg output parsing.
+type jq >&/dev/null 
+if [[ $? -ne 0 ]]; then
+    echo Installing jq utility
+    sudo apt update 
+    sudo apt install -y jq
+
+    type jq >&/dev/null 
+    if [[ $? -ne 0 ]]; then
+        echo Error installing jq.
+        exit 1
+    fi
+fi
+
+if [ -e $HOME/pass.txt ]; then
+    pass=$(cat $HOME/pass.txt)
+else
+    pass=${PASSWORD}
+fi
+
+if [[ -z $pass ]]; then
+    echo Password not set. Please create $HOME/pass.txt or set environment variable \$PASSWORD.
+    exit 1
+fi
+
+mrg config set server grpc.mod.deterlab.net
+
+echo Logging $user into Merge
+runr mrg login $user -p $pass
+if [[ $? -ne 0 ]]; then 
+    echo Error logging in.
+    exit 1
+fi
+
+#
+# confirm the experiment is there and ready to be realized.
+# if not, then create it and push the model.
+#
+
+mrg show exp $exp.$proj &>/dev/null
+if [ $? -ne 0 ]; then 
+    echo Creating experiment $exp.$proj
+    runr mrg new experiment $exp.$proj
+    if [[ $? -ne 0 ]]; then 
+        echo Error creating new experiment.
+        exit 1
+    fi
+
+    # echo Pushing $lab model
+    # rev=`mrg push /home/.education/$lab/$lab.model $exp.$proj | awk '{print $4}'`
+    # runr mrg show revision $exp.$proj $rev
+    # if [[ $? -ne 0 ]]; then 
+    #     echo Error compiling model.
+    #     exit 1
+    # fi
+fi
+
+# See if the realization exists. If so get the revision hash.
+isrlz=0
+rev=$(mrg list realization -j | jq --arg PROJ $proj --arg EXP $exp -r '.results[].realization | select(.eid == $EXP and .pid == $PROJ) | .xhash')
+if [[ -z $rev ]]; then
+
+    echo No existing realization found.
+    sleep 60
+    echo Pushing new $lab model.
+    rev=$(mrg push $labpath/$lab/$lab.model $exp.$proj | awk '{print $4}')
+    runr mrg show revision $exp.$proj $rev
+    if [[ $? -ne 0 ]]; then 
+        echo Error compiling model.
+        exit 1
+    fi
+else
+    isrlz=1
+fi
+
+echo Reading $lab model \(revision $rev\)
+
+# realize the revision if needed. 
+mzid=real.$exp.$proj
+if [[ $isrlz -eq 0 ]]; then 
+
+    echo Realizing model.
+    runr mrg realize $mzid revision $rev
+    if [[ $? -ne 0 ]]; then
+        echo Error realizing the model. There may not be available testbed resources. Please check with your TA or professor. 
+        exit 1
+    fi
+    sleep 3 # give it a bit
+
+    # confirm it succeeded.
+    # ideally the success would be in JSON format, but it is not. So we grep output from a mrg command.
+    out=$(mrg list real | grep $mzid)
+    if [[ $? -ne 0 ]]; then
+        echo Realization does not exist. Please check with your TA or professor. 
+        exit 1;
+    fi
+
+    echo $out | grep Succeeded &>/dev/null 
+    if [[ $? -ne 0 ]]; then
+        echo Realization did not succeed. Please check with your TA or professor. 
+        exit 1;
+    fi
+else 
+    echo Model is already realized.
+fi
+
+# See if the realization is materialized.
+remat=0  # is this a new mtz? If so we may need to reattach the XDC.
+mrg show materialization $mzid &>/dev/null
+if [[ $? -ne 0 ]]; then 
+    echo Materializing model
+
+    runr mrg materialize $mzid
+    if [[ $? -ne 0 ]]; then 
+        echo Error materializing the model. Please check with your TA or professor.
+        # do we want to relinquish here? 
+        exit 1
+    fi
+
+    remat=1
+fi
+
+# confirm materialization is there and ready.
+runr mrg show materialization $mzid
+if [[ $? -ne 0 ]]; then
+    echo Cannot confirm materialization is active.
+    exit 1
+fi
+
+echo Checking materialization status...
+status=nope
+tries=0
+while [[ $success != Success && tries -le 40 ]]; do
+
+    status=$(mrg show materialization $mzid -j | jq -r .status.HighestStatus)
+    echo Materialization status: $status
+    if [[ $status == Success ]]; then
+        break
+    fi
+    sleep 6
+    tries=$(( tries+1 ))
+done
+
+if [[ $status != Success ]]; then 
+    echo Materialization was not successful. Status: $status
+    echo Please contact your professor, TA, or Merge testbed OPs. 
+    # may as well demtz?
+    runr mrg dematerialize $mzid
+    exit 1
+fi
+
+# sleep here because sometimes if we try to attach too early it doesn't work
+sleep 60
+echo Checking XDC attachment...
+xdc=$(hostname -f | cut -d- -f1)
+attached=$(mrg list xdc -j | jq -r --arg XDC $xdc '.XDCs[] | select(.name == $XDC).materialization')
+
+if [[ $attached == null ]]; then 
+    echo XDC is not attached. Attaching to $mzid 
+    runr mrg xdc attach $xdc $mzid
+    if [[ $? -ne 0 ]]; then 
+        echo Unable to attach XDC to $mzid 
+        echo Please contact your professor, TA, or Merge testbed OPs. 
+        exit 1
+    fi
+else
+    # attached to something.
+    if [[ $attached != $mzid || ($attached == $mzid && $remat -eq 1) ]]; then 
+        # not attached to our mtz or a stale mtz
+        echo Detaching XDC from $attached
+        runr mrg xdc detach $xdc
+        if [[ $? -ne 0 ]]; then 
+            echo Unable to detach XDC. 
+            echo Please contact your professor, TA, or Merge testbed OPs. 
+            exit 1
+        fi
+        
+        sleep 3 # give it a bit to detach.
+
+        # ..and attach to our mtz.
+        echo Attaching XDC to $mzid 
+        runr mrg xdc attach $xdc $mzid
+        if [[ $? -ne 0 ]]; then 
+            echo Unable to attach XDC to $mzid 
+            echo Please contact your professor, TA, or Merge testbed OPs. 
+            exit 1
+        fi
+    else 
+        # Already attached to current mtz
+        echo XDC already attached to current materialization $mzid
+    fi
+fi
+
+if [ $run -eq 1 ] ; then
+    runlab $org $lab
+fi
