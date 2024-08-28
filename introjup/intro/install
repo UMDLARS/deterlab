@@ -40,7 +40,7 @@ chown -R $USER /home/.checker
 sudo -u $USER /home/.checker/run_inotify.sh
 
 # Create a hidden file for step 4.
-echo "You found me!" > /usr/share/discover/dtd/findme.txt
+echo "You found me!" > /usr/share/discover/dtd/.findme.txt
 
 # Clean up.
 rm -rf *
