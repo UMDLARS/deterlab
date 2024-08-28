@@ -37,7 +37,7 @@ chgrp -R $USER /home/.checker
 chown -R $USER /home/.checker
 
 # Begin a screen so that the home directory is tracked for steps 1-3.
-sudo -u USERNAME_GOES_HERE /home/.checker/run_inotify.sh
+sudo -u $USER /home/.checker/run_inotify.sh
 
 # Create a hidden file for step 4.
 echo "You found me!" > /usr/share/discover/dtd/findme.txt
