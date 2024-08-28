@@ -70,10 +70,9 @@ fi
 
 rsync -a --remove-source-files *jup/ "$EDUCATION/"
 
-ls -l "$TEMP_DIR/deterlab"
-    
 # Finally, copy all of the notebook function files (should be four of them) into the student's XDC.
 sudo mv runlab startexp stopexp runr /home
+sudo chmod a+x runlab startexp stopexp runr
 
 # Cleanup temporary directory.
 rm -rf "$TEMP_DIR"
