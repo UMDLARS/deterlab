@@ -6,10 +6,14 @@ export RESOURCES="$LABS/resources"
 export SAVES="$LABS/saves"
 export EDUCATION="$HOME/.education"
 
+# Define the directory where the repository should be checked out.
+REPO_URL="https://github.com/UMDLARS/deterlab"
+
 echo "Installing dependencies."
 sudo apt-get -qq update
-sudo apt-get -qq install git
+sudo apt-get -qq install git rsync >/dev/null
 
+# sudo is required for these, since the notebooks are ran as root. Hiding the warning about installing packages as root.
 echo "Installing required Jupyter extensions."
 sudo pip install -q ipywidgets jupyterlab_widgets 2>/dev/null
 
@@ -20,86 +24,59 @@ mkdir -p "$LABS" > /dev/null 2>&1
 TEMP_DIR=$(mktemp -d)
 cd "$TEMP_DIR" || exit
 
+# Clone the repository.
+git clone --no-checkout "$REPO_URL" --quiet
+if [ $? -ne 0 ]; then
+    echo -e "\033[0;31mFailed to clone the repository. Exiting.\033[0m"
+    exit 1
+fi
+
+cd deterlab || exit
+git checkout main --quiet
+if [ $? -ne 0 ]; then
+    echo -e "\033[0;31mFailed to checkout the main branch. Exiting.\033[0m"
+    exit 1
+fi
+
+# If it exists, copy the saves/ directory into /tmp so that students don't lose progress.
+cp -r ~/notebooks/saves /tmp 2>/dev/null
+
 # Checking to see if the notebooks have already been made.
 if [ $(find "$LABS" -maxdepth 1 -type f -name "*.ipynb" | wc -l) -eq 8 ]; then
-    echo -e "\033[0;31mA notebook directory already exists. Updating your notebooks...\033[0m"
-    if [ -d "$LABS/.git" ]; then
-        cd "$LABS" || exit
-        git pull --quiet
-    fi
+    echo -e "\033[0;31mYour notebooks already exist. Updating your notebooks...\033[0m"
 else
-    # Clone the repository.
-    git clone --no-checkout https://github.com/UMDLARS/deterlab --quiet
-    if [ $? -ne 0 ]; then
-        echo -e "\033[0;31mFailed to clone the repository. Exiting.\033[0m"
-        exit 1
-    fi
-
-    cd deterlab || exit
-    git sparse-checkout init --cone
-    git sparse-checkout set notebooks
-    git checkout main --quiet
-    if [ $? -ne 0 ]; then
-        echo -e "\033[0;31mFailed to checkout the main branch. Exiting.\033[0m"
-        exit 1
-    fi
-    
-    # Move the notebooks directory to the desired location.
-    mv notebooks/* "$LABS/"
-    
-    # Initialize $LABS as a Git repository for future updates.
-    cd "$LABS" || exit
-    git init --quiet
-    git remote add origin https://github.com/UMDLARS/deterlab
-    git sparse-checkout init --cone
-    git sparse-checkout set notebooks
+    echo -e "\033[0;31mSome (or all) of your notebooks appear to be missing. Adding them...\033[0m"
 fi
 
-# Cleanup temporary directory.
-cd "$HOME"
-rm -rf "$TEMP_DIR"
+# Move the notebooks directory to the home directory. Using rsync because moving from the /tmp directory fixes any cross-filesystem move errors.
+# -a preserves permissions, timestamps, etc.
+rm -rf ~/notebooks
+rsync -a --remove-source-files --delete notebooks/ ~/notebooks >/dev/null
 
-mkdir -p "$SAVES" > /dev/null 2>&1
-if [ $? -eq 1 ]; then
-    echo -e "\033[0;31mA saves folder already exists.\033[0m"
-fi
+# Move the saves back and delete it from /tmp.
+[ -d /tmp/saves ] && mv /tmp/saves $LABS
 
-# Define the directory where the repository should be checked out.
-REPO_URL="https://github.com/UMDLARS/deterlab"
+# If no saves/ directory existed, then create it.
+mkdir -p ~/notebooks/saves
 
-# Check if /home/.education exists.
+# Move the lab resources.
 if [ -d "/home/.education" ]; then
-    echo -e "\033[0;32m/home/.education exists. Pulling updates...\033[0m"
-    if [ -d "/home/.education/.git" ]; then
-        cd "/home/.education" || exit
-        git pull --quiet
-    fi
+    echo -e "\033[0;31mLab resources for your notebooks already exist. Applying updates...\033[0m"
 else
+    echo -e "\033[0;31mLab resources do not exist on your XDC. Creating them...\033[0m"
     sudo mkdir -p "/home/.education"
     sudo chown -R "$USER:$USER" "/home/.education"
-    
-    # Clone the repository.
-    git clone --no-checkout "$REPO_URL" "/home/.education" --quiet
-    if [ $? -ne 0 ]; then
-        echo -e "\033[0;31mFailed to clone the repository. Exiting.\033[0m"
-        exit 1
-    fi
-
-    cd "/home/.education" || exit
-    
-    # Initialize sparse-checkout.
-    git sparse-checkout init
-    echo "/*" > .git/info/sparse-checkout
-    echo "!/notebooks/" >> .git/info/sparse-checkout
-    echo "!/install_notebooks.sh" >> .git/info/sparse-checkout
-    
-    # Checkout the repository.
-    git checkout main --quiet
-    if [ $? -ne 0 ]; then
-        echo -e "\033[0;31mFailed to checkout the main branch. Exiting.\033[0m"
-        exit 1
-    fi
 fi
+
+rsync -a --remove-source-files *jup/ "$EDUCATION/"
+
+ls -l "$TEMP_DIR/deterlab"
+    
+# Finally, copy all of the notebook function files (should be four of them) into the student's XDC.
+sudo mv runlab startexp stopexp runr /home
+
+# Cleanup temporary directory.
+rm -rf "$TEMP_DIR"
 
 # Configure all labs to work with the current username.
 pushd "$LABS" > /dev/null 2>&1
