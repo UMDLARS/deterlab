@@ -16,13 +16,13 @@ def main():
     # If not tracking mkdir, run it. Student may fail the test, but will work if they try again.
     if (check_job.returncode == 1):
         # Missed. Run the job again because it may have been cancelled somehow.
-        command = "./.run_inotify.sh"
+        command = "./run_inotify.sh"
         process = subprocess.run(command, shell=True)
 
     # mkdir was tracked. Search for it in the logs.
     else:
-        if (os.path.exists('/home/.checker/.inotify_log.txt')):
-            with open('/home/.checker/.inotify_log.txt', 'r') as file:
+        if (os.path.exists('/home/.checker/inotify_log.txt')):
+            with open('/home/.checker/inotify_log.txt', 'r') as file:
                 for line in file:
                     if "CREATE,ISDIR jupyterintro" in line:
                         sys.exit(1)
