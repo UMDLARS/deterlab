@@ -23,6 +23,11 @@ if [ -e "/home/${USER}" ]; then
     cp -r "/home/${USER}" $TMP
 fi
 
+# Check if the student answered Step 12, then copy it if they did.
+if [ -e "/home/.checker/step_12_answer.txt" ]; then
+    cp -r "/home/.checker/step_12_answer.txt" $TMP
+fi
+
 # Create the tarball, then move it to the home directory temporarily to scp it over.
 tar -cvf ${USER}_intro.tar.gz .
 mv ${TMP}/${USER}_intro.tar.gz ~
