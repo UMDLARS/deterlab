@@ -4,7 +4,7 @@ export USER="$(whoami)"
 export LABS="$HOME/notebooks"
 export RESOURCES="$LABS/resources"
 export SAVES="$LABS/saves"
-export EDUCATION="$HOME/.education"
+export EDUCATION="/home/.education"
 
 # Define the directory where the repository should be checked out.
 REPO_URL="https://github.com/UMDLARS/deterlab"
@@ -25,18 +25,18 @@ TEMP_DIR=$(mktemp -d)
 cd "$TEMP_DIR" || exit
 
 # Clone the repository.
-git clone --no-checkout "$REPO_URL" --quiet
+git clone "$REPO_URL"
 if [ $? -ne 0 ]; then
     echo -e "\033[0;31mFailed to clone the repository. Exiting.\033[0m"
     exit 1
 fi
 
 cd deterlab || exit
-git checkout main --quiet
-if [ $? -ne 0 ]; then
-    echo -e "\033[0;31mFailed to checkout the main branch. Exiting.\033[0m"
-    exit 1
-fi
+# git checkout main --quiet
+# if [ $? -ne 0 ]; then
+#     echo -e "\033[0;31mFailed to checkout the main branch. Exiting.\033[0m"
+#     exit 1
+# fi
 
 # If it exists, copy the saves/ directory into /tmp so that students don't lose progress.
 cp -r ~/notebooks/saves /tmp 2>/dev/null
@@ -50,7 +50,8 @@ fi
 
 # Move the notebooks directory to the home directory. Using rsync because moving from the /tmp directory fixes any cross-filesystem move errors.
 # -a preserves permissions, timestamps, etc.
-rm -rf ~/notebooks
+# Need to use sudo, because the notebooks occasionally generate checkpoints owned by root.
+sudo rm -rf ~/notebooks
 rsync -a --remove-source-files --delete notebooks/ ~/notebooks >/dev/null
 
 # Move the saves back and delete it from /tmp.
@@ -68,20 +69,28 @@ else
     sudo chown -R "$USER:$USER" "/home/.education"
 fi
 
-rsync -a --remove-source-files *jup/ "$EDUCATION/"
+# Find and copy all directories ending with 'jup' to the $EDUCATION directory
+for dir in $(find . -maxdepth 1 -type d -name "*jup"); do
+    dir_name=$(basename "$dir")
+    mv $dir_name $EDUCATION
+done
 
 # Finally, copy all of the notebook function files (should be four of them) into the student's XDC.
 sudo mv runlab startexp stopexp runr /home
-sudo chmod a+x runlab startexp stopexp runr
+sudo chmod a+x /home/runlab /home/startexp /home/stopexp /home/runr
 
 # Cleanup temporary directory.
-rm -rf "$TEMP_DIR"
+#rm -rf "$TEMP_DIR"
 
 # Configure all labs to work with the current username.
 pushd "$LABS" > /dev/null 2>&1
 for notebook in *.ipynb; do
     sed -i "s/USERNAME_GOES_HERE/$USER/g" "$notebook"
 done
+
+# Doing the same for the save/load scripts.
+sed -i "s/USERNAME_GOES_HERE/$USER/g" "resources/save.py"
+sed -i "s/USERNAME_GOES_HERE/$USER/g" "resources/load.py"
 popd > /dev/null 2>&1
 
 echo -e "\033[0;32mDone. You can find your notebooks in $LABS. Please refresh your browser's tab before starting a lab.\033[0m"
