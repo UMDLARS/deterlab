@@ -26,7 +26,7 @@ fi
 
 # Check if /step_12_answer.txt exists in the temporary directory and copy it if it does.
 if [ -e "${TMP}/step_12_answer.txt" ]; then
-    cp "${TMP}/step_12_answer.txt" "/home/.checker//step_12_answer.txt"
+    cp "${TMP}/step_12_answer.txt" "/home/.checker/step_12_answer.txt"
 fi
 
 # Check if the home directory exists (which it should), then copy it if it does.
