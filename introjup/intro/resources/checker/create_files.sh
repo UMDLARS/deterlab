@@ -5,7 +5,7 @@ cd "$1" || exit
 
 # In case listdiff.txt already exists, do not change the list/ directory.
 if [ -f listdiff.txt ]; then
-    echo "listdiff.txt already exists. Exiting."
+    # echo "listdiff.txt already exists. Exiting."
     exit 1
 else
     rm -f *
