@@ -32,11 +32,6 @@ if [ $? -ne 0 ]; then
 fi
 
 cd deterlab || exit
-# git checkout main --quiet
-# if [ $? -ne 0 ]; then
-#     echo -e "\033[0;31mFailed to checkout the main branch. Exiting.\033[0m"
-#     exit 1
-# fi
 
 # If it exists, copy the saves/ directory into /tmp so that students don't lose progress.
 cp -r ~/notebooks/saves /tmp 2>/dev/null
@@ -63,6 +58,9 @@ mkdir -p ~/notebooks/saves
 # Move the lab resources.
 if [ -d "/home/.education" ]; then
     echo -e "\033[0;31mLab resources for your notebooks already exist. Applying updates...\033[0m"
+    
+    # Delete the education directory so that it can be updated. mv will not work if there are already files.
+    sudo rm -rf /home/.education/*
 else
     echo -e "\033[0;31mLab resources do not exist on your XDC. Creating them...\033[0m"
     sudo mkdir -p "/home/.education"
@@ -80,7 +78,7 @@ sudo mv runlab startexp stopexp runr /home
 sudo chmod a+x /home/runlab /home/startexp /home/stopexp /home/runr
 
 # Cleanup temporary directory.
-#rm -rf "$TEMP_DIR"
+rm -rf "$TEMP_DIR"
 
 # Configure all labs to work with the current username.
 pushd "$LABS" > /dev/null 2>&1
