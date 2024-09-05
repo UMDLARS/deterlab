@@ -171,7 +171,7 @@ def main():
             pattern = re.compile(r'^\s*[^#]*\bos\.path\.realpath\(', re.MULTILINE)
 
             # Search for the pattern in the solution block.
-            if not pattern.search(solution_block):
+            if not pattern.search(solution_block1):
                 sys.exit(5)
 
             # If the script hasn't ended yet, then the attempt is valid.
@@ -205,8 +205,10 @@ def main():
             # The "L" flag is used to follow the redirect.
             result = subprocess.run("curl -L -w \"%{url_effective}\n\" -o /dev/null -s 127.0.0.1:5010/memo/" + payload, shell=True, capture_output=True, text=True)
 
+            print(repr(result.stdout))
+
             # Check if the user was redirected properly
-            if (result.stdout == "http://127.0.0.1:5010/"):
+            if (result.stdout == "http://127.0.0.1:5010/\n"):
                 sys.exit(1)
 
             else:
