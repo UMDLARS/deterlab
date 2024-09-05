@@ -75,7 +75,7 @@ void concat_string() {
 
     strcat(str1, str2);
 
-    printf("%s", str1);
+    printf("%s\\n", str1);
 }
 
 int main() {
@@ -111,8 +111,6 @@ int main() {
     if (matches):
         # Compile the file as a temporary file.
         compile_result = subprocess.run("gcc -o " + pathname + "/step_" + step + "_temp " + pathname + "/step_" + step + ".c", shell=True, text=True, capture_output=True)
-
-#        print(compile_result)
 
         # Check if it doesn't compile.
         if (compile_result.returncode != 0):
