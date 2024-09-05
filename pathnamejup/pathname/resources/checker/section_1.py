@@ -62,11 +62,12 @@ def main():
             result = subprocess.run("sudo /home/.checker/section_1 3", shell=True, capture_output=True, text=True)
 
             # After running the result, check to see if /lab is owned by sudo. If it is, then we will need to change permissions.
-            stat_info = os.stat('/lab')
-            uid = stat_info.st_uid
+            if (os.path.exists("/lab")):
+                stat_info = os.stat('/lab')
+                uid = stat_info.st_uid
 
-            if (uid == 0):
-                subprocess.run("sudo chown -R " + user + " /lab", shell=True)
+                if (uid == 0):
+                    subprocess.run("sudo chown -R " + user + " /lab", shell=True)
 
             # End the server and get the output.
             process.terminate()
