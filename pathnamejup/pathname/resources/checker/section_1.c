@@ -465,7 +465,25 @@ int main(int argc, char *argv[]) {
                 // Checking to see if the POST request is in it.
                 if (strstr(content, "\"\x1b[32mPOST /delete_memo/9999 HTTP/1.1\x1b[0m\" 302 -")) {
                     // If it is, then it passes the last test.
-                    finish_step_5();
+                    // Before running finish_step_5, check if was already updated. If it is, don't update it again.
+                    // This may wipe student's progress that they already had.
+                    FILE *file = fopen("/lab/memo.py", "r");
+                    char content[3000];
+                    char line[100];
+
+                    // Read each line from the file.
+                    while (fgets(line, sizeof(line), file)) {
+                        strcat(content, line);
+                    }
+
+                    // Close the file.
+                    fclose(file);
+
+                    // Check if it already exists.
+                    if (strstr(content, "### Step 12 Solution START ###\n") == NULL) {
+                        finish_step_5();
+                    }
+
                     return 1;
                 }
             }
