@@ -184,24 +184,24 @@ def main():
             if (not os.path.exists(pathname + "/step_7.c")):
                 # This is the source code for Step 7:
                 step_7_outline = """
-                #include <stdio.h>
+#include <stdio.h>
     
-                void sum(int* a, int* b, int* c) {
-                    // Your answer here.
-                }
+void sum(int* a, int* b, int* c) {
+    // Your answer here.
+}
     
-                int main() {
-                    int a, b, c;
+int main() {
+    int a, b, c;
     
-                    a = 1;
-                    b = 2;
-                    c = 0;
+    a = 1;
+    b = 2;
+    c = 0;
     
-                    // Your answer here.
+    // Your answer here.
     
-                    printf("%d\n", c);
-                    return 0;
-                }
+    printf("%d\\n", c);
+    return 0;
+}
                 """
     
                 # Remove leading whitespace and extra newline
