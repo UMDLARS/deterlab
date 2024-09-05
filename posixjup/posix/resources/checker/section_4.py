@@ -94,7 +94,11 @@ def main():
     elif step == "15":
         users = ["ash", "misty", "brock"]
         if all(check_user_in_group(user, "trainers") for user in users):
-            sys.exit(1)
+            if (check_user_in_group("james", "trainers")):
+                sys.exit(3)
+
+            else:
+                sys.exit(1)
         else:
             sys.exit(0)
 
