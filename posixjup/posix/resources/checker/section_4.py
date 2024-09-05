@@ -169,7 +169,9 @@ def main():
     elif step == "21":
         if (os.path.exists("/collections/project")):
             perms = get_perms("/collections/project")
-            if perms == "770":
+            # Instructions ACTUALLY require 770, but also accept 550 because
+            # this is what it gets changed to in the last step.
+            if perms == "770" or perms == "550":
                 stat_info = os.stat("/collections/project")
                 gid = stat_info.st_gid
                 grp_name = grp.getgrgid(gid).gr_name
