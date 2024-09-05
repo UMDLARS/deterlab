@@ -351,7 +351,7 @@ int main() {
 
                         strcpy(str2, str1);
 
-                        printf("%s", str2);
+                        printf("%s\n", str2);
                     }
 
                     int main() {
