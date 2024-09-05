@@ -145,7 +145,7 @@ def main():
         f.close()
 
         # This regex pattern will check to see if a student created a variable without a comment in front.
-        pattern = r'^\s*char\s+\w+(?:\[\])\s*=\s*\"(?:umdsec[a-z][a-z])\"\s*;$'
+        pattern = r'^\s*char\s+\w+(?:\[\])\s*=\s*\"(?:' + username + ')\"\s*;$'
 
         # Find all matches.
         matches = re.findall(pattern, text, re.MULTILINE)
@@ -153,7 +153,7 @@ def main():
         # There should only be exactly one match.
         if (len(matches) == 1):
             # Extract the username.
-            matched_username = re.findall(r'umdsec[a-z][a-z]', matches[0])
+            matched_username = re.findall(username, matches[0])
 
             # In case the username doesn't match the student.
             if (username != matched_username[0]):
