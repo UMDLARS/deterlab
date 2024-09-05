@@ -28,5 +28,8 @@ chown -R $USER /home/.checker
 # Make the responses directory writeable so that the wire_log.txt file can be made.
 chmod o+w /home/.checker/responses
 
+# Create the topic_1/ directory.
+mkdir /home/$USER/topic_1
+
 # Clean up.
 rm -rf *
