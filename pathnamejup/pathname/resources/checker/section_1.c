@@ -172,9 +172,8 @@ void finish_step_4() {
                "\n"
                "@app.route('/delete_memo/<int:memo_id>', methods=['POST'])\n"
                "def delete_memo(memo_id):\n"
-               "    memo_filename = os.path.join(MEMO_DIR, str(memo_id))\n"
-               "    if os.path.exists(memo_filename):\n"
-               "        os.remove(memo_filename)\n"
+               "    # TO-DO: Add the functionality here for deleting files.\n"
+               "\n"
                "    return redirect(url_for('index'))\n"
                "\n"
                "@app.route('/memo/<path:memo_id>')\n"
@@ -183,11 +182,6 @@ void finish_step_4() {
                "    memo_filename = os.path.join(MEMO_DIR, str(memo_id))\n"
                "    memo_content = \"\"\n"
                "\n"
-               "    ### Step 12 Solution START ###\n"
-               "\n"
-               "\n"
-               "\n"
-               "    ### Step 12 Solution END\n"
                "    # Attempt to access the file.\n"
                "    try:\n"
                "        # Read in the file as memo_content.\n"
@@ -277,7 +271,97 @@ void finish_step_4() {
 
     fprintf(file3, "%s", html_code_2);
     fclose(file3);
+}
 
+void finish_step_5() {
+    FILE *file1 = fopen("/lab/memo.py", "w");
+    const char *python_code = "from flask import Flask, render_template, request, redirect, url_for, send_file, abort\n"
+               "import os\n"
+               "\n"
+               "# For debugging:\n"
+               "import sys\n"
+               "\n"
+               "app = Flask(__name__)\n"
+               "MEMO_DIR = 'memos'\n"
+               "\n"
+               "os.makedirs(MEMO_DIR, exist_ok=True)\n"
+               "\n"
+               "@app.route('/')\n"
+               "def index():\n"
+               "    # Get the memos, sort them, then print index.html where \"memos\" is the list of memos.\n"
+               "    memos = load_memos()\n"
+               "    sorted_memos = dict(sorted(memos.items()))\n"
+               "    return render_template('index.html', memos=sorted_memos)\n"
+               "\n"
+               "@app.route('/add_memo', methods=['POST'])\n"
+               "def add_memo():\n"
+               "    # Get the form with the name \"memo\", then get its content.\n"
+               "    memo_content = request.form.get('memo')\n"
+               "    # If it's not empty...\n"
+               "    if memo_content:\n"
+               "        # Get the next available memo ID and create a path with it.\n"
+               "        memo_id = get_next_memo_id()\n"
+               "        memo_filename = os.path.join(MEMO_DIR, str(memo_id))\n"
+               "        # Create a file of the memo, and store it in memos/.\n"
+               "        with open(memo_filename, 'w') as memo_file:\n"
+               "            memo_file.write(memo_content)\n"
+               "\n"
+               "    # Redirect back to the index page.\n"
+               "    return redirect(url_for('index'))\n"
+               "\n"
+               "@app.route('/delete_memo/<int:memo_id>', methods=['POST'])\n"
+               "def delete_memo(memo_id):\n"
+               "    memo_filename = os.path.join(MEMO_DIR, str(memo_id))\n"
+               "    if os.path.exists(memo_filename):\n"
+               "        os.remove(memo_filename)\n"
+               "    return redirect(url_for('index'))\n"
+               "\n"
+               "@app.route('/memo/<path:memo_id>')\n"
+               "def view_memo(memo_id):\n"
+               "    # Get the URL of the memo.\n"
+               "    memo_filename = os.path.join(MEMO_DIR, str(memo_id))\n"
+               "    memo_content = \"\"\n"
+               "\n"
+               "    ### Step 12 Solution START ###\n"
+               "\n"
+               "\n"
+               "\n"
+               "    ### Step 12 Solution END ###\n\n"
+               "    # Attempt to access the file.\n"
+               "    try:\n"
+               "        # Read in the file as memo_content.\n"
+               "        with open(memo_filename) as file:\n"
+               "            memo_content = file.read()\n"
+               "    except FileNotFoundError:\n"
+               "        abort(404)\n"
+               "\n"
+               "    # Check if memo_id is numeric. If it's not, an error. Set memo_id = -1.\n"
+               "    if not memo_id.isnumeric():\n"
+               "        memo_id = -1\n"
+               "\n"
+               "    # Print view_memo.html page.\n"
+               "    return render_template('view_memo.html', memo_id=memo_id, memo=memo_content)\n"
+               "\n"
+               "def load_memos():\n"
+               "    memos = {}\n"
+               "    for filename in os.listdir(MEMO_DIR):\n"
+               "        with open(os.path.join(MEMO_DIR, filename), 'r') as memo_file:\n"
+               "            memos[filename] = memo_file.read()\n"
+               "    return memos\n"
+               "\n"
+               "def get_next_memo_id():\n"
+               "    # Create a list of all the files in the memos/ directory.\n"
+               "    filenames = os.listdir(MEMO_DIR)\n"
+               "    # Create a list of the existing memos.\n"
+               "    existing_ids = [int(filename) for filename in filenames if filename.isnumeric()]\n"
+               "    # Get the maximum value, add one, then return it. This is the next memo id.\n"
+               "    return max(existing_ids, default=0) + 1\n"
+               "\n"
+               "if __name__ == '__main__':\n"
+               "    app.run(debug=True)\n";
+
+    fprintf(file1, "%s", python_code);
+    fclose(file1);
 }
 
 int main(int argc, char *argv[]) {
@@ -300,7 +384,7 @@ int main(int argc, char *argv[]) {
         fp = popen("curl 127.0.0.1:5010", "r");
     }
 
-    else {
+    else if (step == 4) {
         fp = popen("curl POST -d \"memo=test\" -v http://127.0.0.1:5010/add_memo", "r");
     }
 
@@ -356,6 +440,49 @@ int main(int argc, char *argv[]) {
             return 0;
         }
     }
+
+    // Checking Step 5.
+    else if (step == 5) {
+        // Before checking the file, first check to make sure that the step has been properly generated.
+        if (strstr(result, "<form action=\"/add_memo\" method=\"POST\">") != NULL) {
+            // Result is correct. Student is likely not "skipping ahead" to this step.
+            // The Python file should've created a file. Check if it exists, and if it does, read it.
+            if (access("/home/.checker/responses/step_5_response.txt", F_OK) == 0) {
+                FILE *file = fopen("/home/.checker/responses/step_5_response.txt", "r");
+                char content[500];
+                char line[100];
+
+                // Read each line from the file.
+                while (fgets(line, sizeof(line), file)) {
+                    strcat(content, line);
+                }
+
+                // Close the file.
+                fclose(file);
+
+                printf(content);
+
+                // Checking to see if the POST request is in it.
+                if (strstr(content, "\"\x1b[32mPOST /delete_memo/9999 HTTP/1.1\x1b[0m\" 302 -")) {
+                    // If it is, then it passes the last test.
+                    finish_step_5();
+                    return 1;
+                }
+            }
+
+            else {
+                // File doesn't exist, which is required for processing.
+                return 0;
+            }
+        }
+
+        // Result is incorrect.
+        else {
+            return 0;
+        }
+
+    }
+
 
     return 0;
 }
