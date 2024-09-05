@@ -169,6 +169,11 @@ def main():
                 process.terminate()
                 sys.exit(0)
 
+            # Run the binary file.
+            result = subprocess.run("/home/.checker/section_1 5", shell=True, capture_output=True, text=True)
+
+            print(result)
+
             # Close the process and check the result from the pipe.
             process.terminate()
             process.wait()
@@ -176,22 +181,23 @@ def main():
 
             process_errors = process_errors.strip()
 
-            # Check if the POST was successful.
-            # Note: There are ANSI escape characters in terminal code. You can read these with
-            # print(repr(process_errors)). Instead of decoding them, just read this directly.
-            if ('"\x1b[32mPOST /delete_memo/9999 HTTP/1.1\x1b[0m" 302 -' in process_errors):
-                # POST was successful, but check to see if the file was actually deleted.
-                if (not os.path.exists("/lab/memos/9999")):
-                    sys.exit(1)
+            # Save process_errors as a text file so that it can be read from the binary.
+            f = open("/home/.checker/responses/step_5_response.txt", "w+")
+            f.write(process_errors)
+            f.close()
 
-                # POST succeeded, but did not remove the file.
-                else:
-                    os.remove("/lab/memos/9999")
-                    sys.exit(0)
+            # POST was successful, but check to see if the file was actually deleted. Additionally, check if the binary file passed.
+            if (not os.path.exists("/lab/memos/9999") and result.returncode == 1):
+                # Successful.
+                sys.exit(1)
 
-            # POST was unsuccessful. Shouldn't happen because of the student's work.
+            # POST succeeded, but did not remove the file. Or, the output that the binary file tested for was incorrect.
             else:
-                sys.exit(2)
+                if (os.path.exists("/lab/memos/9999")):
+                    os.remove("/lab/memos/9999")
+
+                sys.exit(0)
+
 
     else:
         sys.exit(2)
