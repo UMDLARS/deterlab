@@ -8,14 +8,14 @@ mkdir -p $TMP
 # Change to the temporary directory.
 pushd $TMP
 
-# Check if .inotify_log.txt exists in the temporary directory and copy it if it does.
+# Check if inotify_log.txt exists in the temporary directory and copy it if it does.
 if [ -e "/home/.checker/inotify_log.txt" ]; then
     cp "/home/.checker/inotify_log.txt" $TMP
 fi
 
 # Check if findme.txt exists in the temporary directory and copy it if it does.
-if [ -e "/usr/share/discover/dtd/findme.txt" ]; then
-    cp "/usr/share/discover/dtd/findme.txt" $TMP
+if [ -e "/usr/share/discover/dtd/.findme.txt" ]; then
+    cp "/usr/share/discover/dtd/.findme.txt" $TMP
 fi
 
 # Check if the home directory exists (which it should), then copy it if it does.
