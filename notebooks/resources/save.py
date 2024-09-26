@@ -8,7 +8,7 @@ def main():
     labname = sys.argv[1]
 
     # Remove the existing save so that the new one can be made.
-    process = subprocess.run('rm -f /home/USERNAME_GOES_HERE/notebooks/saves/USERNAME_GOES_HERE_' + labname + '.tar.gz', shell=True, stdout=subprocess.DEVNULL)
+    process = subprocess.run('rm -f /project/USERNAME_GOES_HERE/notebooks/saves/USERNAME_GOES_HERE_' + labname + '.tar.gz', shell=True, stdout=subprocess.DEVNULL)
     print("File removed from ~/notebooks/saves.")
 
     # Generate the backup. XSS has two nodes, so needs a slightly different statement.
@@ -29,10 +29,10 @@ def main():
     
     # Get the backup into the XDC, then transfer it.
     if (labname == "xss" or labname == "firewalls"):
-        process = subprocess.run("scp -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server:~/USERNAME_GOES_HERE_" + labname + ".tar.gz /home/USERNAME_GOES_HERE/notebooks/saves &> /dev/null", shell=True, stdout=subprocess.DEVNULL)
+        process = subprocess.run("scp -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server:~/USERNAME_GOES_HERE_" + labname + ".tar.gz /project/USERNAME_GOES_HERE/notebooks/saves &> /dev/null", shell=True, stdout=subprocess.DEVNULL)
 
     else:
-        process = subprocess.run("scp -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@" + labname + ":~/USERNAME_GOES_HERE_" + labname + ".tar.gz /home/USERNAME_GOES_HERE/notebooks/saves &> /dev/null", shell=True, stdout=subprocess.DEVNULL)
+        process = subprocess.run("scp -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@" + labname + ":~/USERNAME_GOES_HERE_" + labname + ".tar.gz /project/USERNAME_GOES_HERE/notebooks/saves &> /dev/null", shell=True, stdout=subprocess.DEVNULL)
         
     print("Copied onto the XDC.")
 
@@ -40,7 +40,7 @@ def main():
     
     # Wait until the file is FULLY transferred before deleting remotely.
     # This is a race condition that happens due to bandwidth.
-    while not os.path.exists("/home/USERNAME_GOES_HERE/notebooks/saves/USERNAME_GOES_HERE_" + labname + ".tar.gz"):
+    while not os.path.exists("/project/USERNAME_GOES_HERE/notebooks/saves/USERNAME_GOES_HERE_" + labname + ".tar.gz"):
         time.sleep(1)
 
 
