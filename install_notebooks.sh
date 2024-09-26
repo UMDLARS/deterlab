@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export USER="$(whoami)"
-export LABS="$HOME/notebooks"
+export LABS="/project/$USER/notebooks"
 export RESOURCES="$LABS/resources"
 export SAVES="$LABS/saves"
 export EDUCATION="/home/.education"
@@ -83,12 +83,12 @@ rm -rf "$TEMP_DIR"
 # Configure all labs to work with the current username.
 pushd "$LABS" > /dev/null 2>&1
 for notebook in *.ipynb; do
-    sed -i "s/USERNAME_GOES_HERE/$USER/g" "$notebook"
+    sed -i "s/$USER/$USER/g" "$notebook"
 done
 
 # Doing the same for the save/load scripts.
-sed -i "s/USERNAME_GOES_HERE/$USER/g" "resources/save.py"
-sed -i "s/USERNAME_GOES_HERE/$USER/g" "resources/load.py"
+sed -i "s/$USER/$USER/g" "resources/save.py"
+sed -i "s/$USER/$USER/g" "resources/load.py"
 popd > /dev/null 2>&1
 
 echo -e "\033[0;32mDone. You can find your notebooks in $LABS. Please refresh your browser's tab before starting a lab.\033[0m"
