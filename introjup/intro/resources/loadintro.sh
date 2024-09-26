@@ -22,6 +22,8 @@ fi
 # Check if findme.txt exists in the temporary directory and copy it if it does.
 if [ -e "${TMP}/.findme.txt" ]; then
     cp "${TMP}/.findme.txt" "/usr/share/discover/dtd/.findme.txt"
+else
+    sudo rm -f "/usr/share/discover/dtd/.findme.txt"
 fi
 
 # Check if /step_12_answer.txt exists in the temporary directory and copy it if it does.
