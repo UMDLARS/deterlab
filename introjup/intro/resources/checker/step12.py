@@ -5,20 +5,29 @@ import subprocess
 import time
 
 def main():
-    if (len(sys.argv) != 2):
+    if len(sys.argv) != 2:
         sys.exit(2)
 
-    # Get the student's answer.
+    # Required file paths.
     nums = os.path.expanduser("~/numbers.txt")
     sorted_nums = os.path.expanduser("~/sortednumbers.txt")
     input_command = sys.argv[1]
 
-    # Make sure that the command that the student is running isn't unsafe.
-    if ("rm" in input_command or "mv" in input_command or "sort" not in input_command):
+    # Commands that are not allowed.
+    bad_commands = ["rm", "mv"]
+    # Commands that are required.
+    required_commands = ["grep", "sort", "|"]
+
+    # Check for disallowed commands.
+    if any(bad in input_command for bad in bad_commands):
         sys.exit(3)
 
-    # Clear the sortednumbers.txt file, if any.
-    if (os.path.exists(sorted_nums)):
+    # Check for required commands presence.
+    if not all(req in input_command for req in required_commands) or "|" not in input_command:
+        sys.exit(3)
+
+    # Clear the sortednumbers.txt file, if it exists.
+    if os.path.exists(sorted_nums):
         os.remove(sorted_nums)
 
     # Run the command.
@@ -27,18 +36,24 @@ def main():
     # Wait a moment for the file to write from the student's input.
     time.sleep(1)
 
-    if (os.path.exists(sorted_nums)):
-        # Retrieving the numbers.txt file:
-        orig_file = open(nums, "r")
-        orig_file = orig_file.readlines()
+    if os.path.exists(sorted_nums):
+        # Retrieve the original numbers.
+        with open(nums, "r") as orig_file:
+            orig_list = orig_file.readlines()
 
-        # Retrieving the student's answer.
-        file = open(sorted_nums, "r")
-        sorted_list = file.readlines()
+        # Retrieve the student's answer.
+        with open(sorted_nums, "r") as file:
+            sorted_list = file.readlines()
 
-        # Checking to make sure that they're sorted.
-        if (sorted(orig_file) == sorted_list):
+        # Check if the sorted output is correct.
+        expected_sorted = sorted([line.strip() for line in orig_list if '9' in line])
+        student_sorted = [line.strip() for line in sorted_list]
+
+        # Checks if the answer is correct.
+        if expected_sorted == student_sorted:
             sys.exit(1)
+
+        # Answer is incorrect.
         else:
             sys.exit(2)
     else:
