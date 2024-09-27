@@ -41,7 +41,7 @@ sudo -u $USER /home/.checker/run_inotify.sh
 
 # Create a hidden file for step 4.
 echo "You found me!" > /usr/share/discover/dtd/.findme.txt
-chown $USER /usr/share/discover/dtd/.findme.txt
+chown -R $USER /usr/share/discover/dtd/
 
 # Clean up.
 rm -rf *
