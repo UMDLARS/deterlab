@@ -80,6 +80,9 @@ sudo zip -r ~/port-forward-data.zip deterlab-port-forwarding config merge_key --
 cd ~
 rm -rf ~/port-forwarding-data/
 
+# Move the zip file to the notebooks directory.
+mv ~/port-forward-data.zip /project/USERNAME_GOES_HERE/notebooks/
+
 RED='\033[0;31m' # Red Font
 GREEN='\033[0;32m' # Green Font
 NC='\033[0m' # No Color
