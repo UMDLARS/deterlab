@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export USER="$(whoami)"
-export LABS="$HOME/notebooks"
+export LABS="/project/$USER/notebooks"
 export RESOURCES="$LABS/resources"
 export SAVES="$LABS/saves"
 export EDUCATION="/home/.education"
@@ -18,7 +18,7 @@ echo "Installing required Jupyter extensions."
 sudo pip install -q ipywidgets jupyterlab_widgets 2>/dev/null
 
 echo "Beginning installation of notebooks."
-mkdir -p "$LABS" > /dev/null 2>&1
+mkdir -p "$LABS/notebooks" > /dev/null 2>&1
 
 # Use a temporary directory for cloning.
 TEMP_DIR=$(mktemp -d)
@@ -34,7 +34,7 @@ fi
 cd deterlab || exit
 
 # If it exists, copy the saves/ directory into /tmp so that students don't lose progress.
-cp -r ~/notebooks/saves /tmp 2>/dev/null
+cp -r $LABS/saves /tmp 2>/dev/null
 
 # Checking to see if the notebooks have already been made.
 if [ $(find "$LABS" -maxdepth 1 -type f -name "*.ipynb" | wc -l) -eq 8 ]; then
@@ -46,14 +46,14 @@ fi
 # Move the notebooks directory to the home directory. Using rsync because moving from the /tmp directory fixes any cross-filesystem move errors.
 # -a preserves permissions, timestamps, etc.
 # Need to use sudo, because the notebooks occasionally generate checkpoints owned by root.
-sudo rm -rf ~/notebooks
-sudo rsync -a --remove-source-files --delete notebooks/ ~/notebooks >/dev/null
+sudo rm -rf $LABS/notebooks
+sudo rsync -a --remove-source-files --delete notebooks/ /project/$USER/notebooks/ >/dev/null
 
 # Move the saves back and delete it from /tmp.
 [ -d /tmp/saves ] && mv /tmp/saves $LABS
 
 # If no saves/ directory existed, then create it.
-mkdir -p ~/notebooks/saves
+mkdir -p $LABS/saves
 
 # Move the lab resources.
 if [ -d "/home/.education" ]; then
@@ -78,7 +78,7 @@ sudo mv runlab startexp stopexp runr /home
 sudo chmod a+x /home/runlab /home/startexp /home/stopexp /home/runr
 
 # Cleanup temporary directory.
-rm -rf "$TEMP_DIR"
+# rm -rf "$TEMP_DIR"
 
 # Configure all labs to work with the current username.
 pushd "$LABS" > /dev/null 2>&1
@@ -87,8 +87,8 @@ for notebook in *.ipynb; do
 done
 
 # Doing the same for the save/load scripts.
-sed -i "s/USERNAME_GOES_HERE/$USER/g" "resources/save.py"
-sed -i "s/USERNAME_GOES_HERE/$USER/g" "resources/load.py"
+sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/save.py"
+sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/load.py"
 popd > /dev/null 2>&1
 
 echo -e "\033[0;32mDone. You can find your notebooks in $LABS. Please refresh your browser's tab before starting a lab.\033[0m"
