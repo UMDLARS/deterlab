@@ -22,7 +22,7 @@ int main() {
     // Check if sowpods.txt exists in the home directory.
     if (access(path, F_OK) != 0) {
         // File doesn't exist.
-        return 1;
+        return 3;
     }
 
     // Now, construct the path(s) for output.txt directly in the home directory.
@@ -61,7 +61,7 @@ int main() {
     // Check if the files were the same.
     if (check == 0) {
         // output.txt is correct.
-        return 3;
+        return 1;
     } else {
         // output.txt is different from the answer.
         return 4;

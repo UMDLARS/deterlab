@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import subprocess
 import sys
 import os
@@ -32,16 +31,15 @@ def main():
     else:
         if (os.path.exists('/home/.checker/inotify_log.txt')):
             with open('/home/.checker/inotify_log.txt', 'r') as file:
-                if "jupyterintro/ CREATE jupytertest.txt" in file.read():
+                log_contents = file.read()
+                if ("jupyterintro/ CREATE jupytertest.txt" in log_contents):
                     # File was created. Check if perms were made.
-                    if ("jupyterintro/ ATTRIB jupytertest.txt"):
+                    if ("jupyterintro/ ATTRIB jupytertest.txt" in log_contents):
                         sys.exit(2)
                     else:
                         check_perms(path)
                 else:
                     sys.exit(0)
-
-        # If not entered, it was not picked up from the inotifywait. Simply check if it exists with r>
 
     # If not using a restore, just simply check if it exists.
     # Very likely that this will never occur.
