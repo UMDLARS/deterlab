@@ -11,14 +11,14 @@ def main():
         url = "https://raw.githubusercontent.com/jesstess/Scrabble/master/scrabble/sowpods.txt"
         subprocess.run(["wget", "-qO", "sowpods_copy.txt", url], check=True)
     except subprocess.CalledProcessError as e:
-        sys.exit(1)
+        sys.exit(3)
 
     if (not os.path.exists(check_file)):
         subprocess.run(["rm", "-f", verify_file])
         sys.exit(2)
     elif (filecmp.cmp(check_file, verify_file)):
         subprocess.run(["rm", "-f", verify_file])
-        sys.exit(3)
+        sys.exit(1)
     else:
         subprocess.run(["rm", "-f", verify_file])
         sys.exit(0)

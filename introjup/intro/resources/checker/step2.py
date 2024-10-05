@@ -9,9 +9,9 @@ def check_perms(path):
     permissions = oct(mode)[-3:]
     # Permissions were not changed from default.
     if (permissions == '644'):
-        sys.exit(1)
-    else:
         sys.exit(2)
+    else:
+        sys.exit(1)
 
 def main():
     path = os.path.expanduser("~/jupyterintro/jupytertest.txt")
