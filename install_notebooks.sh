@@ -75,10 +75,11 @@ done
 
 # Finally, copy all of the notebook function files (should be four of them) into the student's XDC.
 sudo mv runlab startexp stopexp runr /home
-sudo chmod a+x /home/runlab /home/startexp /home/stopexp /home/runr
+sudo mv grader.py /home/.education
+sudo chmod a+x /home/runlab /home/startexp /home/stopexp /home/runr /home/.education/grader.py
 
 # Cleanup temporary directory.
-# rm -rf "$TEMP_DIR"
+rm -rf "$TEMP_DIR"
 
 # Configure all labs to work with the current username.
 pushd "$LABS" > /dev/null 2>&1
