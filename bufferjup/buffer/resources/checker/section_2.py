@@ -154,6 +154,10 @@ int main() {
             # Now, exit.
             sys.exit(1)
 
+	# No segmentation fault occurred.
+        if (step != "10"):
+            sys.exit(0)
+
         # Step 10 is a little different.
         if (step == "10"):
             # Need to check to make sure that the two strings are the same. Read in the file.
@@ -181,7 +185,7 @@ int main() {
                     # Now, exit successfully.
                     sys.exit(1)
 
-                # Strings are not the same.
+                # Strings are not the same (as typed out in the variables).
                 else:
                     sys.exit(0)
 

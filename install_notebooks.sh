@@ -86,6 +86,9 @@ for notebook in *.ipynb; do
     sed -i "s/USERNAME_GOES_HERE/$USER/g" "$notebook"
 done
 
+# Change the USERNAME_GOES_HERE occurrence in the port forwarding script.
+sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/port-forward/port-forward-setup"
+
 # Doing the same for the save/load scripts.
 sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/save.py"
 sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/load.py"

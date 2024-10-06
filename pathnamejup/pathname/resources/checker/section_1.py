@@ -106,7 +106,7 @@ def main():
         # Step 4 will do regex matching before testing.
         if (step == "4"):
             # Get the pattern.
-            pattern = r'\s*return\s+redirect\s*\(\s*url_for\s*\(\s*\'index\'\s*\)\s*\)'
+            pattern = r''
 
             # If the student already has an answer, use the pattern above and do a separate check.
             if (os.path.exists("/home/.checker/responses/step_4_response.txt")):
