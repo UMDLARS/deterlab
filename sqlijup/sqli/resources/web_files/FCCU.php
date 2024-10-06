@@ -25,7 +25,7 @@ $dbname = $dbuser;
 $_POST = array_merge($_GET, $_POST);
 
 // get username and password from form
-if (!$_POST['id'] || !$_POST['password']) {
+if (!isset($_POST['id']) || !isset($_POST['password'])) {
 	login();
 } else { // otherwise, attempt to authenticate
 	$id = $_POST['id'];
