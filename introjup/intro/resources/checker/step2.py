@@ -35,7 +35,7 @@ def main():
                 if ("jupyterintro/ CREATE jupytertest.txt" in log_contents):
                     # File was created. Check if perms were made.
                     if ("jupyterintro/ ATTRIB jupytertest.txt" in log_contents):
-                        sys.exit(2)
+                        sys.exit(1)
                     else:
                         check_perms(path)
                 else:
