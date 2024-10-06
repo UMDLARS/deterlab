@@ -55,21 +55,23 @@ if (!$_POST['id'] || !$_POST['password']) {
 		banner($row[2], $row[3]);
 		
 		// perform any requested actions (wire, transfer, withdraw)
-		if ($_POST['action'] == 'Transfer Money') {
-			transfer_funds($id, 
+		if (isset($_POST['action'])) {
+         	       if ($_POST['action'] == 'Transfer Money') {
+	    	           transfer_funds($id, 
 				       $password,
 			               $_POST['transfer_to'], 
 				       $_POST['transfer_amount']);
-		} elseif ($_POST['action'] == 'Wire Money') {
-			wire_funds($id,
+			} elseif ($_POST['action'] == 'Wire Money') {
+			    wire_funds($id,
 			            $password,
 		                    $_POST['routing'],
 			            $_POST['wire_acct'],
 			            $_POST['wire_amount']);
-		} elseif ($_POST['action'] == 'Withdraw Money') {
-			withdraw_cash($id,
+			} elseif ($_POST['action'] == 'Withdraw Money') {
+			    withdraw_cash($id,
 			              $password,
 		                      $_POST['withdraw_amount']);
+			}
 		}
 
 		// normal output
@@ -181,7 +183,7 @@ function wire_funds($id, $password,  $bank, $account, $amount) {
 	
 	if ($amount > 0 && $giver_has >= $amount && $bank && $account) {
 		$giver_has = $giver_has - $amount; // there's a problem here but it's not SQL Injection...
-		pretend("wire money", $amount, $bank, $acct);
+		pretend("wire money", $amount, $bank, $account);
 
 		/*** Block #7: CONVERT TO PREPARED STATEMENT ***/
 		$query = "UPDATE accounts SET bal = $giver_has WHERE password = '$password' AND id = $id LIMIT 1";
