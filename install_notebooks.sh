@@ -33,8 +33,10 @@ fi
 
 cd deterlab || exit
 
-# If it exists, copy the saves/ directory into /tmp so that students don't lose progress.
+# If it exists, copy the saves/ directory and grades into /tmp so that students don't lose progress.
 cp -r $LABS/saves /tmp 2>/dev/null
+cat $EDUCATION/"${USER}_logs.txt"
+cp $EDUCATION/"${USER}_logs.txt" /tmp
 
 # Checking to see if the notebooks have already been made.
 if [ $(find "$LABS" -maxdepth 1 -type f -name "*.ipynb" | wc -l) -eq 8 ]; then
@@ -58,7 +60,7 @@ mkdir -p $LABS/saves
 # Move the lab resources.
 if [ -d "/home/.education" ]; then
     echo -e "\033[0;31mLab resources for your notebooks already exist. Applying updates...\033[0m"
-    
+
     # Delete the education directory so that it can be updated. mv will not work if there are already files.
     sudo rm -rf /home/.education/*
 else
@@ -72,6 +74,9 @@ for dir in $(find . -maxdepth 1 -type d -name "*jup"); do
     dir_name=$(basename "$dir")
     mv $dir_name $EDUCATION
 done
+
+# Move the grades back for the student.
+[ -f /tmp/"${USER}_logs.txt" ] && mv /tmp/"${USER}_logs.txt" $EDUCATION
 
 # Finally, copy all of the notebook function files (should be four of them) into the student's XDC.
 sudo mv runlab startexp stopexp runr /home
