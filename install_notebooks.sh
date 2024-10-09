@@ -35,8 +35,7 @@ cd deterlab || exit
 
 # If it exists, copy the saves/ directory and grades into /tmp so that students don't lose progress.
 cp -r $LABS/saves /tmp 2>/dev/null
-cat $EDUCATION/"${USER}_logs.txt"
-cp $EDUCATION/"${USER}_logs.txt" /tmp
+cp $EDUCATION/"${USER}_logs.txt" /tmp 2>/dev/null
 
 # Checking to see if the notebooks have already been made.
 if [ $(find "$LABS" -maxdepth 1 -type f -name "*.ipynb" | wc -l) -eq 8 ]; then
@@ -99,5 +98,8 @@ sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/port-forward/port-forward
 sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/save.py"
 sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/load.py"
 popd > /dev/null 2>&1
+
+# And finally, for the install scripts.
+find /home/.education -type f -name install -exec sed -i "s/USERNAME_GOES_HERE/$(whoami)/g" {} +
 
 echo -e "\033[0;32mDone. You can find your notebooks in $LABS. Please refresh your browser's tab before starting a lab.\033[0m"
