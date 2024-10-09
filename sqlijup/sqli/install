@@ -4,8 +4,8 @@
 export RESOURCES="/tmp/sqli/resources"
 export CHECKER="/home/.checker"
 
-# The username is required for setting up this lab.
-export USER=$(grep umdsec /etc/passwd | cut -d: -f1)
+# The username is required for this lab.
+export USER=USERNAME_GOES_HERE
 
 # Installing the required libraries.
 apt-get update

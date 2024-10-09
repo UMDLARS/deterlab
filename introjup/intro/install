@@ -4,8 +4,8 @@
 export RESOURCES="/tmp/intro/resources"
 export CHECKER="/home/.checker"
 
-# The username is required for this lab. It's available on the last line of the /etc/passwd file.
-export USER=$(cat /etc/passwd | tail -n 1 | awk -F: '{print $1}')
+# The username is required for this lab.
+export USER=USERNAME_GOES_HERE
 
 # Installing the required libraries.
 apt-get update
