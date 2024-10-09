@@ -10,7 +10,9 @@ def check_perms(path):
     if (permissions == '644'):
         sys.exit(2)
     else:
-        subprocess.run("sed -i '1i Permissions Updated' /home/.checker/inotify_log.txt", shell=True)
+        f = open("/home/.checker/step2_perms.txt", "w+")
+        f.write(permissions)
+        f.close()
         sys.exit(1)
 
 def main():
@@ -35,7 +37,7 @@ def main():
                 log_contents = file.read()
                 if ("jupyterintro/ CREATE jupytertest.txt" in log_contents):
                     # File was created. Check if perms were made.
-                    if "Permissions Updated" in log_contents:
+                    if os.path.exists("/home/.checker/step2_perms.txt"):
                         sys.exit(1)
                     else:
                         check_perms(path)
