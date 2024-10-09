@@ -24,11 +24,9 @@ def main():
         if (os.path.exists('/home/.checker/inotify_log.txt')):
             with open('/home/.checker/inotify_log.txt', 'r') as file:
                 if "DELETE,ISDIR jupyterintro" in file.read():
-                    sys.exit(0)
-                else:
                     sys.exit(1)
-
-        # If not entered, it was not picked up from the inotifywait. Simply check if it exists with ret.
+                else:
+                    sys.exit(0)
 
     # If not using a restore, just simply check if it exists.
     if ret:
