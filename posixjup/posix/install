@@ -53,5 +53,8 @@ sudo mkdir /home/.checker/responses
 # Giving ownership to the students so that the checker will work.
 chown -R $USER $CHECKER 
 
+# Give ownership to the student for Sections 1 and 2.
+sudo chown -R $USER /home/$USER/
+
 # Clean up.
 # rm -rf *
