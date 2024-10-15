@@ -6,6 +6,12 @@ export RESOURCES="$LABS/resources"
 export SAVES="$LABS/saves"
 export EDUCATION="/home/.education"
 
+# Check if the student is running as root.
+if [ "$EUID" -eq 0 ]; then
+    echo "Please do not run this script as sudo."
+    exit 1
+fi
+
 # Define the directory where the repository should be checked out.
 REPO_URL="https://github.com/UMDLARS/deterlab"
 
