@@ -15,6 +15,7 @@ fi
 # Define the directory where the repository should be checked out.
 REPO_URL="https://github.com/UMDLARS/deterlab"
 
+# Installing some dependencies.
 echo "Installing dependencies."
 sudo apt-get -qq update
 sudo apt-get -qq install git rsync >/dev/null
@@ -24,7 +25,6 @@ echo "Installing required Jupyter extensions."
 sudo pip install -q ipywidgets jupyterlab_widgets 2>/dev/null
 
 echo "Beginning installation of notebooks."
-mkdir -p "$LABS/notebooks" > /dev/null 2>&1
 
 # Use a temporary directory for cloning.
 TEMP_DIR=$(mktemp -d)
@@ -39,10 +39,6 @@ fi
 
 cd deterlab || exit
 
-# If it exists, copy the saves/ directory and grades into /tmp so that students don't lose progress.
-cp -r $LABS/saves /tmp 2>/dev/null
-cp $EDUCATION/"${USER}_logs.txt" /tmp 2>/dev/null
-
 # Checking to see if the notebooks have already been made.
 if [ $(find "$LABS" -maxdepth 1 -type f -name "*.ipynb" | wc -l) -eq 8 ]; then
     echo -e "\033[0;31mYour notebooks already exist. Updating your notebooks...\033[0m"
@@ -50,16 +46,10 @@ else
     echo -e "\033[0;31mSome (or all) of your notebooks appear to be missing. Adding them...\033[0m"
 fi
 
-# Move the notebooks directory to the home directory. Using rsync because moving from the /tmp directory fixes any cross-filesystem move errors.
-# -a preserves permissions, timestamps, etc.
-# Need to use sudo, because the notebooks occasionally generate checkpoints owned by root.
-sudo rm -rf $LABS/notebooks
-sudo rsync -a --remove-source-files --delete notebooks/ /project/$USER/notebooks/ >/dev/null
+# Excluding the saves/ directory so that students don't lose their saves.
+sudo rsync -a --delete --exclude='saves/' notebooks/ /project/$USER/notebooks/ >/dev/null
 
-# Move the saves back and delete it from /tmp.
-[ -d /tmp/saves ] && mv /tmp/saves $LABS
-
-# If no saves/ directory existed, then create it.
+# Ensure 'saves/' exists
 mkdir -p $LABS/saves
 
 # Move the lab resources.
