@@ -32,7 +32,7 @@ mkdir /home/$USER/topic_1
 chown $USER:$USER /home/$USER/topic_1
 
 # Update the username in the checker files. Used in the pathnames.
-sed -i "s/USERNAME_GOES_HERE/$USER/g" /home/.checker/section_*.py
+sed -i "s/USERNAME_FOR_NODE/$USER/g" /home/.checker/section_*.py
 
 # Clean up.
 rm -rf *
