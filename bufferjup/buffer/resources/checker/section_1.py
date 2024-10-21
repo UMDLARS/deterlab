@@ -176,9 +176,9 @@ def main():
             else:
                 sys.exit(0)
 
-    # Student didn't use a variable to store their username.
-    else:
-        sys.exit(5)
+        # Student didn't use a variable to store their username.
+        else:
+            sys.exit(5)
 
     # Check Step 6. This requires user input!
     elif (step == "6"):
