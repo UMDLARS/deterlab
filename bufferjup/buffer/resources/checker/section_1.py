@@ -107,10 +107,10 @@ def main():
         if (len(matches) == 2):
             # Now, check if these two variables are added together.
             # Extract variable names.
-            var_names = [match.split('=')[0].strip() for match in matches]
+            var_names = [match.split('=')[0].strip().split()[1] for match in matches]
 
             # Create a pattern to check if an addition is being performed with these two variables.
-            add_pattern = r'^\s*' + r'\s*\+\s*'.join(var_names) + r'\s*;'
+            add_pattern = r'printf\s*\(\s*"%d"\s*,\s*' + r'\s*\+\s*'.join(var_names) + r'\s*\)\s*;'
 
             # Search for the addition operation.
             add_match = re.search(add_pattern, text)
@@ -155,7 +155,7 @@ def main():
         f.close()
 
         # This regex pattern will check to see if a student created a variable without a comment in front.
-        pattern = r'^\s*char\s+\w+(?:\[\])\s*=\s*\"(?:' + username + ')\"\s*;$'
+        pattern = r'^\s*char\s+(\w+)(?:\[\])?\s*=\s*\"(?:' + username + ')\"\s*;$'
 
         # Find all matches.
         matches = re.findall(pattern, text, re.MULTILINE)
