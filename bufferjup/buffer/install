@@ -30,6 +30,7 @@ chmod o+w /home/.checker/responses
 
 # Create the topic_1/ directory.
 mkdir /home/$USER/topic_1
+chown $USER:$USER /home/$USER/topic_1
 
 # Clean up.
 rm -rf *
