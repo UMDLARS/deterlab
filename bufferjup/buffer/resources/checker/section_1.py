@@ -105,28 +105,43 @@ def main():
 
         # If there are exactly two matches, then it passes.
         if (len(matches) == 2):
-            # Run the program, which should be between 1-2000. Silence output.
-            result = subprocess.run(pathname + '/step_4 2>/dev/null', shell=True, text=True, capture_output=True)
+            # Now, check if these two variables are added together.
+            # Extract variable names.
+            var_names = [match.split('=')[0].strip() for match in matches]
 
-            # In case there was an error.
-            if (result.returncode == 1):
-                sys.exit(3)
+            # Create a pattern to check if an addition is being performed with these two variables.
+            add_pattern = r'^\s*' + r'\s*\+\s*'.join(var_names) + r'\s*;'
 
-            # Convert to int. Need to cast, so wrap in a try/except block.
-            try:
-                output = int(result.stdout)
+            # Search for the addition operation.
+            add_match = re.search(add_pattern, text)
 
-                if (output >= 2 and output <= 2000):
-                    # Step is passed.
-                    sys.exit(1)
+            if add_match:
+                # Run the program, which should be between 1-2000. Silence output.
+                result = subprocess.run(pathname + '/step_4 2>/dev/null', shell=True, text=True, capture_output=True)
 
-                # Result was out of range.
-                else:
-                    sys.exit(0)
+                # In case there was an error.
+                if (result.returncode == 1):
+                    sys.exit(3)
 
-            except Exception as e:
-                print(e)
-                sys.exit(4)
+                # Convert to int. Need to cast, so wrap in a try/except block.
+                try:
+                    output = int(result.stdout)
+
+                    if (output >= 2 and output <= 2000):
+                        # Step is passed.
+                        sys.exit(1)
+
+                    # Result was out of range.
+                    else:
+                        sys.exit(0)
+
+                except Exception as e:
+                    print(e)
+                    sys.exit(4)
+
+            else:
+                # If the addition operation isn't found, the student did not add the variables.
+                sys.exit(0)
 
     # Check Step 5.
     elif (step == "5"):
