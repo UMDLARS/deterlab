@@ -15,7 +15,7 @@ def main():
 
     # We need the student's username throughout this entire lab.
     username = "USERNAME_FOR_NODE"
-    pathname = "/home/username/topic_1"
+    pathname = f"/home/{username}/topic_1"
 
     # Checks Step 1.
     if (step == "1"):
