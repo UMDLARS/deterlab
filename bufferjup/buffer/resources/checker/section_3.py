@@ -44,11 +44,7 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    with open('/etc/passwd') as f:
-        for line in f:
-            pass
-        last_line = line
-        username = last_line.split(":")[0]
+    username = "USERNAME_GOES_HERE"
 
     vulnerable = "/home/" + username + "/topic_2/step_" + str(int(step) - 4) + ".c"
     fix = "/home/" + username + "/topic_3/step_" + step + ".c"

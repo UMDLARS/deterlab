@@ -5,7 +5,7 @@ export RESOURCES="/tmp/buffer/resources"
 export CHECKER="/home/.checker"
 
 # The username is required for this lab.
-export USER=USERNAME_GOES_HERE
+export USER=niete018
 
 # Installing the required libraries.
 apt-get update
@@ -21,16 +21,18 @@ mkdir /home/.checker/responses
 # Moving the save/load scripts.
 cp $RESOURCES/*buffer.sh $CHECKER
 
-# Change ownership of the checker directory so that the screen command works in run_inotify.sh.
-chgrp -R $USER /home/.checker
-chown -R $USER /home/.checker
+# Change ownership of the checker scripts.
+chown -R $USER:$USER /home/.checker
 
-# Make the responses directory writeable so that the wire_log.txt file can be made.
+# Make the responses directory writeable so that student responses can be made.
 chmod o+w /home/.checker/responses
 
 # Create the topic_1/ directory.
 mkdir /home/$USER/topic_1
 chown $USER:$USER /home/$USER/topic_1
+
+# Update the username in the checker files. Used in the pathnames.
+sed -i "s/USERNAME_GOES_HERE/$USER/g" /home/.checker/section_*.py
 
 # Clean up.
 rm -rf *

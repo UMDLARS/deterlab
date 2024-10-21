@@ -16,12 +16,8 @@ def main():
     payload = sys.argv[2]
     check_test = sys.argv[3]
 
-    # Get the student's username from the last line of /etc/passwd.
-    with open('/etc/passwd') as f:
-        for line in f:
-            pass
-        last_line = line
-        username = last_line.split(":")[0]
+    # We need the student's username throughout this entire lab.
+    username = "USERNAME_GOES_HERE"
 
     # Depending if check_test is 0 or 1, we will need to check to see if the student is running the unedited or fixed Wormwood.
     if (check_test == "0"):

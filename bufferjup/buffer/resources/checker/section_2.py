@@ -14,13 +14,8 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    with open('/etc/passwd') as f:
-        for line in f:
-            pass
-        last_line = line
-        username = last_line.split(":")[0]
-
-    pathname = "/home/" + username + "/topic_2"
+    username = "USERNAME_GOES_HERE"
+    pathname = "/home/username/topic_2"
 
     # Every step in this section is VERY similar to one another. No need for checking the individual steps.
     # Instead, of using if/else statements for each step, this is going to be a general check.
