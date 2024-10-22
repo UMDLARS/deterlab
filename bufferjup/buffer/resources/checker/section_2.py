@@ -15,7 +15,7 @@ def main():
 
     # We need the student's username throughout this entire lab.
     username = "USERNAME_FOR_NODE"
-    pathname = f"/home/{username}/topic_1"
+    pathname = f"/home/{username}/topic_2"
 
     # Every step in this section is VERY similar to one another. No need for checking the individual steps.
     # Instead, of using if/else statements for each step, this is going to be a general check.

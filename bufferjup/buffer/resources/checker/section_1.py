@@ -155,7 +155,7 @@ def main():
         f.close()
 
         # This regex pattern will check to see if a student created a variable without a comment in front.
-        pattern = r'^\s*char\s+(\w+)(?:\[\])?\s*=\s*\"(?:' + username + ')\"\s*;$'
+        pattern = r'^\s*char\s+[*]?(\w+)(?:\[\]|[*])?\s*=\s*\"(?:' + username + ')\"\s*;$'
 
         # Find all matches.
         matches = re.findall(pattern, text, re.MULTILINE)
@@ -166,14 +166,14 @@ def main():
             matched_username = re.findall(username, matches[0])
 
             # In case the username doesn't match the student.
-            if (username != matched_username[0]):
+            if (len(matched_username) != 0 and username != matched_username[0]):
                 sys.exit(4)
 
             # Run the program, which should be "Hello, umdsecXX!". Silence any errors.
             result = subprocess.run(pathname + '/step_5 2>/dev/null', shell=True, text=True, capture_output=True)
 
             # In case there was an error.
-            if (result.returncode == 1):
+            if (result.returncode == 1 or result.returncode == 139):
                 sys.exit(3)
 
             # To add flexibility to the check, lowercase the output, then see if "hello, umdsecXX" is in the string.
