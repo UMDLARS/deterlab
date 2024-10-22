@@ -110,7 +110,7 @@ def main():
             var_names = [match.split('=')[0].strip().split()[1] for match in matches]
 
             # Create a pattern to check if an addition is being performed with these two variables.
-            add_pattern = r'printf\s*\(\s*"%d"\s*,\s*' + r'\s*\+\s*'.join(var_names) + r'\s*\)\s*;'
+            add_pattern = r'printf\s*\(\s*"%[d|i]"\s*,\s*' + r'\s*\+\s*'.join(var_names) + r'\s*\)\s*;'
 
             # Search for the addition operation.
             add_match = re.search(add_pattern, text)
