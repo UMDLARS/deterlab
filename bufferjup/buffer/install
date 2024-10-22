@@ -5,7 +5,7 @@ export RESOURCES="/tmp/buffer/resources"
 export CHECKER="/home/.checker"
 
 # The username is required for this lab.
-export USER=niete018
+export USER=USERNAME_GOES_HERE
 
 # Installing the required libraries.
 apt-get update
