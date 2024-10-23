@@ -153,45 +153,50 @@ int main() {
         if (step != "10"):
             sys.exit(0)
 
-        # Step 10 is a little different.
-        if (step == "10"):
-            # Need to check to make sure that the two strings are the same. Read in the file.
-            f = open(pathname + "/step_10.c")
-            text = f.read()
-            f.close()
+        # Step 10 will work a little differently.
+        if step == "10":
+            # Read in the file.
+            with open(pathname + "/step_10.c") as f:
+                text = f.read()
 
-            pattern = r'\s*char\s*\w+\[\]\s*=\s*\{(.*)\};'
+            # Updated pattern to match both types of string declarations and capture assigned values.
+            pattern = r'\s*char\s+\w+\s*\[\s*[^\]]*\s*\]\s*=\s*(\{.*?\}|".*?");'
             matches = re.findall(pattern, text, re.MULTILINE)
 
             # There should be two matches, and they should be the same.
-            if (len(matches) == 2):
-                # Check if the two strings are the same, and if the result is 0 (not equal).
-                if (matches[0] == matches[1] and result.returncode == 0):
-                    # Success! But first, create the next file for the student..
+            if len(matches) == 2:
+                # Check if the two strings are the same.
+                if matches[0] == matches[1]:
+                    # Compile and run the C program.
+                    compile_cmd = f'gcc {pathname}/step_10.c -o {pathname}/step_10'
+                    compile_result = os.system(compile_cmd)
+                    if compile_result != 0:
+                        sys.exit(0)  # Compilation failed.
 
-                    if (not os.path.exists(pathname + "/step_11.c")):
-                        # Remove leading whitespace and extra newline
-                        next_file = textwrap.dedent(next_file).strip()
+                    # Run the compiled program and capture the output.
+                    run_cmd = f'{pathname}/step_10'
+                    run_result = os.popen(run_cmd).read()
 
-                        f = open(pathname + "/step_11.c", "w+")
-                        f.write(next_file)
-                        f.close()
+                    # Check if the output indicates the strings are NOT the same.
+                    if "The strings are NOT the same!" in run_result:
+                        # Success! Proceed to create the next file.
+                        if not os.path.exists(pathname + "/step_11.c"):
+                            # Remove leading whitespace and extra newline
+                            next_file = textwrap.dedent(next_file).strip()
 
-                    # Now, exit successfully.
-                    sys.exit(1)
+                            with open(pathname + "/step_11.c", "w+") as f:
+                                f.write(next_file)
 
-                # Strings are not the same (as typed out in the variables).
+                        # Exit successfully.
+                        sys.exit(1)
+                    else:
+                        sys.exit(0)
                 else:
                     sys.exit(0)
-
-            # There must be two strings in order to match. If there are not two strings, then fail.
             else:
                 sys.exit(0)
-
-        # Otherwise, a failure.
         else:
             sys.exit(0)
-
     # No matches. Something must've been changed to the function's call.
     else:
         sys.exit(4)
