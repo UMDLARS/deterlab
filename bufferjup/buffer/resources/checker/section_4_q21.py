@@ -53,11 +53,7 @@ def main():
     elif (step == "18"):
         # Before conducting the final test, read in the two files' source code.
         # Need the username first to get the path.
-        with open('/etc/passwd') as f:
-            for line in f:
-                pass
-            last_line = line
-            username = last_line.split(":")[0]
+        username = "USERNAME_FOR_NODE"
 
         # Make sure the files exist before reading in the files.
         file_1 = "/home/" + username + "/topic_4/wormwood_fix/wormwood.c"
