@@ -4,6 +4,7 @@ import sys
 import os
 import re
 import textwrap
+from itertools import combinations
 
 def main():
     # Checks the usage. This shouldn't be giving an error, since it's called from the notebook.
@@ -86,108 +87,181 @@ def main():
             sys.exit(0)
 
     # Check Step 4.
-    elif (step == "4"):
+    elif step == "4":
         # Checking for directory/file existence.
-        if (not os.path.exists(pathname + "/step_4.c") or not os.path.exists(pathname + "/step_4")):
+        if not os.path.exists(pathname + "/step_4.c") or not os.path.exists(pathname + "/step_4"):
             sys.exit(2)
 
-        # Before running the file, we will need to parse the text to see if the student followed directions.
-        f = open(pathname + "/step_4.c", "r")
-        text = f.read()
-        f.close()
+        # Read the student's code.
+        with open(pathname + "/step_4.c", "r") as f:
+            text = f.read()
 
-        # Two variables need to be created.
-        # This regex will check if an uncommented line contains an int assignment between 1-1000.
-        pattern = r'^\s*int\s+\w+\s*=\s*(?:[1-9]|[1-9][0-9]{1,2}|1000)\s*;$'
+        # Adjusted declaration pattern to exclude function declarations.
+        decl_pattern = r'^\s*int\s+(?!\w+\s*\()[^;]+;'
+        decl_matches = re.findall(decl_pattern, text, re.MULTILINE)
 
-        # Find all matches.
-        matches = re.findall(pattern, text, re.MULTILINE)
+        variables = set()
+        for match in decl_matches:
+            # Remove 'int' and split by commas.
+            var_part = match.strip()
+            var_part = var_part[len('int'):].strip()  # Remove 'int' from the beginning.
+            var_parts = [part.strip() for part in var_part.split(',')]
+            for part in var_parts:
+                # Remove any trailing semicolons.
+                part = part.rstrip(';').strip()
+                # Check if the variable is initialized.
+                if '=' in part:
+                    var_name, _ = part.split('=')
+                    variables.add(var_name.strip())
+                else:
+                    variables.add(part.strip())
 
-        # If there are exactly two matches, then it passes.
-        if (len(matches) == 2):
-            # Now, check if these two variables are added together.
-            # Extract variable names.
-            var_names = [match.split('=')[0].strip().split()[1] for match in matches]
+        # Find all assignments of variables to numeric values.
+        assign_pattern = r'\b(\w+)\s*=\s*(\d+)\s*;'
+        assign_matches = re.findall(assign_pattern, text)
 
-            # Create a pattern to check if an addition is being performed with these two variables.
-            add_pattern = r'printf\s*\(\s*"%[d|i]"\s*,\s*' + r'\s*\+\s*'.join(var_names) + r'\s*\)\s*;'
+        variable_values = {}
+        for var_name, value in assign_matches:
+            var_name = var_name.strip()
+            if var_name in variables:
+                value = int(value)
+                if 1 <= value <= 1000:
+                    variable_values[var_name] = value
 
-            # Search for the addition operation.
-            add_match = re.search(add_pattern, text)
+        # Check if there are at least two variables with assigned values.
+        valid_vars = list(variable_values.keys())
 
-            if add_match:
-                # Run the program, which should be between 1-2000. Silence output.
-                result = subprocess.run(pathname + '/step_4 2>/dev/null', shell=True, text=True, capture_output=True)
+        if len(valid_vars) >= 2:
+            # Generate all pairs of variables.
+            var_pairs = list(combinations(valid_vars, 2))
 
-                # In case there was an error.
-                if (result.returncode == 1):
-                    sys.exit(3)
+            # Search for addition operations involving these variables.
+            addition_found = False
+            for var1, var2 in var_pairs:
+                # Pattern to match any addition of the two variables.
+                addition_pattern = re.compile(
+                    r'\b{}\s*\+\s*{}\b|\b{}\s*\+\s*{}\b'.format(
+                        re.escape(var1), re.escape(var2),
+                        re.escape(var2), re.escape(var1)
+                    )
+                )
 
-                # Convert to int. Need to cast, so wrap in a try/except block.
-                try:
-                    output = int(result.stdout)
+                # Search for addition expressions.
+                if addition_pattern.search(text):
+                    addition_found = True
+                    break
 
-                    if (output >= 2 and output <= 2000):
-                        # Step is passed.
-                        sys.exit(1)
+                # Pattern to match assignment of addition to a variable.
+                assignment_addition_pattern = re.compile(
+                    r'\b\w+\s*=\s*({}\s*\+\s*{}|{}\s*\+\s{})\s*;'.format(
+                        re.escape(var1), re.escape(var2),
+                        re.escape(var2), re.escape(var1)
+                    )
+                )
+                if assignment_addition_pattern.search(text):
+                    addition_found = True
+                    break
 
-                    # Result was out of range.
-                    else:
-                        sys.exit(0)
+            if addition_found:
+                # Updated regex pattern for the printf statement.
+                printf_pattern = re.compile(
+                    r'printf\s*\(.*%[di].*', re.DOTALL
+                )
 
-                except Exception as e:
-                    print(e)
-                    sys.exit(4)
+                # Search for the printf statement.
+                if printf_pattern.search(text):
+                    # Run the program and check the output.
+                    result = subprocess.run(
+                        pathname + '/step_4',
+                        shell=True,
+                        text=True,
+                        capture_output=True
+                    )
 
+                    # Handle execution errors.
+                    if result.returncode != 0:
+                        sys.exit(3)
+
+                    # Validate the output.
+                    try:
+                        output = result.stdout.strip()
+                        # Extract integers from the output.
+                        output_numbers = re.findall(r'-?\d+', output)
+                        output_numbers = [int(num) for num in output_numbers]
+
+                        # Sum the values of the variables.
+                        expected_sum = sum(variable_values[var] for var in [var1, var2])
+
+                        if expected_sum in output_numbers:
+                            # Step is passed.
+                            sys.exit(1)
+                        else:
+                            # Output does not contain the expected sum.
+                            sys.exit(0)
+
+                    except ValueError:
+                        # Output does not contain valid integers.
+                        sys.exit(4)
+                else:
+                    # printf statement not found.
+                    sys.exit(0)
             else:
-                # If the addition operation isn't found, the student did not add the variables.
+                # Addition operation not found.
                 sys.exit(0)
+        else:
+            # Less than two valid variables found.
+            sys.exit(0)
+
 
     # Check Step 5.
-    elif (step == "5"):
+    elif step == "5":
         # Checking for directory/file existence.
-        if (not os.path.exists(pathname + "/step_5.c") or not os.path.exists(pathname + "/step_5")):
+        if not os.path.exists(pathname + "/step_5.c") or not os.path.exists(pathname + "/step_5"):
             sys.exit(2)
 
-        # Before running the file, we will need to parse the text to see if the student followed directions.
-        f = open(pathname + "/step_5.c", "r")
-        text = f.read()
-        f.close()
+        # Read the student's code
+        with open(pathname + "/step_5.c", "r") as f:
+            text = f.read()
 
-        # This regex pattern will check to see if a student created a variable without a comment in front.
-        pattern = r'^\s*char\s+[*]?(\w+)(?:\[\]|[*])?\s*=\s*\"(?:' + username + ')\"\s*;$'
+        # Adjusted regex pattern
+        pattern = r'^\s*char\s*(\*?)\s*(\w+)\s*(\[\s*\d*\s*\])?\s*=\s*"' + re.escape(username) + r'"\s*;'
 
         # Find all matches.
         matches = re.findall(pattern, text, re.MULTILINE)
 
-        # There should only be exactly one match.
-        if (len(matches) == 1):
-            # Extract the username.
-            matched_username = re.findall(username, matches[0])
+        # Filter valid matches
+        valid_matches = []
+        for ptr, varname, array_brackets, assigned_str in matches:
+            # Check for invalid declarations (both pointer and array brackets)
+            if ptr and array_brackets:
+                continue  # Skip invalid declarations
+            # Ensure the assigned string matches the username
+            if assigned_str == username:
+                valid_matches.append((ptr, varname, array_brackets, assigned_str))
 
-            # In case the username doesn't match the student.
-            if (len(matched_username) != 0 and username != matched_username[0]):
-                sys.exit(4)
+        # Proceed if at least one valid match is found
+        if valid_matches:
+            # Run the program and capture the output
+            result = subprocess.run(
+                pathname + '/step_5',
+                shell=True,
+                text=True,
+                capture_output=True
+            )
 
-            # Run the program, which should be "Hello, umdsecXX!". Silence any errors.
-            result = subprocess.run(pathname + '/step_5 2>/dev/null', shell=True, text=True, capture_output=True)
-
-            # In case there was an error.
-            if (result.returncode == 1 or result.returncode == 139):
+            # Handle execution errors (e.g., segmentation fault)
+            if result.returncode != 0:
                 sys.exit(3)
 
-            # To add flexibility to the check, lowercase the output, then see if "hello, umdsecXX" is in the string.
-            # This is in case the student decides not to include a '!'.
-            output = (result.stdout).lower()
-
-            if ("hello, " + username in output):
+            # Check if the output contains "Hello, username"
+            output = result.stdout.lower()
+            expected_phrase = f"hello, {username.lower()}"
+            if expected_phrase in output:
                 sys.exit(1)
-
             else:
                 sys.exit(0)
-
-        # Student didn't use a variable to store their username.
         else:
+            # No valid declarations found
             sys.exit(5)
 
     # Check Step 6. This requires user input!
@@ -232,168 +306,198 @@ int main() {
             sys.exit(0)
 
     # Checks Step 7.
-    elif (step == "7"):
+    elif step == "7":
         # Checking for directory/file existence.
-        if (not os.path.exists(pathname + "/step_7.c") or not os.path.exists(pathname + "/step_7")):
+        if not os.path.exists(pathname + "/step_7.c") or not os.path.exists(pathname + "/step_7"):
             sys.exit(2)
 
-        # Before running the file, we will need to parse the text to see if the student followed directions.
-        f = open(pathname + "/step_7.c", "r")
-        text = f.read()
-        f.close()
+        # Read the student's code
+        with open(pathname + "/step_7.c", "r") as f:
+            text = f.read()
 
-        # This regex pattern will check to see if the student has the correct answer inside of sum().
-        pattern_1 = r'\*c\s*=\s*\*([ab])\s*\+\s*\*(?!\1)[ab]\s*;'
+        # Updated regex pattern for the assignment inside sum()
+        pattern_assignment = r'\*c\s*=\s*\(?\s*(\*a\s*\+\s*\*b|\*b\s*\+\s*\*a)\s*\)?\s*;'
 
-        # This regex pattern will check to see if the student called sum() correctly.
-        pattern_2 = r'sum\s*\(\s*&a\s*,\s*&b\s*,\s*&c\s*\)\s*;'
+        # Updated regex pattern for the function call to sum()
+        pattern_function_call = r'sum\s*\(\s*&a\s*,\s*&b\s*,\s*&c\s*\)\s*;'
 
-        # Make sure that the answer is present before running.
-        if re.search(pattern_1, text, re.MULTILINE) and re.search(pattern_2, text, re.MULTILINE):
-            # Now, attempt to run the program. Silence any errors.
-            result = subprocess.run(pathname + '/step_7 2>/dev/null', shell=True, text=True, capture_output=True)
+        # Check if the assignment is present
+        if re.search(pattern_assignment, text, re.MULTILINE):
+            # Check if sum() is called correctly
+            if re.search(pattern_function_call, text, re.MULTILINE):
+                # Now, attempt to run the program
+                result = subprocess.run(
+                    pathname + '/step_7',
+                    shell=True,
+                    text=True,
+                    capture_output=True
+                )
 
-            # In case there was an error.
-            if (result.returncode == 1):
-                sys.exit(3)
+                # Handle execution errors
+                if result.returncode != 0:
+                    sys.exit(3)
 
-            # Remove the newline.
-            answer = result.stdout[0]
-            
-            # Check to see if the output is 3.
-            if (answer == "3"):
-                # Before exiting successfully, create a new file for the next step.
-                if (not os.path.exists(pathname + "/step_8.c")):
-                    step_8_outline = """
-                    #include <stdio.h>
-                    #include <stdlib.h>
+                # Get the output and strip any whitespace
+                output = result.stdout.strip()
 
-                    int main() {
-                        // Create the variables.
-                        int num_elements;
-                        const float PI = 3.14159;
+                # Check to see if the output is "3"
+                if output == "3":
+                    # Before exiting successfully, create a new file for the next step
+                    if not os.path.exists(pathname + "/step_8.c"):
+                        step_8_outline = """
+                        #include <stdio.h>
+                        #include <stdlib.h>
 
-                        // Ask for user input.
-                        printf("Enter the number of elements: ");
-                        scanf("%d", &num_elements);
+                        int main() {
+                            // Create the variables.
+                            int num_elements;
+                            const float PI = 3.14159;
 
-                        // TASK 1: Use malloc to create array_of_floats.
-                        // It should be a pointer of type "float"!
+                            // Ask for user input.
+                            printf("Enter the number of elements: ");
+                            scanf("%d", &num_elements);
 
-                        // Populating the array.
-                        for (int i = 0; i < num_elements; ++i) {
-                            array_of_floats[i] = i * PI;
+                            // TASK 1: Use malloc to create array_of_floats.
+                            // It should be a pointer of type "float"!
+
+                            // Populating the array.
+                            for (int i = 0; i < num_elements; ++i) {
+                                array_of_floats[i] = i * PI;
+                            }
+
+                            // Printing the elements.
+                            printf("Array elements: ");
+                            for (int i = 0; i < num_elements; ++i) {
+                                printf("%.5f ", array_of_floats[i]);
+                            }
+                            printf("\\n");
+
+                            // TASK 2: Free the array.
+
+                            return 0;
                         }
+                        """
 
-                        // Printing the elements.
-                        printf("Array elements: ");
-                        for (int i = 0; i < num_elements; ++i) {
-                            printf("%.5f ", array_of_floats[i]);
-                        }
-                        printf("\\n");
+                        # Remove leading whitespace and extra newline
+                        step_8_outline = textwrap.dedent(step_8_outline).strip()
 
-                        // TASK 2: Free the array.
+                        with open(pathname + "/step_8.c", "w+") as f:
+                            f.write(step_8_outline)
 
-                        return 0;
-                    }
-                    """
-
-                    # Remove leading whitespace and extra newline
-                    step_8_outline = textwrap.dedent(step_8_outline).strip()
-
-                    f = open(pathname + "/step_8.c", "w+")
-                    f.write(step_8_outline)
-                    f.close()
-
-                # Now exit.
-                sys.exit(1)
-
+                    # Now exit.
+                    sys.exit(1)
+                else:
+                    sys.exit(0)
             else:
-                sys.exit(0)
-
-        # If both of the regular expressions don't pass, then the student doesn't have the correct answer.
-        # This means they may have just set c = 3 to avoid answering the question properly.
+                # sum() function call is incorrect
+                sys.exit(4)
         else:
+            # Assignment to *c is incorrect
             sys.exit(4)
 
-
     # Check Step 8.
-    if (step == "8"):
+    if step == "8":
         # Checking for directory/file existence.
         if (not os.path.exists(pathname + "/step_8.c") or not os.path.exists(pathname + "/step_8")):
             sys.exit(2)
 
-        # Before running the file, we will need to parse the text to see if the student followed directions.
-        f = open(pathname + "/step_8.c", "r")
-        text = f.read()
-        f.close()
+        # Read the student's code
+        with open(pathname + "/step_8.c", "r") as f:
+            text = f.read()
 
-        # This regex pattern will check to see if the student has the correct malloc statement.
-        pattern_1 = r'\s*float\s*\*\s*array_of_floats\s*=\s*\(\s*float\s*\*\s*\)\s*malloc\s*\(\s*num_elements\s*\*\s*sizeof\s*\(\s*float\s*\)\s*\)\s*;'
+        # Updated regex pattern for the malloc statement
+        pattern_malloc = r'\s*float\s*\*\s*array_of_floats\s*=\s*\(\s*float\s*\*\s*\)\s*malloc\s*\(\s*(.*?)\s*\)\s*;'
+        malloc_match = re.search(pattern_malloc, text, re.MULTILINE)
 
-        # This regex pattern will check to see if the student called free() correctly.
-        pattern_2 = r'\s*free\(\s*array_of_floats\s*\);'
+        if malloc_match:
+            # Extract the argument inside malloc()
+            malloc_arg = malloc_match.group(1).strip()
 
-        # Make sure that the answer is present before running.
-        if re.search(pattern_1, text, re.MULTILINE) and re.search(pattern_2, text, re.MULTILINE):
-            # Now, attempt to run the program. Silence any errors.
-            # Start the process.
-            process = subprocess.Popen(pathname + '/step_8', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # Remove all whitespace for easier pattern matching
+            malloc_arg_no_space = re.sub(r'\s+', '', malloc_arg)
 
-            # Send the input and get the output and error
-            output, error = process.communicate(input="5\n".encode())
+            # Remove outer parentheses if they exist
+            if malloc_arg_no_space.startswith('(') and malloc_arg_no_space.endswith(')'):
+                malloc_arg_no_space = malloc_arg_no_space[1:-1]
 
-            # Decode the output and error
-            output = output.decode()
-            error = error.decode()
+            # Patterns to match both orders of multiplication
+            pattern_expr1 = r'num_elements\*sizeof\(float\)'
+            pattern_expr2 = r'sizeof\(float\)\*num_elements'
 
-            # In case there was an error.
-            if (error != ""):
-                sys.exit(3)
+            # Check if malloc_arg matches either pattern
+            if re.fullmatch(pattern_expr1, malloc_arg_no_space) or re.fullmatch(pattern_expr2, malloc_arg_no_space):
+                # Updated regex pattern for the free statement with optional space
+                pattern_free = r'\s*free\s*\(\s*array_of_floats\s*\)\s*;'
+                if re.search(pattern_free, text, re.MULTILINE):
+                    # Now, attempt to run the program. Silence any errors.
+                    # Start the process.
+                    process = subprocess.Popen(
+                        pathname + '/step_8',
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
+                    )
 
-            # Should be the correct output.
-            if (output == "Enter the number of elements: Array elements: 0.00000 3.14159 6.28318 9.42477 12.56636 \n"):
-                # Next step needs to be written before exiting.
-                if (not os.path.exists("/home/" + username + "/topic_2/step_9.c")):
-                    step_9_outline = """
-                    #include <stdio.h>
-                    #include <string.h>
+                    # Send the input and get the output and error
+                    output, error = process.communicate(input="5\n".encode())
 
-                    void copy_string() {
-                        char *str1 = "Hello!";
-                        char str2[10];
+                    # Decode the output and error
+                    output = output.decode()
+                    error = error.decode()
 
-                        strcpy(str2, str1);
+                    # In case there was an error.
+                    if error != "":
+                        sys.exit(3)
 
-                        printf("%s\\n", str2);
-                    }
+                    # Should be the correct output.
+                    expected_output = "Enter the number of elements: Array elements: 0.00000 3.14159 6.28318 9.42477 12.56636 \n"
 
-                    int main() {
-                        copy_string();
-                        return 0;
-                    }
-                    """
+                    if output == expected_output:
+                        # Next step needs to be written before exiting.
+                        if not os.path.exists("/home/" + username + "/topic_2/step_9.c"):
+                            step_9_outline = """
+                            #include <stdio.h>
+                            #include <string.h>
 
-                    # BEFORE WRITING, check if topic_2/ is created.
-                    if (not os.path.exists("/home/" + username + "/topic_2/")):
-                        os.mkdir("/home/" + username + "/topic_2/")
+                            void copy_string() {
+                                char *str1 = "Hello!";
+                                char str2[10];
 
-                    # Remove leading whitespace and extra newline
-                    step_9_outline = textwrap.dedent(step_9_outline).strip()
+                                strcpy(str2, str1);
 
-                    f = open("/home/" + username + "/topic_2/step_9.c", "w+")
-                    f.write(step_9_outline)
-                    f.close()
+                                printf("%s\\n", str2);
+                            }
 
-                # Now exit.
-                sys.exit(1)
+                            int main() {
+                                copy_string();
+                                return 0;
+                            }
+                            """
 
-            # Output is incorrect.
+                            # BEFORE WRITING, check if topic_2/ is created.
+                            if not os.path.exists("/home/" + username + "/topic_2/"):
+                                os.mkdir("/home/" + username + "/topic_2/")
+
+                            # Remove leading whitespace and extra newline
+                            step_9_outline = textwrap.dedent(step_9_outline).strip()
+
+                            with open("/home/" + username + "/topic_2/step_9.c", "w+") as f:
+                                f.write(step_9_outline)
+
+                        # Now exit.
+                        sys.exit(1)
+
+                    else:
+                        # Output is incorrect.
+                        sys.exit(0)
+                else:
+                    # The free statement is missing or incorrect.
+                    sys.exit(4)
             else:
-                sys.exit(0)
-
-        # Either malloc or free were used incorrectly.
+                # The malloc argument does not match the expected patterns.
+                sys.exit(4)
         else:
+            # The malloc statement is missing or incorrect.
             sys.exit(4)
 
 main()
