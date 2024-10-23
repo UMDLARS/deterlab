@@ -68,7 +68,7 @@ def main():
         f.close()
 
         # Find the segment which should contain the string vulnerability.
-        pattern = r'\s*console_printf\s*\(\s*[\'\"]Password\s+for\s+user\s+[\'\"]+%s[\'\"]+:*\s*[\'\"]\s*,\s*user_user\s*\)\s*;'
+        pattern = r'^\s*console_printf\s*\(\s*([\'"])(?:\\.|(?!\1).)*%s(?:\\.|(?!\1).)*\1\s*,\s*user_user\s*\)\s*;$'
         matches = re.findall(pattern, wormwood, re.IGNORECASE)
 
         if (matches):
