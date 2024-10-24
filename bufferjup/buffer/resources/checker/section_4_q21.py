@@ -81,7 +81,7 @@ def main():
 
         # Find the segment which should contain the string vulnerability.
         pattern = r'^\s*console_printf\s*\(\s*([\'"])(?:\\.|(?!\1).)*%s(?:\\.|(?!\1).)*\1\s*,\s*user_user\s*\)\s*;$'
-        matches = re.findall(pattern, wormwood, re.IGNORECASE)
+        matches = re.findall(pattern, wormwood, re.MULTILINE | re.DOTALL)
 
         if (matches):
             sys.exit(1)
