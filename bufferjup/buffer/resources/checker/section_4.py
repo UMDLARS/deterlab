@@ -159,7 +159,7 @@ def main():
 
             except Exception as e:
                 # print(f"An error occurred: {e}", file=sys.stderr)
-                sys.exit(2)
+                sys.exit(3)
 
 
     # Checks Step 18.

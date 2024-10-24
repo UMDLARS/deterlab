@@ -11,6 +11,22 @@ def main():
         sys.exit(2)
 
     step = sys.argv[1]
+    username = "USERNAME_FOR_NODE"
+
+    # Define the directory where CMakeLists.txt is located.
+    compile_script = f"/home/{username}/topic_4/wormwood_fix/run.sh"
+
+    try:
+        result = subprocess.run(
+            [compile_script, "--compile-only"],
+            cwd=f"/home/{username}/topic_4/wormwood_fix",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+    except subprocess.CalledProcessError as e:
+        sys.exit(5)
 
     # Much like section_4.py, Step 18 is different from Steps 17, 19, and 20.
     if (step == "17" or step == "19" or step == "20"):
@@ -51,10 +67,6 @@ def main():
 
 
     elif (step == "18"):
-        # Before conducting the final test, read in the two files' source code.
-        # Need the username first to get the path.
-        username = "USERNAME_FOR_NODE"
-
         # Make sure the files exist before reading in the files.
         file_1 = "/home/" + username + "/topic_4/wormwood_fix/wormwood.c"
 
