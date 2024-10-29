@@ -20,7 +20,7 @@ def main():
             pattern = r'^(posts\/..\/){0,1}(\.\.\/){3,}etc\/passwd$'
 
         elif (step == "7"):
-            pattern = r'^(posts\/){0,1}(\.\.\/){7,}etc\/passwd$'
+            pattern = r'^(posts\/..\/){0,1}(\.\.\/){4,}etc\/passwd$'
 
         elif (step == "8"):
             pattern = r'^\/etc\/passwd$'
