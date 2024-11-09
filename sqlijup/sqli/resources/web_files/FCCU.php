@@ -31,12 +31,12 @@ if (!isset($_POST['id']) || !isset($_POST['password'])) {
 	$id = $_POST['id'];
 	$password = $_POST['password'];
 
-    $mysqli = new mysqli($dbhost, $dbuser, $dbpass, $dbname);	
+        $mysqli = new mysqli($dbhost, $dbuser, $dbpass, $dbname);	
 
 	/*** Block #1: CONVERT TO PREPARED STATEMENT ***/
 	$query = "SELECT * FROM accounts WHERE id = $id AND password = '$password'";
 	debug($query);
-    $result = $mysqli->query($query) or die($mysqli->error());
+        $result = $mysqli->query($query) or die($mysqli->error());
 	$row =  $result->fetch_array(); // there should be only one row
 	/*************************************/
 
@@ -80,8 +80,8 @@ if (!isset($_POST['id']) || !isset($_POST['password'])) {
 
 		/*** Block #2: CONVERT TO PREPARED STATEMENT ***/
 		$query = "SELECT * FROM accounts WHERE id = $id AND password = '$password'";
-        $result = $mysqli->query($query) or die($mysqli->error());
-        $row = $result->fetch_array(); // there should be only one row
+                $result = $mysqli->query($query) or die($mysqli->error());
+                $row = $result->fetch_array(); // there should be only one row
 		/*************************************/
 
 		account_info($row);
@@ -103,10 +103,10 @@ function name_to_id($name) {
 	global $dbhost, $dbuser, $dbpass, $dbname;
 	$splitname = explode(", ", $name);
 
-    $mysqli = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+        $mysqli = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
 	
 	/*** Block #3: CONVERT TO PREPARED STATEMENT ***/
-    $query = "SELECT id FROM accounts WHERE first = '$splitname[1]' AND last = '$splitname[0]'";
+        $query = "SELECT id FROM accounts WHERE first = '$splitname[1]' AND last = '$splitname[0]'";
 	$result = $mysqli->query($query) or die($mysqli->error());
 	$row = $result->fetch_array();
 	/*************************************/
