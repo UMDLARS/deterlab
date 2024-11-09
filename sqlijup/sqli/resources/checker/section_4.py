@@ -14,13 +14,32 @@ def main():
 
     step = sys.argv[1]
     query = sys.argv[2]
+    acceptable_id = ""
 
     # Checking Step 16 and 17: Accessing accounts through SQLi.
     if (step == "16" or step == "17"):
         # First, applying some checks to the user input.
         # Checks to see if the student may be typing an ID into the payload.
         if (re.search("[0-9]{3,}", query)):
-            sys.exit(3)
+            # Step 17 is the only step that will allow an ID to be used in the ID field.
+            if (step == "17"):
+                # Get the ID.
+                if (not os.path.exists("/home/.checker/responses/step_16_response.txt")):
+                    sys.exit(5)
+
+                f = open("/home/.checker/responses/step_16_response.txt", "r")
+                prev_response = f.read()
+                f.close()
+
+                match = re.search(r'<td>(\d+)</td>', prev_response)
+
+                # Now, see if that ID is NOT being used in the query that the student is writing.
+                if match:
+                    if (match.group(1) not in query):
+                        sys.exit(3)
+
+            else:
+                sys.exit(3)
 
         # Checks to see if they forgot to use a SQL comment.
         if (not re.search("--", query)):

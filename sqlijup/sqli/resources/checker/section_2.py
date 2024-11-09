@@ -2,6 +2,8 @@
 import requests
 import subprocess
 import sys
+import mysql.connector
+import os
 
 # Function to execute the student's SQL queries and return results.
 def execute_query(query):
@@ -59,6 +61,17 @@ def main():
 
         # Check if the request was successful.
         if (response.status_code == 200):
+            # Before writing the response, check to make sure that the file wasn't patched.
+            if (os.path.exists("/home/.checker/responses/step_" + step + "_response.txt")):
+                f = open("/home/.checker/responses/step_" + step + "_response.txt", "r")
+                content = f.read()
+                f.close()
+
+                # Their payload was patched.
+                if ("No results found. Please enter a valid ID." in response.text):
+                    # Do not overwrite their response.
+                    sys.exit(3)
+
             # Take the response of the server, then write it to a file for the student's response.
             f = open("/home/.checker/responses/step_" + step + "_response.txt", "w+")
 

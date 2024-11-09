@@ -19,7 +19,7 @@ def execute_query(query):
 
         # Take the provided query, then run it.
         cursor.execute(query)
-        
+
         # For SELECT queries, fetch all results.
         if query.strip().lower().startswith('select'):
             result = cursor.fetchall()
@@ -52,8 +52,8 @@ def check_table_structure():
 
     # In case the database isn't created yet.
     if ("Table 'practice.students' doesn't exist\n" in result.stderr):
-        sys.exit(0)
-                            
+        sys.exit(3)
+
     # Create a list of the data values that are in the table. Last line is a blank line, so remove it.
     result = str(result.stdout).split("\n")[:-1]
 
@@ -113,7 +113,7 @@ def verify_inserted_data():
         correct_result_from_12 = re.sub(r'\s+', ' ', correct_result_from_12).strip()
         response = re.sub(r'\s+', ' ', response).strip()
 
-        if ("SET student_name = 'Aaron'" in response and
+        if ("SET student_name = 'Taylor'" in response and
            ("No results found" in response or correct_result_from_12 in response)):
             previously_passed = True
 
@@ -121,7 +121,7 @@ def verify_inserted_data():
         # Retrieve and sort student data from the table.
         query = "SELECT student_id, student_name, student_grade FROM students ORDER BY student_id;"
         actual_rows = execute_query(query)
-        
+
         # Compare retrieved rows with expected rows.
         return (actual_rows == expected_rows) or previously_passed
     except:

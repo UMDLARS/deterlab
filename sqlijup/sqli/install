@@ -9,9 +9,10 @@ export USER=USERNAME_GOES_HERE
 
 # Installing the required libraries.
 apt-get update
-apt-get install gcc python3-pip apache2 apache2-bin mariadb-server mariadb-client php7.4 libapache2-mod-php7.4 php7.4-cli php7.4-mysql -y
+apt-get install gcc python3-pip apache2 apache2-bin mariadb-server mariadb-client php7.4 libapache2-mod-php7.4 php7.4-cli php7.4-mysql libmariadb-dev -y
 
 # Additionally, downloaded a couple pip libraries for the checker scripts.
+python3 -m pip install --upgrade pip
 pip install mysql-connector-python requests
 
 # Moving the checker scripts over.
