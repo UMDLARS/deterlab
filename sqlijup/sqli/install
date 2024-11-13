@@ -42,6 +42,9 @@ cd $RESOURCES/web_files
 cp index.html php_practice.php /var/www/html
 cp FCCU.php /usr/lib/cgi-bin/
 
+# Creating a copy of FCCU.php in the home directory.
+cp FCCU.php /home/$USER
+
 # Giving ownership to the student for php_practice.php.
 chown $USER /var/www/html/php_practice.php
 
