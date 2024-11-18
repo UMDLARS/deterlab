@@ -114,7 +114,7 @@ def main():
                 # If this was Step 4, then we need to do one more check.
                 elif (step == "4"):
                     # Check if the second response contains the URL of the victim.
-                    if ("http://10.0.1.1/xss_practice.php?auth=5OoV2zqA3iS5q4c6D5RI06UrOaJNrHq5" in responses[1]):
+                    if ("http://10.0.1.1/xss_practice.php?auth=XXX" in responses[1]):
                         sys.exit(1)
 
                     else:

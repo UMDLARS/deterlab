@@ -33,11 +33,14 @@ chmod +x $CHECKER/reset.sh
 cp $RESOURCES/install_nvm.sh $CHECKER
 chmod +x $NVM_INSTALL_SCRIPT
 
-# Run the install_nvm.sh script as the user
-sudo -u $USER bash $NVM_INSTALL_SCRIPT
-
 # Move the save/load scripts.
 cp $RESOURCES/*xss.sh $CHECKER
+
+# Give ownership to the students so that the checker will work.
+chown -R $USER:$USER $CHECKER
+
+# Run the install_nvm.sh script as the user
+sudo -H -u $USER bash $NVM_INSTALL_SCRIPT
 
 # Create the responses directory.
 mkdir -p /home/.checker/responses
@@ -94,11 +97,10 @@ sed -i "s|const umdsec_url = \"http://10.0.1.1/xss_practice.php?auth=XXX\";|cons
 
 sed -i "s|const victim_url = \"http://10.0.1.1/xss_practice.php?auth=XXX\";|const victim_url = \"http://10.0.1.1/xss_practice.php?auth=$VICTIM_AUTH\";|" /home/.checker/section_2.js
 
-# Give ownership to the students so that the checker will work.
-chown -R $USER $CHECKER
-
 # Clean up temporary directory
-rm -rf $TEMP_CHECKER
+# rm -rf $TEMP_CHECKER
+
+rm -rf /home/.checker/temp
 
 # All done. Perform cleanup.
 popd
