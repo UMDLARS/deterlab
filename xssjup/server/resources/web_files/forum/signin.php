@@ -17,9 +17,9 @@ else
         /*the form hasn't been posted yet, display it
           note that the action="" will cause the form to post to the same page it is on */
         echo '<form method="post" action="">
-            Username: <input type="text" name="user_name" />
-            Password: <input type="password" name="user_pass">
-            <input type="submit" value="Sign in" />
+            Username: <input type="text" name="user_name" id="userfield" />
+            Password: <input type="password" name="user_pass" id="passfield">
+            <input type="submit" value="Sign in" id="signin_button"/>
          </form>';
     }
     else

@@ -9,8 +9,8 @@ const puppeteer = require('puppeteer');
 const fs = require('fs').promises;
 
 // URLs for the two users.
-const victim_url = "http://10.0.1.1/xss_practice.php?auth=XXX";
-const umdsec_url = "http://10.0.1.1/xss_practice.php?auth=XXX";
+const victim_url = "http://10.0.1.1/xss_practice.php?auth=5OoV2zqA3iS5q4c6D5RI06UrOaJNrHq5";
+const umdsec_url = "http://10.0.1.1/xss_practice.php?auth=begqnS7tOMeBQO4LpF3WROqHhcl9UpTY";
 
 // This is the "main" function that gets called.
 async function run(step) {

@@ -4,11 +4,24 @@ import subprocess
 import sys
 import re
 import mysql.connector
+import glob
+
+def find_node_executable():
+    node_paths = glob.glob('/home/niete018/.nvm/versions/node/*/bin/node')
+    if node_paths:
+        # Return the first matching path, which is the version number. This changes quite a bit.
+        return node_paths[0]
+    else:
+        print("Node executable not found.")
+        sys.exit(2)
 
 def main():
     if (len(sys.argv) != 3):
         print("Usage: ./section_2.py <step_num> <keep_work>")
         sys.exit(0)
+
+    # This is used for obtaining the results:
+    node_executable = find_node_executable()
 
     # Check if the step is between 2-4. If so, check if keep_work is 1 or 0. Otherwise,
     # if on Step 5, skip this check. It should be the victim's credit card number instead.
@@ -20,26 +33,19 @@ def main():
     step = sys.argv[1]
     keep_work = sys.argv[2]
 
-    # Before running the command, switch it to v16.20.2 so that it will work.
-    # This will set the PATH variable within the Python environment. This will not work
-    # if you just update it in the server node (for some reason).
-    os.environ['PATH'] = '/home/USERNAME_GOES_HERE/.nvm/versions/node/v16.20.2/bin:' + os.environ['PATH']
-
     # Each of these steps (except Step 5) need to call a JavaScript file.
     if (step == "2"):
         # If a student doesn't want to keep their work, then run this entire step through section_2.js.
         if (keep_work == "0"):
             # Run the section_2.js file. Saves the response from the payload.
-            result = subprocess.run("node /home/.checker/section_2.js 2", shell=True, capture_output=True, text=True)
+            result = subprocess.run(f"{node_executable} /home/.checker/section_2.js 2", shell=True, capture_output=True, text=True)
 
             # Check to see if there was an error.
             if (result.stderr != ""):
                 sys.exit(2)
 
-            print(result)
-
             # Otherwise, get the output and check it.
-            if (result.stdout == "62\n"):
+            elif (result.stdout == "62\n"):
                 sys.exit(1)
 
             else:
@@ -78,7 +84,7 @@ def main():
         # If a student doesn't want to keep their work, then run this entire step through section_2.js.
         if (keep_work == "0"):
             # Call the section_2.js file for Step 3.
-            result = subprocess.run("node /home/.checker/section_2 " + str(step), shell=True, capture_output=True, text=True)
+            result = subprocess.run(f"{node_executable} /home/.checker/section_2.js {step}", shell=True, capture_output=True, text=True)
             sys.exit(result.returncode)
 
         # If a student wants to run a check on their previous work, then a response should've been saved earlier.
@@ -108,7 +114,7 @@ def main():
                 # If this was Step 4, then we need to do one more check.
                 elif (step == "4"):
                     # Check if the second response contains the URL of the victim.
-                    if ("http://10.0.1.1/xss_practice.php?auth=XXX" in responses[1]):
+                    if ("http://10.0.1.1/xss_practice.php?auth=5OoV2zqA3iS5q4c6D5RI06UrOaJNrHq5" in responses[1]):
                         sys.exit(1)
 
                     else:

@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Define the NVM directory.
+export HOME="/home/$USER"
 export NVM_DIR="$HOME/.nvm"
+
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # Install NVM.
 if [ ! -d "$NVM_DIR" ]; then

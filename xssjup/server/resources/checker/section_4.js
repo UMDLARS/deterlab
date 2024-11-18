@@ -1,18 +1,13 @@
 #!/usr/bin/env node
 
-// NOTE: "await" is used many times in this script. This means that it will wait until its called
-// function is complete before it runs. Asynchronous calls are being made in this script, and to
-// prevent race conditions, the await statement is made so that there are less errors that could
-// "await" is called whenever page navigation, writing, or content is being rendered.
-
 const puppeteer = require('puppeteer');
 const fs = require('fs').promises;
 
-// This is the "main" function that gets called.
+// Main function
 async function run(urls) {
-    // Create a browser and a page.
+    // Launch browser
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: true, // Set to false for debugging
         args: [
             '--disable-web-security',
             '--no-sandbox',
@@ -22,134 +17,145 @@ async function run(urls) {
     });
     const page = await browser.newPage();
 
-    // Step 1: Log in as root user
-    await page.goto('http://10.0.1.1/signin.php', { waitUntil: 'networkidle2' });
+    // Enhanced logging
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    page.on('response', async response => {
+//        console.log(`Response: ${response.status()} ${response.url()}`);
 
-    // Add a delay to ensure the page loads fully
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    await page.type('#userfield', 'root');
-    await page.type('#passfield', 'root');
-
-    await page.click('#signin_button');
-
-    // Step 2: Extract the PHPSESSID cookie
-    const cookies = await page.cookies();
-    const sessionCookie = cookies.find(cookie => cookie.name === 'PHPSESSID');
-
-    // For debugging.
-    // console.log('Extracted PHPSESSID cookie:', sessionCookie);
-
-    // This function will only take one URL. This will be ran in a for loop.
-    async function accessForum(url) {
-        // If there's a request error (which there shouldn't), then print the reason.
-        // This may affect the section_4.py script.
-        /*
-        page.on('requestfailed', request => {
-            console.log(`${request.url()} failed to load. Reason: ${request.failure().errorText}`);
-            console.log("Details:", request.headers(), request.postData());
-        });
-        */
-
-        page.on('console', msg => {
-            // console.log("Console log: " + msg.text());
-        });
-
-        try {
-            // Accesses the webpage, assigns response. Wait until "networkidle2" means the function is
-            // complete when no more than two calls are made within 500ms.
-            // Start navigation to the URL
-
-            const response = await page.goto(url, {
-                waitUntil: 'networkidle0',
-                timeout: 5000 // Time out after 5 seconds
-            });
-
-            // Check if the initial navigation was successful
-            if (response.ok()) {
-                // console.log("Successfully accessed " + url);
-
-                // Capture the content of the final page
-                const content = await page.content();
-
-                return content;
-            } else {
-                console.log("Error accessing " + url);
-                return "Error";
+        // Check if the response URL starts with 'http://10.0.1.3'
+        if (response.url().startsWith('http://10.0.1.3')) {
+            try {
+                // Attempt to get the response body as text
+                const responseBody = await response.text();
+//                console.log(`Response Body for ${response.url()}:\n${responseBody}`);
+            } catch (error) {
+//                console.log(`Failed to get response body for ${response.url()}: ${error}`);
             }
-        } catch (error) {
-            console.log("Error accessing " + url + ": " + error.message);
-            return "Error";
+        }
+    });
+
+    // Listen for request failures
+    page.on('requestfailed', request => {
+//        console.log(`${request.url()} failed to load. Reason: ${request.failure().errorText}`);
+//        console.log("Details:", request.headers(), request.postData());
+    });
+
+    // Additional console logging from the page
+    page.on('console', msg => {
+//        console.log("Console log:", msg.text());
+    });
+
+    try {
+        // Step 1: Log in as root user
+//        console.log('Navigating to sign-in page...');
+        await page.goto('http://10.0.1.1/signin.php', { waitUntil: 'networkidle2' });
+
+        // Add a delay to ensure the page loads fully
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Enter username and password
+//        console.log('Entering credentials...');
+        await page.type('#userfield', 'root', { delay: 100 });
+        await page.type('#passfield', 'root', { delay: 100 });
+
+        // Click the sign-in button and wait for navigation
+//        console.log('Submitting login form...');
+        await Promise.all([
+            page.click('#signin_button'),
+            page.waitForNavigation({ waitUntil: 'networkidle0' }),
+        ]);
+
+        // Step 2: Extract all relevant cookies
+        const cookies = await page.cookies();
+        const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+//        console.log('Extracted Cookies:', cookieString);
+
+        // Step 3: Access each URL sequentially
+        let final_response = "";
+
+        for (let i = 0; i < urls.length; ++i) {
+            const currentUrl = urls[i];
+//            console.log(`\nAccessing URL ${i + 1}: ${currentUrl}`);
+
+            try {
+                // Navigate to the current URL
+                const response = await page.goto(currentUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+
+                if (response && response.ok()) {
+//                    console.log(`Successfully accessed ${currentUrl}`);
+                } else {
+//                    console.warn(`Warning: Received status ${response.status()} for ${currentUrl}`);
+                    final_response += `Error accessing ${currentUrl}: Status ${response.status()}\n`;
+                    continue; // Skip to the next URL
+                }
+            } catch (error) {
+//                console.error(`Error accessing ${currentUrl}: ${error.message}`);
+                final_response += `Error accessing ${currentUrl}: ${error.message}\n`;
+                continue; // Skip to the next URL
+            }
+
+            // Execute fetch within the page context to trigger 'steal.php'
+            const get_response = await page.evaluate(async (url) => {
+                try {
+                    const res = await fetch(url, {
+                        credentials: 'include' // Ensure cookies are sent with the request
+                    });
+                    return await res.text();
+                } catch (e) {
+                    return `Fetch error: ${e.message}`;
+                }
+            }, currentUrl);
+
+            // Check if 'steal.php' was triggered
+            if (get_response.includes("steal.php")) {
+                final_response += get_response;
+            } else {
+//                console.log(`No 'steal.php' triggered for ${currentUrl}`);
+            }
         }
 
-    }
+        // Final Step: Access the home page and append its response if any 'steal.php' was triggered
+        if (final_response !== "") {
+            final_response += "\n-DIVIDER-\n";
+//            console.log('\nAccessing home page...');
+            const homePageResponse = await page.goto("http://10.0.1.1/index.php", { waitUntil: 'networkidle0', timeout: 30000 });
 
-    // Create an empty string, where we will append page responses to it.
-    var final_response = ""
-
-    for (var i = 0; i < urls.length; ++i) {
-        // First, this will actually ACCESS the page using the browser.
-        const response = await accessForum(urls[i]);
-
-        // If there's an error, it would be picked up here. Used for debugging.
-        if (response.substring(0, 5) === "Error") {
-//            console.log(response);
-            break;
+            if (homePageResponse && homePageResponse.ok()) {
+                const homeContent = await page.content();
+                final_response += homeContent;
+//                console.log('Home page accessed successfully.');
+            } else {
+//                console.warn('Warning: Failed to access home page.');
+                final_response += "Error accessing home page.\n";
+            }
+        } else {
+            final_response = "No response from 'steal.php'.";
         }
 
-        // Once the page is accessed, next, we would have to call a GET request. A working
-        // payload in this lab will redirect the client. However, in order to check the
-        // student's work, we will need a GET request to evaluate their payload. Used in the
-        // section_4.py script that this JS file is called from.
+        // Close the browser
+        await browser.close();
 
-        // Once the page is accessed, next, we would have to call a GET request.
-        const get_response = await page.evaluate(async (url) => {
-            const res = await fetch(url);
-            const text = await res.text();
-            return text;
-        }, urls[i]);
-
-        // If "steal.php" is in the response, then this is where a payload is detected.
-        // Take the response and append it to the "final_response".
-        if (get_response.includes("steal.php")) {
-            final_response += get_response;
-        }
-
+        // Output the final response for use in the Python script
+        console.log('\nFinal Response:\n', final_response);
+    } catch (err) {
+        console.error('An unexpected error occurred:', err);
+        await browser.close();
+        process.exit(2);
     }
-
-    // At the end, access the home page, get the response.
-    // Check if Eagles was printed in the Python file. Create a divider to separate them.
-    if (final_response !== "") {
-        final_response += "\n-DIVIDER-\n";
-        home_page_response = await accessForum("http://10.0.1.1/index.php");
-        final_response += home_page_response;
-    }
-
-    else {
-        final_response = "No response";
-    }
-
-    await browser.close();
-
-    // This should be the only output in the end. Used in the Python script.
-    console.log(final_response);
 }
 
-// Check if the usage is being called correctly.
-if (process.argv.length != 3) {
-    console.log("Usage: node ./section_4.js <list_of_urls>");
+// Ensure correct usage
+if (process.argv.length !== 3) {
+    console.log("Usage: node ./section_4.js '<list_of_urls>'");
+    console.log("Example: node ./section_4.js 'http://10.0.1.1/topic.php?id=1 http://10.0.1.1/topic.php?id=2 http://10.0.1.1/topic.php?id=3'");
     process.exit(2);
 }
 
-// <list_of_urls> is a string. Convert into a list.
-urls = process.argv[2].split(" ");
+// Convert the list of URLs from a space-separated string to an array
+let urls = process.argv[2].split(" ").filter(url => url.trim() !== "");
 
-// There's a trailing space at the end, due to how the urls string was generated. Remove the empty
-// URL. Otherwise, it will give an error, because there's a blank URL.
-urls.pop()
-
-// Run the "run" command above.
+// Execute the main function
 run(urls).catch(err => {
-    console.error(err);
+    console.error('Script failed:', err);
     process.exit(2);
 });

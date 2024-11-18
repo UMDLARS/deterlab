@@ -3,6 +3,17 @@ import sys
 import subprocess
 import re
 import os
+import glob
+
+# This is for finding the node executable, just like from Section 2.
+def find_node_executable():
+    node_paths = glob.glob('/home/niete018/.nvm/versions/node/*/bin/node')
+    if node_paths:
+        # Return the first matching path, which is the version number. This changes quite a bit.
+        return node_paths[0]
+    else:
+        print("Node executable not found.")
+        sys.exit(2)
 
 # This function gets called whenever a specific routine gets ran.
 def update_sanitize_routine(routine_number):
@@ -69,18 +80,16 @@ def main():
         print("Usage: ./section_4.py <step_num> <keep_work>")
         sys.exit(2)
 
-    # Check if the step is between 2-4. If so, check if keep_work is 1 or 0. Otherwise,
-    # if on Step 5, skip this check. It should be the victim's credit card number instead.
+    node_executable = find_node_executable()
+
+    # Check if the step is between 7-11. If so, check if keep_work is 1 or 0.
     if (sys.argv[2] != "1" and sys.argv[2] != "0"
          and int(sys.argv[1]) >= 7 and int(sys.argv[1]) <= 11):
-        print("<keep_work> must be 1 (True) or 0 (False). If you are on Step 5, provide the victim's credit card number instead.")
+        print("<keep_work> must be 1 (True) or 0 (False).")
         sys.exit(2)
 
     step = sys.argv[1]
     keep_work = sys.argv[2]
-
-    # Forces NodeJS to run in 16.20.2, which is required for Puppeteer to work.
-    os.environ['PATH'] = '/home/USERNAME_GOES_HERE/.nvm/versions/node/v16.20.2/bin:' + os.environ['PATH']
 
     # This is used for gathering the student's payload and the result from the home page.
     responses = []
@@ -91,6 +100,9 @@ def main():
 
     # If keep_work == 0, then we will have to test the entire website and see if XSS occurred.
     if (keep_work == "0"):
+        # If the Eagles category already exists, remove it.
+        subprocess.run('sudo mysql -e "DELETE FROM forum.categories WHERE cat_name = \'Eagles\';"', shell=True)
+
         # Create a call that will get a list of all the topic numbers.
         result = subprocess.run("mysql -uroot -e 'select topic_id from topics' forum | grep -e \"[0-9]\+\"", shell=True, capture_output=True, text=True)
 
@@ -110,7 +122,7 @@ def main():
         update_sanitize_routine(routine)
 
         # Test the student's payload with the sanitization function.
-        result = subprocess.run("node /home/.checker/section_4.js \'" + urls + "\'", shell=True, capture_output=True, text=True)
+        result = subprocess.run(f"{node_executable} /home/.checker/section_4.js '{urls}'", shell=True, capture_output=True, text=True)
 
         # Each page is accessed. The JS file should've created a file that can be used to analyze.
         # Save the response.
@@ -191,11 +203,8 @@ def main():
             output = f.read()
             f.close()
 
-            print("E1")
-
             # Check if the sanitization function is in the file and if Eagles is not printed.
             if ("htmlspecialchars" in output and not re.search(pattern, responses[1])):
-                print("E2")
                 sys.exit(1)
 
             # htmlspecialchars was not created. Note, this might pick up from a comment in the file.
