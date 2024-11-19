@@ -7,7 +7,7 @@ import mysql.connector
 import glob
 
 def find_node_executable():
-    node_paths = glob.glob('/home/niete018/.nvm/versions/node/*/bin/node')
+    node_paths = glob.glob('/home/USERNAME_GOES_HERE/.nvm/versions/node/*/bin/node')
     if node_paths:
         # Return the first matching path, which is the version number. This changes quite a bit.
         return node_paths[0]
