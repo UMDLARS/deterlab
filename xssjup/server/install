@@ -109,6 +109,8 @@ sed -i "s|const victim_url = \"http://10.0.1.1/xss_practice.php?auth=XXX\";|cons
 
 rm -rf /home/.checker/temp
 
+sed -i "s/USERNAME_GOES_HERE/$USER/g" /home/.checker/section_*
+
 # All done. Perform cleanup.
 popd
 rm -rf *
