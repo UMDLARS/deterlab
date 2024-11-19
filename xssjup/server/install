@@ -76,6 +76,13 @@ mysql -u root -e "INSERT INTO xss.notes (username, note) VALUES ('hacker', 'Pay 
 mysql -u root -e "INSERT INTO xss.notes (username, note) VALUES ('hacker', 'Keep 914 dollars in the bank at FCCU for the tax return this season.');"
 mysql -u root -e "INSERT INTO xss.notes (username, note) VALUES ('hacker', 'Gift ideas for Max: New laptop, coffee mug, or a winter jacket?');"
 
+# Add the users into the forums database.
+mysql -u root -e "INSERT INTO forum.users (user_id, user_name, user_pass, user_email, user_date, user_level) VALUES (1, 'root', sha1('root'), 'root@root.com', NOW(), 1);"
+mysql -u root -e "INSERT INTO users(user_name, user_pass, user_email, user_date, user_level) VALUES ('SlothFromHoth', SHA1('sloth1'), 'sloth@slothunlimited.com', NOW(), 0);"
+mysql -u root -e "INSERT INTO users(user_name, user_pass, user_email, user_date, user_level) VALUES ('TheSleuthSloth', SHA1('sloth2'), 'sleuth@slothsunlumited.com', NOW(), 0);"
+mysql -u root -e "INSERT INTO users(user_name, user_pass, user_email, user_date, user_level) VALUES ('Slowbro', SHA1('sloth3'), 'slowbro@slothsunlimited.com', NOW(), 0);"
+mysql -u root -e "INSERT INTO users(user_name, user_pass, user_email, user_date, user_level) VALUES ('SpeedySteve', SHA1('sloth4'), 'speedy@slothsunlimited.com', NOW(), 0);"
+
 # Transfer all forum source code.
 cp -r forum/* /var/www/html
 
