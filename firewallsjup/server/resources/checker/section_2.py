@@ -69,19 +69,24 @@ def main():
         file_exists = any(os.path.exists(f"/home/.checker/responses/step_{step}_answer.txt") for step in steps)
         backup = ""
 
+        rules = subprocess.run("sudo iptables -S", shell=True, capture_output=True, text=True)
+
         # If any of the questions from Topic 4 was already answered, make a backup of their current rules.
         if file_exists:
-            rules = subprocess.run("sudo iptables -S", shell=True, capture_output=True, text=True)
             backup = (rules.stdout).replace("-P INPUT ACCEPT\n-P FORWARD ACCEPT\n-P OUTPUT ACCEPT\n", "")
 
             # Now, replace the rules with the ones that are required for this step.
             subprocess.run("sudo iptables -F", shell=True)
             subprocess.run("sudo iptables -A OUTPUT -p tcp --dport 80 -j DROP", shell=True)
 
+        # In case students proceed with deleting the step, but don't make it to Topic 4 yet.
+        elif ("-A OUTPUT -p tcp -m tcp --dport 80 -j DROP" not in rules.stdout):
+            subprocess.run("sudo iptables -A OUTPUT -p tcp --dport 80 -j DROP", shell=True)
+
         # Checking if there was one occurrence/statement being executed.
         if (len(matches) == 1):
             # If so, attempt to execute it. Will need to handle separate cases.
-            if (matches[0] == "telnet" or matches[0] == "nc"):
+            if (matches[0] == "telnet" or matches[0] == "nc" or matches[0] == "curl"):
                 # This will require the second user input.
                 # Begin the command.
                 process = subprocess.Popen(answers, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -94,6 +99,7 @@ def main():
                     time.sleep(1)
 
                 except Exception as e:
+                    print(e)
                     # Shouldn't happen. However, if a backup was made, revert to it before exiting.
                     if (backup != ""):
                         # Flush the current iptables rules.
@@ -124,6 +130,10 @@ def main():
                        f.write("\n-DIVIDER-\n")
                        f.write(answer)
                        f.close()
+
+                       # If the student had previously done Step 8, remove the rule again.
+                       if (os.path.exists("/home/.checker/responses/step_8_response.txt")):
+                           subprocess.run("sudo iptables -F", shell=True)
 
                        # If a backup was made, revert to it before exiting.
                        if (backup != ""):

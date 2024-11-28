@@ -8,7 +8,7 @@ def main():
         sys.exit(2)
 
     step = sys.argv[1]
-    answer = sys.argv[2]
+    answer = ' '.join(sys.argv[2].split())
 
     # Check Step 1.
     if (step == "1"):
@@ -27,7 +27,7 @@ def main():
     # Check Step 3.
     if (step == "3"):
         # Split the answers.
-        answers = answer.split("\n")
+        answers = answer.split("\\n")
 
         print(answers)
 
@@ -41,7 +41,7 @@ def main():
     # Check Step 4.
     if (step == "4"):
         # Split the answers.
-        answers = answer.split("\n")
+        answers = answer.split("\\n")
 
         required_params = ["-l", "-p 10000"]
 
@@ -50,9 +50,6 @@ def main():
         # Check the two solutions.
         if (answers[0].startswith("nc") and other_components_present and answers[1] == "nc server 10000"):
             sys.exit(1)
-
-        else:
-            sys.exit(0)
 
         else:
             sys.exit(0)

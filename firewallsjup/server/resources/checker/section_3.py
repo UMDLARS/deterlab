@@ -3,6 +3,7 @@ import sys
 import os
 import re
 import subprocess
+import socket
 
 def main():
     # Checks usage.
@@ -11,7 +12,7 @@ def main():
         sys.exit(2)
 
     step = sys.argv[1]
-    answer = sys.argv[2]
+    answer = ' '.join(sys.argv[2].split())
 
     # Check Step 9
     if (step == "9"):
@@ -55,48 +56,34 @@ def main():
     if (step == "12"):
         # NOTE: Google's IP address changes depending on which server that gets pinged.
         # To allow this step to work over the world, get some "wildcard" IP addresses.
-        ips = []
-        for i in range(10):
-            result = subprocess.run("dig google.com +short", shell=True, capture_output=True, text=True)
-            # Get the first part of the network ID.
-            split_ip = (result.stdout.strip()).split('.')
-            network_id = '.'.join(split_ip[:2])
-            if (network_id not in ips):
-                ips.append(network_id)
+        ips = set()
 
-        # Check Step 12.
-    if (step == "12"):
-        # NOTE: Google's IP address changes depending on which server that gets pinged.
-        # To allow this step to work over the world, get some "wildcard" IP addresses.
-        ips = []
-        for i in range(10):
-            result = subprocess.run("dig google.com +short", shell=True, capture_output=True, text=True)
-            # Get the first part of the network ID.
-            split_ip = (result.stdout.strip()).split('.')
-            network_id = '.'.join(split_ip[:2])
-            if (network_id not in ips):
-                ips.append(network_id)
+        # Use dig to get all A records for google.com
+        try:
+            dig_result = subprocess.run(
+                ["dig", "google.com", "+short", "A"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            dig_ips = dig_result.stdout.strip().splitlines()
+            ips.update(dig_ips)
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing dig: {e}")
 
-        # Additionally, get the IP from telnet, since it may sometimes not appear from dig.
-        process = subprocess.Popen(["telnet", hostname], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # Additionally, use socket to get all IP addresses
+        try:
+            addr_info = socket.getaddrinfo("google.com", None)
+            socket_ips = {item[4][0] for item in addr_info if item[0] in (socket.AF_INET, socket.AF_INET6)}
+            ips.update(socket_ips)
+        except socket.gaierror as e:
+            print(f"Error resolving hostname: {e}")
 
-        ip_address = None
+        # Optionally, remove any IPv6 addresses if you only need IPv4
+        ips = {ip for ip in ips if '.' in ip}  # Keeps only IPv4 addresses
 
-        # Read the output with a limited number of attempts.
-        for _ in range(max_attempts):
-            output = process.stdout.readline()
-            if "Trying" in output:
-                # Extract the IP address using a regular expression.
-                match = re.search(r"Trying\s+([\d\.]+)\s*", output)
-                if match:
-                    ip_address = match.group(1)
-                    break
-
-        ips.append(ip_address)
-
-        # Terminate the process.
-        process.terminate()
-        process.wait()
+        # Convert the set to a sorted list for consistency
+        ips = sorted(ips)
 
         # All potential IPs that the student can use are now in an array. Check to see if any of them
         # are used in the students answer.
@@ -104,7 +91,12 @@ def main():
             # Student is using a valid IP for Google. Now, use a regular expression to check the rest of
             # the student's answer.
             if (ip in answer):
-                pattern = r"(?=.*-s 10\.0\.1\.1)(?=.*-d " + re.escape(ip) + r"\.\d+\.\d+)(?=.*--dport 1234)"
+                pattern = (
+                    r"(?=.*-s\s+10\.0\.1\.1)"
+                    r"(?=.*-d\s+" + re.escape(ip) + r")"
+                    r"(?=.*--dport\s+1234)"
+                )
+
                 # Student has all three, required parameters for the step. IP address likely matches the one
                 # pulled from the dig command.
                 if (re.search(pattern, answer)):
@@ -114,6 +106,11 @@ def main():
                     f.close()
 
                     sys.exit(1)
+
+            # The IP for Google cannot be found in their answer.
+            else:
+                sys.exit(3)
+
 
         # If the student reaches here, there was never a complete match. Likely due to the incorrect IP
         # address, or not everything was constructed properly.

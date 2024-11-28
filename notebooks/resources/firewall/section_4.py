@@ -5,7 +5,6 @@ import os
 import time
 import signal
 import re
-import pexpect
 
 def main():
     if (len(sys.argv) != 2):
@@ -72,7 +71,7 @@ def main():
                 sys.exit(0)
 
             # Make sure that the other three connections failed.
-            matches = re.findall(r'Trying [0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}...\n\^C', answers[1])
+            matches = re.findall(r'telnet: Unable to connect to remote host', answers[1])
 
             if (len(matches) != 3):
                 sys.exit(0)
@@ -186,8 +185,8 @@ def main():
             # Terminate the process, in case it hasn't done so yet.
             process.terminate()
             # For debugging:
-            #print(stdout)
-            #print(stderr)
+            print(stdout)
+            print(stderr)
             
     
             # Some checks for Steps 14 and 15.
@@ -217,7 +216,9 @@ def main():
                     sys.exit(0)
 
                 # Make sure that the other three connections failed.
-                matches = re.findall(r'Trying [0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}...\n\^C', stdout)
+                matches = re.findall(r'telnet: Unable to connect to remote host', stdout)
+
+                print("Matches: " + str(len(matches)))
 
                 if (len(matches) != 3):
                     sys.exit(0)
