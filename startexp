@@ -134,7 +134,7 @@ if [[ -z $rev ]]; then
     echo No existing realization found.
     sleep 60
     echo Pushing new $lab model.
-    rev=$(mrg push $labpath/$lab/$lab.model $exp.$proj | awk '{print $4}')
+    rev=$(mrg push $labpath/$lab/$lab.model $exp.$proj | awk -F"Revision: " '{print $2}' | awk '{print $1}')
     runr mrg show revision $exp.$proj $rev
     if [[ $? -ne 0 ]]; then 
         echo Error compiling model.
