@@ -51,5 +51,4 @@ def main():
                        shell=True, stdout=subprocess.DEVNULL)
     print("Remote tarball removed.")
 
-if __name__ == "__main__":
-    main()
+main()
