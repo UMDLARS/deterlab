@@ -19,6 +19,11 @@ if [ -e "${TMP}/inotify_log.txt" ]; then
     cp "${TMP}/inotify_log.txt" "/home/.checker/inotify_log.txt"
 fi
 
+# Check if inotify_log.txt exists in the temporary directory and copy it if it does.
+if [ -e "${TMP}/step2_perms.txt" ]; then
+    cp "${TMP}/step2_perms.txt" "/home/.checker/step2_perms.txt"
+fi
+
 # Check if findme.txt exists in the temporary directory and copy it if it does.
 if [ -e "${TMP}/.findme.txt" ]; then
     cp "${TMP}/.findme.txt" "/usr/share/discover/dtd/.findme.txt"
@@ -40,5 +45,5 @@ fi
 popd
 
 # Clean up.
-#rm -f /tmp/${USER}_intro.tar.gz
-#rm -r $TMP
+rm -f /tmp/${USER}_intro.tar.gz
+rm -r $TMP

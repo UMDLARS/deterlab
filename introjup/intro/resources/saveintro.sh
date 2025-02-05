@@ -13,6 +13,11 @@ if [ -e "/home/.checker/inotify_log.txt" ]; then
     cp "/home/.checker/inotify_log.txt" $TMP
 fi
 
+# Check if step2_perms.txt exists in the temporary directory and copy it if it does.
+if [ -e "/home/.checker/step2_perms.txt" ]; then
+    cp "/home/.checker/step2_perms.txt" $TMP
+fi
+
 # Check if findme.txt exists in the temporary directory and copy it if it does.
 if [ -e "/usr/share/discover/dtd/.findme.txt" ]; then
     cp "/usr/share/discover/dtd/.findme.txt" $TMP
