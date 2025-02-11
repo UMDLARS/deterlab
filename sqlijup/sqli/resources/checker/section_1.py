@@ -159,6 +159,8 @@ def main():
 
     # Step 4-9: Checking SQL queries.
     elif step in ["4", "5", "6", "7", "8", "9"]:
+        # Need to trim the user query first before running it through the C binary. There's no nice trim function in C.
+        user_query = " ".join(user_query.split())
         result = subprocess.run("/home/.checker/check_sql " + step + " \"" + user_query + "\"", shell=True, capture_output=True, text=True)
         print(result)
         sys.exit(result.returncode)
