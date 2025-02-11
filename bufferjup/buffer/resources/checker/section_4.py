@@ -165,7 +165,7 @@ def main():
     # Checks Step 18.
     elif (step == "18"):
         # Gets the user input. Using regular expressions to check the answer here.
-        pattern = r"^(\%s\s*){8,}$"
+        pattern = r"^(\%(s|x)\s*){8,}$"
 
         if (re.search(pattern, payload)):
             sys.exit(1)
