@@ -390,7 +390,7 @@ int main(int argc, char *argv[]) {
 
     // Read the output a line at a time - output it and store it in the result.
     while (fgets(output, sizeof(output) - 1, fp) != NULL) {
-        // Append the line to the result buffer using strncat
+        // Append the line to the result buffer using strncat,
         strncat(result, output, sizeof(result) - strlen(result) - 1);
     }
 

@@ -182,14 +182,13 @@ def main():
 
             process_errors = process_errors.strip()
 
-            # Save process_errors as a text file so that it can be read from the binary.
-            f = open("/home/.checker/responses/step_5_response.txt", "w+")
-            f.write(process_errors)
-            f.close()
-
             # POST was successful, but check to see if the file was actually deleted. Additionally, check if the binary file passed.
             if (not os.path.exists("/lab/memos/9999") and result.returncode == 1):
-                # Successful.
+                # Successful. Finally, write the response so that it can be used later.
+                f = open("/home/.checker/responses/step_5_response.txt", "w+")
+                f.write(process_errors)
+                f.close()
+
                 sys.exit(1)
 
             # POST succeeded, but did not remove the file. Or, the output that the binary file tested for was incorrect.
