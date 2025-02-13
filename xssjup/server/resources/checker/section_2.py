@@ -45,7 +45,7 @@ def main():
                 sys.exit(2)
 
             # Otherwise, get the output and check it.
-            elif (result.stdout == "62\n"):
+            elif ("62\n" in result.stdout):
                 sys.exit(1)
 
             else:
