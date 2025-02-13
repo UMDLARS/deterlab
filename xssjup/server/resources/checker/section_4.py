@@ -172,7 +172,7 @@ def main():
             if ("htmlspecialchars" in output and not re.search(pattern, responses[1])):
                 sys.exit(1)
 
-            # htmlspecialchars was not created. Note, this might pick up from a comment in the fi>
+            # htmlspecialchars was not created. Note, this might pick up from a comment in the file.
             elif ("htmlspecialchars" not in output):
                 sys.exit(5)
 
@@ -194,30 +194,6 @@ def main():
         else:
             # No occurrence of steal.php means that there was no payload.
             sys.exit(0)
-
-    # Eagles wasn't made. However, check if it's Step 11 before exiting with failure.
-    elif (step == "11"):
-        # Check if htmlspecialchars was used.
-        if (os.path.exists("/var/www/html/sanitize.php")):
-            f = open("/var/www/html/sanitize.php")
-            output = f.read()
-            f.close()
-
-            # Check if the sanitization function is in the file and if Eagles is not printed.
-            if ("htmlspecialchars" in output and not re.search(pattern, responses[1])):
-                sys.exit(1)
-
-            # htmlspecialchars was not created. Note, this might pick up from a comment in the file.
-            elif ("htmlspecialchars" not in output):
-                sys.exit(0)
-
-            # Somehow, htmlspecialchars was used and still printed Eagles. Use special exit code.
-            else:
-                sys.exit(4)
-
-        # sanitize.php was somehow deleted.
-        else:
-            sys.exit(2)
 
     # Otherwise, exit with failure.
     else:
