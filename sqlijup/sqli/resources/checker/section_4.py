@@ -18,6 +18,11 @@ def main():
 
     # Checking Step 16 and 17: Accessing accounts through SQLi.
     if (step == "16" or step == "17"):
+        # This will be used in case FCCU.php was patched, and we need to check what the previous response was.
+        f = open("/home/.checker/responses/step_16_response.txt", "r")
+        prev_response = f.read()
+        f.close()
+
         # First, applying some checks to the user input.
         # Checks to see if the student may be typing an ID into the payload.
         if (re.search("[0-9]{3,}", query)):
@@ -26,10 +31,6 @@ def main():
                 # Get the ID.
                 if (not os.path.exists("/home/.checker/responses/step_16_response.txt")):
                     sys.exit(5)
-
-                f = open("/home/.checker/responses/step_16_response.txt", "r")
-                prev_response = f.read()
-                f.close()
 
                 match = re.search(r'<td>(\d+)</td>', prev_response)
 
@@ -66,6 +67,22 @@ def main():
             pattern = re.compile(r'<table\b.*?</table>', re.DOTALL)
             # Getting all tables in the response.
             match = pattern.findall(response.text)
+
+            print(f"prev_response 2: " + prev_response)
+
+            # This happens if there's no response. Happens if it failed, or FCCU.php was patched.
+            if (len(match) == 1):
+                # Check to see if this was previous done before a patch.
+                if (os.path.exists("/home/.checker/responses/step_16_response.txt")):
+                    # We already acquired their previous response. If we just append it to the "match"
+                    # list, then we can continue with the file, and it will behave normally.
+                    match.append(prev_response)
+
+                # No previous responses. End with a failure code.
+                else:
+                    sys.exit(0)
+
+            print(match)
 
             # The table with the account information is the second table (index 1) in the output.
             if (match):
