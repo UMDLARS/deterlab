@@ -195,7 +195,7 @@ def main():
             special_perm = get_special_perms("/collections/project")
             if special_perm == "1":
                 # Successful, but create a text file for the next step.
-                subprocess.run('sudo su - misty -c "echo Our progress is complete! > /collections/project/progress_report.txt"', shell=True)
+                subprocess.run('sudo su - ash -c "echo Our progress is complete! > /collections/project/progress_report.txt"', shell=True)
                 # Now, return success.
                 sys.exit(1)
             else:
