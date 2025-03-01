@@ -174,7 +174,13 @@ def main():
         if (os.path.exists("/collections/project")):
             perms = get_perms("/collections/project")
             previously_completed = False
-            if (os.path.exists("/collections/project/progress_report.txt")):
+
+            # Need to envoke sudo to see if progress_report.txt exists. Using subprocess.run for this.
+            # Reason why we're doing this is because this script runs as umdclassXXXX, who doesn't have access to this file.
+            file_exists = subprocess.run("sudo [ -f /collections/project/progress_report.txt ] && echo 1 || echo 0", shell=True, capture_output=True)
+
+            # Need to decode any stdout as UTF-8 before comparing it to a string.
+            if (file_exists.stdout.decode('utf-8').strip() == "1"):
                 previously_completed = True
 
             if perms == "770" or previously_completed:
@@ -195,7 +201,7 @@ def main():
             special_perm = get_special_perms("/collections/project")
             if special_perm == "1":
                 # Successful, but create a text file for the next step.
-                subprocess.run('sudo su - ash -c "echo Our progress is complete! > /collections/project/progress_report.txt"', shell=True)
+                subprocess.run('sudo su - misty -c "echo Our progress is complete! > /collections/project/progress_report.txt"', shell=True)
                 # Now, return success.
                 sys.exit(1)
             else:
