@@ -122,9 +122,9 @@ If the command is detected, then you are ready to move on to the steps below.
             echo "XDC for $USERNAME was created successfully."
         fi
 
-        # Give yourself access to their XDCs. Replace the content in [...] with your username.
+        # Give yourself access to their XDCs. Replace <...> with your username (without < > around it).
         # This command may be repeated for additional instructors/TAs.
-        mrg new member project "$USERNAME" [YOUR SPHERE USERNAME HERE]
+        mrg new member project "$USERNAME" <YOUR SPHERE USERNAME HERE>
 
         # Logout of the account.
         mrg logout
