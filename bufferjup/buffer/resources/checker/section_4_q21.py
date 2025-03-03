@@ -13,6 +13,10 @@ def main():
     step = sys.argv[1]
     username = "USERNAME_GOES_HERE"
 
+    # Before running this step, check to make sure that the topic has been started.
+    if (not os.path.exists(f"/home/{username}/topic_4")):
+        sys.exit(6)
+
     # Define the directory where CMakeLists.txt is located.
     compile_script = f"/home/{username}/topic_4/wormwood_fix/run.sh"
 
