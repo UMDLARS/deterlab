@@ -15,7 +15,7 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
     pathname = f"/home/{username}/topic_1"
 
     # Checks Step 1.
@@ -266,6 +266,15 @@ def main():
 
     # Check Step 6. This requires user input!
     elif (step == "6"):
+        # Check to make sure that the previous steps have been completed.
+        # Getting a list of the files that should've been created before starting.
+        completed_files = ["step_1.c", "step_2", "step_4.c", "step_4", "step_5.c", "step_5"]
+
+        for file in completed_files:
+            file_path = f"/home/USERNAME_GOES_HERE/topic_1/{file}"
+            if not os.path.exists(file_path):
+                sys.exit(2)
+
         if (sys.argv[2] == "0"):
             # The answer is correct. Before exiting with code 1, we need to create a new file for the student for the next step.
             # If it already exists, do not overwrite it. This may lose progress if the student is checking all their answers.
@@ -354,8 +363,10 @@ int main() {
                             const float PI = 3.14159;
 
                             // Ask for user input.
+                            char input[10];
                             printf("Enter the number of elements: ");
-                            scanf("%d", &num_elements);
+                            fgets(input, sizeof(input), stdin);
+                            num_elements = atoi(input);
 
                             // TASK 1: Use malloc to create array_of_floats.
                             // It should be a pointer of type "float"!

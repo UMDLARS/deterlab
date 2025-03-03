@@ -11,7 +11,7 @@ def main():
         sys.exit(2)
 
     step = sys.argv[1]
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
 
     # Define the directory where CMakeLists.txt is located.
     compile_script = f"/home/{username}/topic_4/wormwood_fix/run.sh"
