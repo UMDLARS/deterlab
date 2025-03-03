@@ -70,7 +70,7 @@ First, identify your operating system. If you have one of the following operatin
 Additionally, you will need to select a release that aligns with your processor. Find your processor below, and download a release that supports your architecture:
 - **Intel:** `amd64`
 - **AMD:** `amd64`
-- **Apple Silicone:** `arm64`
+- **Apple Silicon:** `arm64`
 
 Before continuing with the steps below, find a valid combination of operating system and architecture that works with your machine. For example, if you have a Linux machine with an Intel processor, you will need to download `mrg_X.X.X_linux_amd64.deb`. To verify that your installation is correct, run the following command:
 - **Windows:** Using a terminal, navigate to the `mrg` executable that you unzipped and type `mrg`.
@@ -81,7 +81,7 @@ If the command is detected, then you are ready to move on to the steps below.
 ### Creating Your Students' Accounts 🧑‍💻
 
 1. Create the SPHERE accounts for your students. You may follow the documentation [here](https://mergetb.gitlab.io/testbeds/sphere/sphere-docs/docs/experimentation/classes/) to learn how to set up class accounts.
-2. Once you have created the accounts, provide the list of usernames/passwords to your students. However, it is recommended to wait until completing Step 5. As of 3/1/2025, a username/password will not be emailed to your students automatically. [SPHERE will implement this in the future](https://mergetb.gitlab.io/testbeds/sphere/sphere-docs/docs/experimentation/classes/#:~:text=We%E2%80%99re%20working%20on%20emailing%20the%20students%E2%80%99%20their%20passwords%2C%20and%20hope%20to%20release%20this%20feature%20by%20September%2015%2C%202024.).
+2. Once you have created the accounts, provide the list of usernames/passwords to your students. However, it is recommended to wait until each step before distributing the login credentials. As of 3/1/2025, a username/password will not be emailed to your students automatically. [SPHERE will implement this in the future](https://mergetb.gitlab.io/testbeds/sphere/sphere-docs/docs/experimentation/classes/#:~:text=We%E2%80%99re%20working%20on%20emailing%20the%20students%E2%80%99%20their%20passwords%2C%20and%20hope%20to%20release%20this%20feature%20by%20September%2015%2C%202024.).
 3. Create a directory on your machine. This directory will contain some important scripts, like auto-grading and auto-generation within SPHERE.
 4. Download `install_notebooks.sh` from this repository and store it in that directory.
 5. Create a script called `users.sh` and store your students' usernames/passwords as follows:
