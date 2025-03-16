@@ -271,7 +271,7 @@ def main():
         completed_files = ["step_1.c", "step_2", "step_4.c", "step_4", "step_5.c", "step_5"]
 
         for file in completed_files:
-            file_path = f"/home/USERNAME_GOES_HERE/topic_1/{file}"
+            file_path = f"/home/USERNAME_FOR_NODE/topic_1/{file}"
             if not os.path.exists(file_path):
                 sys.exit(2)
 
