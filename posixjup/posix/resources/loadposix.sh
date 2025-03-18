@@ -55,18 +55,44 @@ if [ -d "${TMP}/home/.checker/responses" ]; then
     sudo mv "${TMP}/home/.checker/responses/" "/home/.checker/"
 fi
 
-# Copy the users/groups back.
+# Copy the users/groups back. These "merge" the users back into /etc/*.
+# If we overwrite instead of merging, then students will not be able to sign back in after loading.
+
+# --- /etc/passwd ---
 if [ -f "${TMP}/etc/passwd" ]; then
-    sudo mv "${TMP}/etc/passwd" "/etc/"
+  while IFS=: read -r user pass uid gid gecos home shell; do
+    [ -z "$user" ] && continue
+    # If the user doesn't exist in real /etc/passwd, append
+    if ! getent passwd "$user" >/dev/null; then
+      echo "$user:$pass:$uid:$gid:$gecos:$home:$shell" | \
+        sudo tee -a /etc/passwd >/dev/null
+    fi
+  done < <(sudo cat "${TMP}/etc/passwd")
 fi
 
+# --- /etc/group ---
 if [ -f "${TMP}/etc/group" ]; then
-    sudo mv "${TMP}/etc/group" "/etc/"
+  while IFS=: read -r groupname pass gid members; do
+    [ -z "$groupname" ] && continue
+    # If the group doesn't exist, append
+    if ! getent group "$groupname" >/dev/null; then
+      echo "$groupname:$pass:$gid:$members" | \
+        sudo tee -a /etc/group >/dev/null
+    fi
+  done < <(sudo cat "${TMP}/etc/group")
 fi
 
+# --- /etc/shadow ---
 if [ -f "${TMP}/etc/shadow" ]; then
-    sudo mv "${TMP}/etc/shadow" "/etc/"
+  while IFS=: read -r user pass rest; do
+    [ -z "$user" ] && continue
+    # If the user isn't in real /etc/shadow, append
+    if ! sudo grep -q "^${user}:" /etc/shadow; then
+      echo "$user:$pass:$rest" | sudo tee -a /etc/shadow >/dev/null
+    fi
+  done < <(sudo cat "${TMP}/etc/shadow")
 fi
+
 
 # Return to the previous directory.
 popd
