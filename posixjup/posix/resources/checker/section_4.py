@@ -201,7 +201,9 @@ def main():
             special_perm = get_special_perms("/collections/project")
             if special_perm == "1":
                 # Successful, but create a text file for the next step.
-                subprocess.run('sudo su - misty -c "echo Our progress is complete! > /collections/project/progress_report.txt"', shell=True)
+                # We will hide the output of this command. If students are done with Step 23, they will receive an error. We want to hide that.
+                # If write perms aren't yet (in the next step), this will behave normally.
+                subprocess.run('sudo su - misty -c "echo Our progress is complete! > /collections/project/progress_report.txt" 2>/dev/null', shell=True)
                 # Now, return success.
                 sys.exit(1)
             else:
