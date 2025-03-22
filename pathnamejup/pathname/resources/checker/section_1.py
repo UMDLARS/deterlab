@@ -106,7 +106,7 @@ def main():
         # Step 4 will do regex matching before testing.
         if (step == "4"):
             # Get the pattern.
-            pattern = r'\s*return\s+redirect\s*\(\s*url_for\s*\(\s*[\'"]index[\'"]\s*\)\s*\)'            
+            pattern = r'\s*return\s+redirect\s*\(\s*url_for\s*\(\s*[\'"]index[\'"]\s*\)\s*\)'
 
             # If the student already has an answer, use the pattern above and do a separate check.
             if (os.path.exists("/home/.checker/responses/step_4_response.txt")):
@@ -172,8 +172,6 @@ def main():
 
             # Run the binary file.
             result = subprocess.run("/home/.checker/section_1 5", shell=True, capture_output=True, text=True)
-
-            print(result)
 
             # Close the process and check the result from the pipe.
             process.terminate()
