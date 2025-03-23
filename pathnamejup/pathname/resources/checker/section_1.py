@@ -176,8 +176,6 @@ def main():
             f.write("test")
             f.close()
 
-            print(f"File exists: {os.path.exists('/lab/memos/9999')}")
-
             # Perform a cURL call to delete it.
             result = subprocess.run("curl -X POST -v http://127.0.0.1:5010/delete_memo/9999", shell=True, text=True, capture_output=True)
 
@@ -195,10 +193,6 @@ def main():
             process_output, process_errors = process.communicate()
 
             process_errors = process_errors.strip()
-
-            print(result)
-
-            print(f"File exists: {os.path.exists('/lab/memos/9999')}")
 
             # POST was successful, but check to see if the file was actually deleted. Additionally, check if the binary file passed.
             if (not os.path.exists("/lab/memos/9999") and result.returncode == 0):
