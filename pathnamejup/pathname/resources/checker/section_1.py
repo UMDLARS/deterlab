@@ -5,212 +5,350 @@ import os
 import getpass
 import time
 import shutil
-import grp
 import re
 
+# This is an environment variable that's used to run ./section_1 while requiring section_1.py to be ran with it.
+SECRET_VALUE = "897dba53d0bd4e72adf9215db3948"
+
 def main():
-    if (len(sys.argv) != 2):
+    if len(sys.argv) != 2:
         print("Usage: ./section_1.py <step>")
         sys.exit(2)
 
     step = sys.argv[1]
     user = getpass.getuser()
 
-    # Before running this step, in case the process wasn't closed previously, do this to kill any
-    # existing processes on port 5010, which is what the checker is using.
-    result = subprocess.run(['lsof', '-t', f'-i:5010'], capture_output=True, text=True)
+    # Kill any leftover process on port 5010.
+    result = subprocess.run(['lsof', '-t', '-i:5010'], capture_output=True, text=True)
     pids = result.stdout.strip()
     if pids:
         subprocess.run(['kill', *pids.split()])
 
-    # Check Step 2 and 3. Step 1 is not checked.
-    if (step == "2" or step == "3"):
-        # Navigate into the home directory.
-        os.chdir("/home/" + user)
+    # Creating the environment variable.
+    env = os.environ.copy()
+    env["CHECKER_SECRET"] = SECRET_VALUE
 
-        # Check to make sure that the server can be started.
-        if (not os.path.exists("/home/" + user + "/step_2.py") and step == "2" or \
-            not os.path.exists("/home/" + user + "/step_3.py") and step == "3"):
-            sys.exit(2)
+    # Checking Step 2.
+    if step == "2":
+        # Checks to see if the student has previously passed this step.
+        resp_path = "/home/.checker/responses/step_2_response.txt"
+        if os.path.exists(resp_path):
+            with open(resp_path, "r") as f:
+                old_data = f.read()
 
-        # Start the server on port 5010.
-        process = subprocess.Popen(["python3", "-m", "flask", "--app", "step_" + step, "run", "-p", "5010"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        # To prevent a race condition.
-        time.sleep(2)
-
-        # Server is running. Now, run the section_1 binary file.
-        if (step == "2"):
-            result = subprocess.run("/home/.checker/section_1 2", shell=True, capture_output=True, text=True)
-
-            # End the server and get the output.
-            process.terminate()
-
-            # For debugging.
-            # process_output, process_errors = process.communicate()
-
-            if (result.returncode == 1):
-                if (not os.path.exists("/home/" + user + "/step_3.py")):
-                    shutil.copyfile("/home/" + user + "/step_2.py", "/home/" + user + "/step_3.py")
-
-            # Check to see that the result is valid.
-            sys.exit(result.returncode)
-
-
-        # Step 3 requires sudo, as it will need to have permissions to create /lab.
-        elif (step == "3"):
-            result = subprocess.run("sudo /home/.checker/section_1 3", shell=True, capture_output=True, text=True)
-
-            # After running the result, check to see if /lab is owned by sudo. If it is, then we will need to change permissions.
-            if (os.path.exists("/lab")):
-                stat_info = os.stat('/lab')
-                uid = stat_info.st_uid
-
-                if (uid == 0):
-                    subprocess.run("sudo chown -R " + user + " /lab", shell=True)
-
-            # End the server and get the output.
-            process.terminate()
-
-            # For debugging.
-            process_output, process_errors = process.communicate()
-
-            # Check to see that the result is valid.
-            sys.exit(result.returncode)
-
-    # Check Step 4 and 5.
-    elif (step == "4" or step == "5"):
-        # This file should've already been made.
-        if (not os.path.exists("/lab/memo.py")):
-            sys.exit(2)
-
-        # Navigate into the /lab directory.
-        os.chdir("/lab")
-
-        # Start the server on port 5010.
-        process = subprocess.Popen(["python3", "-m", "flask", "--app", "memo", "run", "-p", "5010"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        # To prevent a race condition.
-        time.sleep(2)
-
-        f = open("/lab/memo.py", "r")
-        content = f.read()
-        f.close()
-
-        # For debugging.
-        # process_output, process_errors = process.communicate()
-
-        # print(process_output)
-        # print(process_errors)
-
-        # Step 4 will do regex matching before testing.
-        if (step == "4"):
-            # Get the pattern.
-            pattern = r'\s*return\s+redirect\s*\(\s*url_for\s*\(\s*[\'"]index[\'"]\s*\)\s*\)'
-
-            # If the student already has an answer, use the pattern above and do a separate check.
-            if (os.path.exists("/home/.checker/responses/step_4_response.txt")):
-                f = open("/home/.checker/responses/step_4_response.txt", "r")
-                content = f.read()
-                f.close()
-
-                # Split at the divider that was made earlier. Perform matches.
-                result = content.split("\n-DIVIDER-\n")
-                matches = re.findall(pattern, result[0])
-
-                if (len(matches) == 2):
-                    # Successful. Now, check to make sure that the previous response was valid.
-                    if ("<p>You should be redirected automatically to the target URL: <a href=\"/\">/</a>. If not, click the link." in result[1]):
-                        sys.exit(1)
-
-                    else:
-                        sys.exit(0)
-
+            # Checking to make sure that the "Hello, World!" string was printed previously.
+            if "<p>Hello, World!</p>" in old_data:
+                # Pass with success. Was completed correctly beforehand.
+                sys.exit(1)
             else:
-                # Perform a match.
-                matches = re.findall(pattern, content)
+                # This shouldn't have happened, as the student cannot previously "pass" with the wrong output.
+                # Remove the bad file, then continue with the rest of the check.
+                os.remove(resp_path)
 
-                # There must be exactly two matches. If so, then the step is passed. Call ./section_1 to run the test
-                # through the server and check if it works.
-                if (len(matches) == 2):
-                    # Save a copy of the student's answer.
-                    shutil.copyfile("/lab/memo.py", "/home/.checker/responses/step_4_response.txt")
+        # Continuing with the proper check.
+        path_2 = f"/home/{user}/step_2.py"
+        # File doesn't exist.
+        if not os.path.exists(path_2):
+            sys.exit(2)
 
-                    # Perform the check.
-                    # Caution: This is going to overwrite the student's work if it's successful. This is intentional, but could make debugging hard!
-                    result = subprocess.run("/home/.checker/section_1 4", shell=True, capture_output=True, text=True)
+        # Heading into the student's directory so that we can open a process to run the Flask application.
+        os.chdir(f"/home/{user}")
 
-                    # If the response was successful, append the response to the text file that was just made.
-                    if ("<p>You should be redirected automatically to the target URL: <a href=\"/\">/</a>. If not, click the link." in result.stdout):
-                        f = open("/home/.checker/responses/step_4_response.txt", "a")
-                        f.write("\n-DIVIDER-\n")
-                        f.write(result.stdout)
-                        sys.exit(1)
+        # Start the student's server on port 5010 so that there's no conflicts.
+        process = subprocess.Popen(
+            ["python3", "-m", "flask", "--app", "step_2", "run", "-p", "5010"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+        # To prevent any race conditions.
+        time.sleep(2)
 
-                    # Otherwise, delete the file. This wasn't correct. This shouldn't happen!
-                    else:
-                        os.remove("/home/.checker/responses/step_4_response.txt")
-                        sys.exit(0)
+        # Calling a curl request and getting the output.
+        curl_result = subprocess.run(
+            ["curl", "127.0.0.1:5010"],
+            capture_output=True, text=True
+        )
 
-                else:
-                    sys.exit(0)
+        # Finish the task so that we can read the output.
+        process.terminate()
+        process.wait()
 
-        # This check doesn't need to be ran in the C file.
-        elif (step == "5"):
-            # Check to see if this step was already completed.
-            if (os.path.exists("/home/.checker/responses/step_5_response.txt")):
-                with open("/home/.checker/responses/step_5_response.txt", 'r') as file:
-                    content = file.read()
-                    # Remove any ANSI escape codes from the content.
-                    cleaned_content = re.sub(r'\x1b\[([0-9]{1,2};)?[0-9]{1,2}m', '', content)
-                    # Now perform the check on the cleaned content.
-                    if '"POST /delete_memo/9999 HTTP/1.1" 302' in cleaned_content:
-                        sys.exit(1)
+        # Checks if "Hello, World!" is printed properly. It should, since the answer is given to them in the notebook.
+        if "<p>Hello, World!</p>" in curl_result.stdout:
+            # Save a response file so we know we've passed.
+            with open(resp_path, "w") as f:
+                f.write(curl_result.stdout)
 
-                    # This shouldn't happen. The test would "pass", but somehow not pass?
-                    else:
-                        sys.exit(3)
+            # Before exiting successfully, create the next file for ~/step_3.py.
+            c_result = subprocess.run(["/home/.checker/section_1", "2"], env=env, capture_output=True)
 
-            # First, creating a test memo.
-            f = open("/lab/memos/9999", "w+")
-            f.write("test")
-            f.close()
-
-            # Perform a cURL call to delete it.
-            result = subprocess.run("curl -X POST -v http://127.0.0.1:5010/delete_memo/9999", shell=True, text=True, capture_output=True)
-
-            # Check the result:
-            if ("Accept: */*" not in result.stderr):
-                process.terminate()
-                sys.exit(0)
-
-            # Close the process and check the result from the pipe.
-            process.terminate()
-            process.wait()
-            process_output, process_errors = process.communicate()
-
-            process_errors = process_errors.strip()
-
-            # POST was successful, but check to see if the file was actually deleted. Additionally, check if the binary file passed.
-            if (not os.path.exists("/lab/memos/9999") and result.returncode == 0):
-                # Successful. Write the response, then run the binary file, which depends on this result.
-                f = open("/home/.checker/responses/step_5_response.txt", "w+")
-                f.write(process_errors)
-                f.close()
-
-                result = subprocess.run("/home/.checker/section_1 5", shell=True, capture_output=True, text=True)
-
+            # Should be successful.
+            if c_result.returncode == 1:
+                # If they pass, copy step_2.py to step_3.py for the next step.
+                path_3 = f"/home/{user}/step_3.py"
+                if not os.path.exists(path_3):
+                    shutil.copyfile(path_2, path_3)
                 sys.exit(1)
 
-            # POST succeeded, but did not remove the file. Or, the output that the binary file tested for was incorrect.
+            # Something odd happened. They passed, but something is wrong with the checker script. Return a code of 3.
             else:
-                if (os.path.exists("/lab/memos/9999")):
-                    os.remove("/lab/memos/9999")
+                os.remove(resp_path)
+                sys.exit(3)
+        else:
+            # They have the wrong output (shouldn't happen, as the answer is given to them in the step).
+            sys.exit(0)
 
-                sys.exit(0)
+    # Checking Step 3.
+    elif step == "3":
+        # Getting the response path, so that we can check if it was previously passed.
+        resp_path = "/home/.checker/responses/step_3_response.txt"
+    
+        # If this file already exists, check if we previously passed Step 3.
+        if os.path.exists(resp_path):
+            with open(resp_path, "r") as f:
+                old_data = f.read()
+            # Checking the response and seeing if the template was printed.
+            if "<h1>Welcome to Step 3!</h1>" in old_data:
+                # Previously passed. Skip the step.
+                sys.exit(1)
+            else:
+                # This was an invalid response that somehow got passed. Remove and continue with the rest of the check.
+                os.remove(resp_path)
+    
+        # Defining a fresh path that we will be testing this on.
+        path_3 = f"/home/{user}/step_3.py"
 
+        # In case they haven't made step_3.py yet. This should've been done automatically.
+        if not os.path.exists(path_3):
+            sys.exit(2)
+    
+        # Start the student's server, just like Step 2. (This will be repeated throughout each step of the file).
+        os.chdir(f"/home/{user}")
+        process = subprocess.Popen(
+            ["python3", "-m", "flask", "--app", "step_3", "run", "-p", "5010"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+        time.sleep(2)
+    
+        curl_result = subprocess.run(
+            ["curl", "127.0.0.1:5010"],
+            capture_output=True, text=True
+        )
+    
+        process.terminate()
+        process.wait()
+    
+        # Now check if the returned HTML contains <h1>Welcome to Step 3!</h1>.
+        if "<h1>Welcome to Step 3!</h1>" in curl_result.stdout:
+            # Save a response file so we know we've passed.
+            with open(resp_path, "w") as f:
+                # Storing the output here.
+                f.write(curl_result.stdout)
+    
+            # Now call the C code to finalize Step 3. sudo is required here since we need to make a directory in /.
+            c_result = subprocess.run(["sudo", "-E", "/home/.checker/section_1", "3"], env=env, capture_output=True)
 
+            # Should work.
+            if c_result.returncode == 1:
+                # Giving ownership to the student so that they can freely work within it.
+                if os.path.exists("/lab"):
+                    st_info = os.stat("/lab")
+                    if st_info.st_uid == 0:
+                        subprocess.run(["sudo", "chown", "-R", user, "/lab"])
+                sys.exit(1)
+
+            # Something went wrong with the checker script.
+            else:
+                # If the C code fails, remove the response so we can try again later.
+                os.remove(resp_path)
+                sys.exit(3)
+        else:
+            # The student is still returning "<p>Hello, World!</p>" or otherwise incorrect.
+            sys.exit(0)
+
+    # Checking Step 4.
+    elif step == "4":
+        # Defining the path, like always.
+        resp_path = "/home/.checker/responses/step_4_response.txt"
+
+        # If step_4_response.txt already exists, check if it was successful originally.
+        if os.path.exists(resp_path):
+            with open(resp_path, "r") as f:
+                old_data = f.read()
+
+            # There should've been a divider here, which we will split.
+            if "\n-DIVIDER-\n" in old_data:
+                parts = old_data.split("\n-DIVIDER-\n", 1)
+                old_code = parts[0]
+                old_curl = parts[1]
+
+                # Defined the correct response, with some leniency in the answer.
+                pattern = r'return\s+redirect\s*\(\s*url_for\s*\(\s*[\'"]index[\'"]\s*\)\s*\)'
+                matches = re.findall(pattern, old_code)
+
+                # If the redirect worked, this should be included in the curl request.
+                has_redirect_html = ("<p>You should be redirected automatically to the target URL: <a href=\"/\">/</a>. If not, click the link." in old_curl)
+
+                # There should be two matches for the redirects.
+                if len(matches) >= 2 and has_redirect_html:
+                    sys.exit(1)
+
+                # Their response is actually invalid, but something allowed them to pass. Remove their response.
+                else:
+                    os.remove(resp_path)
+
+            # If there was no divider, then this file was incorrectly made.
+            else:
+                os.remove(resp_path)
+
+        # This file should exist.
+        if not os.path.exists("/lab/memo.py"):
+            sys.exit(2)
+
+        # Read in their file.
+        with open("/lab/memo.py", "r") as f:
+            user_code = f.read()
+
+        # Creating a regular expression with their response, adding some whitespace and quotation leniency.
+        pattern = r'return\s+redirect\s*\(\s*url_for\s*\(\s*[\'"]index[\'"]\s*\)\s*\)'
+        matches = re.findall(pattern, user_code)
+
+        # This is in case they forgot to add two of the redirects.
+        if len(matches) < 2:
+            sys.exit(0)
+
+        # Navigating into their /lab directory so that we can run their Flask application, like the previous steps.
+        os.chdir("/lab")
+        process = subprocess.Popen(
+            ["python3", "-m", "flask", "--app", "memo", "run", "-p", "5010"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+        time.sleep(2)
+
+        # Attempting to add a memo using a cURL request.
+        curl_result = subprocess.run(
+            "curl -X POST -d \"memo=test\" -v http://127.0.0.1:5010/add_memo",
+            shell=True, capture_output=True, text=True
+        )
+
+        process.terminate()
+        process.wait()
+
+        # The redirect should be working.
+        redirect_snippet = "<p>You should be redirected automatically to the target URL: <a href=\"/\">/</a>. If not, click the link."
+        if redirect_snippet in curl_result.stdout:
+            # They were successful, and we will need to create a response text file so that we can refer back to it later.
+            with open(resp_path, "w") as f:
+                f.write(user_code)
+                # Need a divider so that we can split the code and the cURL request in the check.
+                f.write("\n-DIVIDER-\n")
+                f.write(curl_result.stdout)
+
+            # Generating the next step.
+            c_result = subprocess.run(["/home/.checker/section_1", "4"], env=env, capture_output=True)
+
+            # This should be working.
+            if c_result.returncode == 1:
+                sys.exit(1)
+
+            # Otherwise, something went wrong with the checker file.
+            else:
+                os.remove(resp_path)
+                sys.exit(3)
+        else:
+            sys.exit(0)
+
+    # Checking Step 5.
+    elif step == "5":
+        resp_path = "/home/.checker/responses/step_5_response.txt"
+
+        # Checking if they previously passed this.
+        if os.path.exists(resp_path):
+            with open(resp_path, "r") as f:
+                old_data = f.read()
+
+            # There should be a divider in their response.
+            if "\n-DIVIDER-\n" in old_data:
+                parts = old_data.split("\n-DIVIDER-\n", 1)
+                old_code = parts[0]
+                old_curl = parts[1]
+
+                # This cURL response should be in their correct file.
+                if "< HTTP/1.1 302 FOUND" in old_curl:
+                    sys.exit(1)
+
+                # Otherwise, they somehow passed, but their notebook generated the wrong file.
+                else:
+                    os.remove(resp_path)
+            
+            # Otherwise, remove their response, since this is an invalid file.
+            else:
+                os.remove(resp_path)
+
+        # Checks to make sure that their memo.py file still exists.
+        if not os.path.exists("/lab/memo.py"):
+            sys.exit(2)
+
+        # Starting up their Flask application with a process.
+        os.chdir("/lab")
+        with open("memo.py", "r") as f:
+            user_code = f.read()
+
+        process = subprocess.Popen(
+            ["python3", "-m", "flask", "--app", "memo", "run", "-p", "5010"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+        time.sleep(2)
+
+        # Create a test memo with 9999 as the ID.
+        test_memo_path = "/lab/memos/9999"
+        with open(test_memo_path, "w") as f:
+            f.write("test")
+
+        # Attempt to delete it with their function.
+        curl_result = subprocess.run(
+            "curl -X POST -v http://127.0.0.1:5010/delete_memo/9999",
+            shell=True, capture_output=True, text=True
+        )
+
+        # There was no valid delete function.
+        if "< HTTP/1.1 302 FOUND" not in curl_result.stderr:
+            process.terminate()
+            process.wait()
+            if os.path.exists(test_memo_path):
+                os.remove(test_memo_path)
+            sys.exit(0)
+
+        # This shouldn't happen, since this was automatically generated for them.
+        if os.path.exists(test_memo_path):
+            process.terminate()
+            process.wait()
+            sys.exit(0)
+
+        # At this point, they should've passed the step. Create their "success" file.
+        with open(resp_path, "w") as f:
+            f.write(user_code)
+            f.write("\n-DIVIDER-\n")
+            f.write(curl_result.stderr.strip())
+
+        # Generate the file for their next step (which is Step 11).
+        c_result = subprocess.run(["/home/.checker/section_1", "5"], env=env, capture_output=True)
+
+        # Suspending the process.
+        process.terminate()
+        process.wait()
+
+        # If the next step was correctly generated, exit successfully.
+        if c_result.returncode == 1:
+            sys.exit(1)
+
+        # This will only happen if an error happened with the checker script.
+        else:
+            os.remove(resp_path)
+            sys.exit(3)
+
+    # Invalid parameter(s).
     else:
         sys.exit(2)
 
-main()
+if __name__ == "__main__":
+    main()

@@ -160,8 +160,8 @@ def main():
             solution_block2 = extract_solution_block(content2)
 
             # Remove solution blocks for comparison using regular expressions for exact match.
-            content1_clean = re.sub(re.escape(solution_block1), '', content1, flags=re.DOTALL)
-            content2_clean = re.sub(re.escape(solution_block2), '', content2, flags=re.DOTALL)
+            content1_clean = re.sub(re.escape(solution_block1), '\n    ', content1, flags=re.DOTALL)
+            content2_clean = re.sub(re.escape(solution_block2), '\n    ', content2, flags=re.DOTALL)
 
             # Check if view_memo's content outside the solution blocks is the same.
             if content1_clean != content2_clean:
