@@ -184,9 +184,6 @@ def main():
                 process.terminate()
                 sys.exit(0)
 
-            # Run the binary file.
-            result = subprocess.run("/home/.checker/section_1 5", shell=True, capture_output=True, text=True)
-
             # Close the process and check the result from the pipe.
             process.terminate()
             process.wait()
@@ -196,10 +193,12 @@ def main():
 
             # POST was successful, but check to see if the file was actually deleted. Additionally, check if the binary file passed.
             if (not os.path.exists("/lab/memos/9999") and result.returncode == 0):
-                # Successful. Finally, write the response so that it can be used later.
+                # Successful. Write the response, then run the binary file, which depends on this result.
                 f = open("/home/.checker/responses/step_5_response.txt", "w+")
                 f.write(process_errors)
                 f.close()
+
+                result = subprocess.run("/home/.checker/section_1 5", shell=True, capture_output=True, text=True)
 
                 sys.exit(1)
 
