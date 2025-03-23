@@ -157,10 +157,26 @@ def main():
 
         # This check doesn't need to be ran in the C file.
         elif (step == "5"):
+            # Check to see if this step was already completed.
+            if (os.path.exists("/home/.checker/responses/step_5_response.txt")):
+                with open("/home/.checker/responses/step_5_response.txt", 'r') as file:
+                    content = file.read()
+                    # Remove any ANSI escape codes from the content.
+                    cleaned_content = re.sub(r'\x1b\[([0-9]{1,2};)?[0-9]{1,2}m', '', content)
+                    # Now perform the check on the cleaned content.
+                    if '"POST /delete_memo/9999 HTTP/1.1" 302' in cleaned_content:
+                        sys.exit(1)
+
+                    # This shouldn't happen. The test would "pass", but somehow not pass?
+                    else:
+                        sys.exit(3)
+
             # First, creating a test memo.
             f = open("/lab/memos/9999", "w+")
             f.write("test")
             f.close()
+
+            print(f"File exists: {os.path.exists('/lab/memos/9999')}")
 
             # Perform a cURL call to delete it.
             result = subprocess.run("curl -X POST -v http://127.0.0.1:5010/delete_memo/9999", shell=True, text=True, capture_output=True)
@@ -180,8 +196,12 @@ def main():
 
             process_errors = process_errors.strip()
 
+            print(result)
+
+            print(f"File exists: {os.path.exists('/lab/memos/9999')}")
+
             # POST was successful, but check to see if the file was actually deleted. Additionally, check if the binary file passed.
-            if (not os.path.exists("/lab/memos/9999") and result.returncode == 1):
+            if (not os.path.exists("/lab/memos/9999") and result.returncode == 0):
                 # Successful. Finally, write the response so that it can be used later.
                 f = open("/home/.checker/responses/step_5_response.txt", "w+")
                 f.write(process_errors)
