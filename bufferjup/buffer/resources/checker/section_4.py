@@ -145,7 +145,13 @@ def main():
 
                     # If the program reaches here, then the program exited. We can see if it crashed.
                     if "The reactor failed catastrophically" in output:
-                        sys.exit(1)
+                        # Before exiting, check to see if it's Step 20. This was not a crash due to overflow/underflow.
+                        # (We should never reach this, since the notebook checks this before running this script. It still works, however.)
+                        if (step == "20" and filtered_payloads[1].lower() == "f"):
+                            sys.exit(4)
+
+                        else:
+                            sys.exit(1)
 
                     # If it doesn't crash, exit it with 0.
                     else:
@@ -165,7 +171,7 @@ def main():
     # Checks Step 18.
     elif (step == "18"):
         # Gets the user input. Using regular expressions to check the answer here.
-        pattern = r"^(\%(s|x)\s*){8,}$"
+        pattern = r"^((%(s|d|x|p)\s*){7})%(s)\s*((%(s|d|x|p)\s*)*)$"
 
         if (re.search(pattern, payload)):
             sys.exit(1)
