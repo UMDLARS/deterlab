@@ -14,7 +14,7 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
     pathname = f"/home/{username}/topic_2"
 
     # Every step in this section is VERY similar to one another. No need for checking the individual steps.
@@ -158,6 +158,16 @@ int main() {
             # Read in the file.
             with open(pathname + "/step_10.c") as f:
                 text = f.read()
+
+            # Remove all valid string declarations from the text.
+            declaration_pattern = r'\s*char\s+\w+\s*\[\s*[^\]]*\s*\]\s*=\s*(\{.*?\}|".*?");'
+            text_without_declarations = re.sub(declaration_pattern, '', text, flags=re.MULTILINE)
+
+            # Now search for any array element assignments (like str1[0] = 'a';).
+            modification_pattern = r'\w+\s*\[\s*\d+\s*\]\s*='
+            if re.search(modification_pattern, text_without_declarations):
+                # Found a modification outside the declaration, so disallow this step.
+                sys.exit(5)
 
             # Updated pattern to match both types of string declarations and capture assigned values.
             pattern = r'\s*char\s+\w+\s*\[\s*[^\]]*\s*\]\s*=\s*(\{.*?\}|".*?");'
