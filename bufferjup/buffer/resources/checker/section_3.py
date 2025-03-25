@@ -20,17 +20,15 @@ def compare_files(file1_path, file2_path):
     # Open up both files at the same time.
     with open(file1_path, 'r') as file1, open(file2_path, 'r') as file2:
         # Create two lists, which contain each line of the files.
-        file1_lines = file1.readlines()
-        file2_lines = file2.readlines()
+        # Additionally, remove all new lines, so that if students added \n, it won't flag as wrong.
+        file1_content = file1.read().replace('\n', '')
+        file2_content = file2.read().replace('\n', '')
 
     # Finds the differences between the two files.
-    diff = difflib.unified_diff(file1_lines, file2_lines, lineterm='')
+    diff = list(difflib.ndiff([file1_content], [file2_content]))
     # Any file that has a +/- in front of it means it's different. Add it to the list.
-    diff_list = [line for line in diff if line.startswith('+ ') or line.startswith('- ')]
-
-    # For each of the elements, remove the first character (+/-), then trim it.
-    for i in range(len(diff_list)):
-        diff_list[i] = diff_list[i][1:].strip()
+    # Additionally, trim the +/- in front of each different line.
+    diff_list = [line[1:].strip() for line in diff if line.startswith('+ ') or line.startswith('- ')]
 
     # Return the list. Used in the main() function.
     return diff_list
@@ -44,7 +42,7 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
 
     vulnerable = "/home/" + username + "/topic_2/step_" + str(int(step) - 4) + ".c"
     fix = "/home/" + username + "/topic_3/step_" + step + ".c"
