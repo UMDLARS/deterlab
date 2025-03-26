@@ -83,7 +83,7 @@ def main():
             # Remove the possible fix.
             content = file1.read()
             solution_block = extract_solution_block(content)
-            content_clean = re.sub(re.escape(solution_block), '', content, flags=re.DOTALL)
+            content_clean = re.sub(re.escape(solution_block), '\n    ', content, flags=re.DOTALL)
 
             # Write the temp file.
             f = open("/lab/memo_copy.py", "w")
