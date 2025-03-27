@@ -17,10 +17,10 @@ def main():
         pattern = ''
 
         if (step == "6"):
-            pattern = r'^(posts\/..\/){0,1}(\.\.\/){3,}etc\/passwd$'
+            pattern = r'^(posts\/..\/){0,1}(\.\.\/){3,}etc\/passwd(/){0,1}$'
 
         elif (step == "7"):
-            pattern = r'^(posts\/..\/){0,1}(\.\.\/){4,}etc\/passwd$'
+            pattern = r'^(\.\.\/){4,}etc\/passwd(/){0,1}$'
 
         elif (step == "8"):
             pattern = r'^\/etc\/passwd$'
