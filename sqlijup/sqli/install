@@ -42,8 +42,9 @@ cd $RESOURCES/web_files
 cp index.html php_practice.php /var/www/html
 cp FCCU.php /usr/lib/cgi-bin/
 
-# Creating a copy of FCCU.php in the home directory.
-cp FCCU.php /home/$USER
+# Creating a copy of FCCU.php in the tmp directory. In case students want to reset their file.
+# (Might want to change this later.)
+cp FCCU.php /tmp
 
 # Giving ownership to the student for php_practice.php and FCCU.php.
 chown $USER /var/www/html/php_practice.php
