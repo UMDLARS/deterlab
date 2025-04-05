@@ -31,9 +31,6 @@ def main():
             # Step 17 is the only step that will allow an ID to be used in the ID field.
             if (step == "17"):
                 # Get the ID.
-                if (not os.path.exists("/home/.checker/responses/step_16_response.txt")):
-                    sys.exit(5)
-
                 match = re.search(r'<td>(\d+)</td>', prev_response)
 
                 # Now, see if that ID is NOT being used in the query that the student is writing.
@@ -60,6 +57,17 @@ def main():
         # Send the POST request.
         response = requests.post(url, data=data)
 
+        print(response.text)
+
+        # Check to see if it was a successful code, but the FCCU.php file was patched.
+        if (response.status_code == 200 and "Your ID number and password you entered do not match." in response.text
+            and os.path.exists(f"/home/.checker/responses/step_{step}_response.txt"):
+            # This file is only written if it was previously successful. Good chance that they patched
+            # FCCU.php and they're trying to re-run this step again. It's patched, so it behaves differently.
+            f = open(f"/home/.checker/responses/step_{step}_response.txt", "r")
+            print(f.read())
+            sys.exit(1)
+
         # Check if the request was successful.
         if (response.status_code == 200):
             # If the request was successful, write the response to a text file to show the student.
@@ -70,7 +78,7 @@ def main():
             # Getting all tables in the response.
             match = pattern.findall(response.text)
 
-            print(f"prev_response 2: " + prev_response)
+#            print(f"prev_response 2: " + prev_response)
 
             # This happens if there's no response. Happens if it failed, or FCCU.php was patched.
             if (len(match) == 1):
@@ -84,17 +92,16 @@ def main():
                 else:
                     sys.exit(0)
 
-            print(match)
+#            print(match)
 
             # The table with the account information is the second table (index 1) in the output.
             if (match):
                 # Check to see if this match contains "Account Information".
                 if ("Account Information" in match[1]):
                     # If it does, then the SQLi passes. However, do one more check for Step 17.
-                    f.write(match[1])
-                    f.close()
-
                     if (step == "16"):
+                        f.write(match[1])
+                        f.close()
                         sys.exit(1)
 
                     elif (step == "17"):
@@ -106,6 +113,7 @@ def main():
                         # If the file exists, compare it with the current response. It MUST be different!
                         else:
                             prev_response = open("/home/.checker/responses/step_16_response.txt", "r")
+                            print(match[1])
 
                             # Check to see if the new response matches the previous response.
                             if (match[1] == prev_response.read()):
@@ -114,6 +122,8 @@ def main():
 
                             # Otherwise, correct. Response was already written.
                             else:
+                                f.write(match[1])
+                                f.close()
                                 sys.exit(1)
 
                 # This occurs if a table was produced, but an account wasn't successfully signed in.
