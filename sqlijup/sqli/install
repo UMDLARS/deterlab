@@ -45,8 +45,9 @@ cp FCCU.php /usr/lib/cgi-bin/
 # Creating a copy of FCCU.php in the home directory.
 cp FCCU.php /home/$USER
 
-# Giving ownership to the student for php_practice.php.
+# Giving ownership to the student for php_practice.php and FCCU.php.
 chown $USER /var/www/html/php_practice.php
+chown $USER /usr/lib/cgi-bin/FCCU.php
 
 # Create the responses directory.
 mkdir /home/.checker/responses
@@ -71,4 +72,4 @@ systemctl restart apache2
 chmod o+w /home/.checker/responses
 
 # Clean up.
-# rm -rf *
+rm -rf *

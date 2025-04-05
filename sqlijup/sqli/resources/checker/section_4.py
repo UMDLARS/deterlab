@@ -15,13 +15,15 @@ def main():
     step = sys.argv[1]
     query = sys.argv[2]
     acceptable_id = ""
+    prev_response = ""
 
     # Checking Step 16 and 17: Accessing accounts through SQLi.
     if (step == "16" or step == "17"):
-        # This will be used in case FCCU.php was patched, and we need to check what the previous response was.
-        f = open("/home/.checker/responses/step_16_response.txt", "r")
-        prev_response = f.read()
-        f.close()
+        if (os.path.exists("/home/.checker/responses/step_16_response.txt")):
+            # This will be used in case FCCU.php was patched, and we need to check what the previous response was.
+            f = open("/home/.checker/responses/step_16_response.txt", "r")
+            prev_response = f.read()
+            f.close()
 
         # First, applying some checks to the user input.
         # Checks to see if the student may be typing an ID into the payload.

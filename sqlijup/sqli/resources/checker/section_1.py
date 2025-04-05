@@ -84,43 +84,28 @@ def verify_inserted_data():
     ]
 
     # If a student is running a "Calculate Grade" script, this step is going to fail because
-    # the rows were changed in a future step. To mitigate this, the script will check to see if
-    # Step 12 was completed. If it was, then that's enough validation that Step 4 was previously
-    # completed. As long as Step 12 was complete, or the expected_rows are equal, then pass.
+    # the rows were changed in a future step. Their table structure will be saved, then checked
+    # when "Calculate Grade" is clicked on.
 
     previously_passed = False
-    if (os.path.exists("/home/.checker/responses/step_12_response.txt")):
-        f = open("/home/.checker/responses/step_12_response.txt", "r")
+    if (os.path.exists("/home/.checker/responses/step_3_response.txt")):
+        f = open("/home/.checker/responses/step_3_response.txt", "r")
         response = f.read()
         f.close()
 
-        correct_result_from_12 = """
-                    <tr>
-                        <td>100</td>
-                        <td>Aaron</td>
-                        <td>B</td>
-                      </tr><tr>
-                        <td>101</td>
-                        <td>Danny</td>
-                        <td>B</td>
-                      </tr><tr>
-                        <td>102</td>
-                        <td>Hannah</td>
-                        <td>D</td>
-                      </tr>"""
-
-        # Removing excess white space from the correct result and response.
-        correct_result_from_12 = re.sub(r'\s+', ' ', correct_result_from_12).strip()
-        response = re.sub(r'\s+', ' ', response).strip()
-
-        if ("SET student_name = 'Taylor'" in response and
-           ("No results found" in response or correct_result_from_12 in response)):
+        if (response == "[(100, 'Aaron', 'A'), (101, 'Danny', 'B'), (102, 'Hannah', 'D'), (103, 'Abby', None)]"):
             previously_passed = True
 
     try:
         # Retrieve and sort student data from the table.
         query = "SELECT student_id, student_name, student_grade FROM students ORDER BY student_id;"
         actual_rows = execute_query(query)
+
+        # Write their response so that it can be checked later.
+        if (actual_rows == expected_rows):
+            f = open("/home/.checker/responses/step_3_response.txt", "w+")
+            f.write(str(actual_rows))
+            f.close()
 
         # Compare retrieved rows with expected rows.
         return (actual_rows == expected_rows) or previously_passed
@@ -129,6 +114,7 @@ def verify_inserted_data():
 
 # Main function to check each step.
 def main():
+    # Steps 1-3 can have <query> be anything. No query necessary for these answers.
     if len(sys.argv) != 3:
         print("Usage: ./section_1.py <step_num> <query>")
         sys.exit(2)
