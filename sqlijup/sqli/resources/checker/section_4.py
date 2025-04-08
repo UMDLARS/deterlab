@@ -61,7 +61,7 @@ def main():
 
         # Check to see if it was a successful code, but the FCCU.php file was patched.
         if (response.status_code == 200 and "Your ID number and password you entered do not match." in response.text
-            and os.path.exists(f"/home/.checker/responses/step_{step}_response.txt"):
+            and os.path.exists(f"/home/.checker/responses/step_{step}_response.txt")):
             # This file is only written if it was previously successful. Good chance that they patched
             # FCCU.php and they're trying to re-run this step again. It's patched, so it behaves differently.
             f = open(f"/home/.checker/responses/step_{step}_response.txt", "r")
@@ -78,8 +78,6 @@ def main():
             # Getting all tables in the response.
             match = pattern.findall(response.text)
 
-#            print(f"prev_response 2: " + prev_response)
-
             # This happens if there's no response. Happens if it failed, or FCCU.php was patched.
             if (len(match) == 1):
                 # Check to see if this was previous done before a patch.
@@ -92,8 +90,6 @@ def main():
                 else:
                     sys.exit(0)
 
-#            print(match)
-
             # The table with the account information is the second table (index 1) in the output.
             if (match):
                 # Check to see if this match contains "Account Information".
@@ -105,6 +101,8 @@ def main():
                         sys.exit(1)
 
                     elif (step == "17"):
+                        print(match)
+
                         # First, check to see if the previous step wasn't completed.
                         # This was already checked in the notebook, so this shouldn't occur.
                         if (not os.path.exists("/home/.checker/responses/step_16_response.txt")):
@@ -117,6 +115,8 @@ def main():
 
                             # Check to see if the new response matches the previous response.
                             if (match[1] == prev_response.read()):
+                                f.write(match[1])
+                                f.close()
                                 # SQLi was correct, but did not return another user.
                                 sys.exit(6)
 
