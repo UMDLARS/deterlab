@@ -147,6 +147,14 @@ def main():
     elif step in ["4", "5", "6", "7", "8", "9"]:
         # Need to trim the user query first before running it through the C binary. There's no nice trim function in C.
         user_query = " ".join(user_query.split())
+
+        # Creating some more forgiveness for answers in the notebook.
+        # Ensuring that spaces only have one space on both sides of it before running through the checker.
+        user_query = re.sub(r'(?<=S)s*=s*(?=S)', ' = ', user_query)
+
+        # Additionally, removing all leading spaces before semicolons.
+        user_query = re.sub(r's+(?=;)', '', user_query)
+        
         result = subprocess.run("/home/.checker/check_sql " + step + " \"" + user_query + "\"", shell=True, capture_output=True, text=True)
         print(result)
         sys.exit(result.returncode)
