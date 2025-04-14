@@ -72,6 +72,9 @@ def main():
                     # Do not overwrite their response.
                     sys.exit(3)
 
+                # Otherwise, their payload was not patched. Carry on from here.
+
+
             # Take the response of the server, then write it to a file for the student's response.
             f = open("/home/.checker/responses/step_" + step + "_response.txt", "w+")
 
@@ -109,6 +112,15 @@ def main():
             actual_results = execute_query("SELECT * FROM students")
 
             if (actual_results == expected_rows):
+                # Take the response of the server, then write it to a file for the student's response.
+                f = open("/home/.checker/responses/step_" + step + "_response.txt", "w+")
+
+                # We only need up to the table, so we will remove the prompt, because it won't work in the notebook.
+                # Just need to remove the HTML form, so we can split at the comment that is made.
+                removed_prompt = (response.text).split("<!--")[0]
+                f.write(removed_prompt)
+                f.close()
+
                 sys.exit(1)
 
             else:
