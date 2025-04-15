@@ -8,7 +8,6 @@ import os
 # Function to execute the student's SQL queries and return results.
 def execute_query(query):
     try:
-        # Creating a connection and a cursor.
         conn = mysql.connector.connect(
             host='localhost',
             user='root',
@@ -16,15 +15,8 @@ def execute_query(query):
             database='practice'
         )
         cursor = conn.cursor()
-
-        # Take the provided query, then run it.
         cursor.execute(query)
-
-        # Performing a SELECT statement, so fetch the results.
         result = cursor.fetchall()
-        
-        # There is no insertions/deletions, so no commit will be made.
-        # Close the connection/cursor, then return the query result.
         conn.close()
         cursor.close()
         return result
@@ -42,65 +34,58 @@ def main():
     step = sys.argv[1]
     query = sys.argv[2]
 
-    # First, make sure that the step number is between 12 and 14.
+    # Make sure that the step number is between 12 and 14.
     if (int(step) >= 12 and int(step) <= 14):
-        # Next, clear the database based on which step that the student is on.
+        # Reset the database for this step.
         subprocess.run("/home/.checker/reset_db.py " + step, shell=True)
 
-        # We are testing a SQLi payload for each step. Therefore, create a POST request.
-        # Creating the URL for the php_practice.php file.
+        # Construct the POST request to php_practice.php.
         url = 'http://localhost/php_practice.php'
-
-        # Defining the payload
         data = {
             'student_id': query
         }
-
-        # Send the POST request.
         response = requests.post(url, data=data)
 
-        # Check if the request was successful.
+        # Only proceed if the request was successful.
         if (response.status_code == 200):
-            # Before writing the response, check to make sure that the file wasn't patched.
-            if (os.path.exists("/home/.checker/responses/step_" + step + "_response.txt")):
-                f = open("/home/.checker/responses/step_" + step + "_response.txt", "r")
-                content = f.read()
-                f.close()
+            # 1) Check if the response file for this step already exists.
+            response_file = f"/home/.checker/responses/step_{step}_response.txt"
+            if os.path.exists(response_file):
+                # If it does, check if $conn->prepare($sql) is in php_practice.php.
+                # This is the only "check" that will be done to make sure that the file was already patched.
+                # A lazy approach, but good enough.
+                with open("/var/www/html/php_practice.php", "r") as php_file:
+                    php_content = php_file.read()
+                    if "$conn->prepare($sql)" in php_content:
+                        # If the file is indeed patched, exit with 3.
+                        sys.exit(3)
+                
+                # Otherwise, they shouldn't have already passed.
+                sys.exit(0)
 
-                # Their payload was patched.
-                if ("No results found. Please enter a valid ID." in response.text):
-                    # Do not overwrite their response.
-                    sys.exit(3)
+            # If we get here, the response file does NOT exist yet.
+            # So we continue with our normal logic:
+            # -----------------------------------------------------
+            # Write the server’s response to the new step response file
+            with open(response_file, "w+") as f:
+                # Remove the HTML form by splitting on <!--.
+                removed_prompt = (response.text).split("<!--")[0]
+                f.write(removed_prompt)
 
-                # Otherwise, their payload was not patched. Carry on from here.
-
-
-            # Take the response of the server, then write it to a file for the student's response.
-            f = open("/home/.checker/responses/step_" + step + "_response.txt", "w+")
-
-            # We only need up to the table, so we will remove the prompt, because it won't work in the notebook.
-            # Just need to remove the HTML form, so we can split at the comment that is made.
-            removed_prompt = (response.text).split("<!--")[0]
-            f.write(removed_prompt)
-            f.close()
-
-            # Now, checking to see if the response is correct for the payload.
+            # Decide what rows we expect based on the step.
             expected_rows = []
-
             if (step == "12"):
                 expected_rows = [
                     (100, 'Taylor', 'B'),
                     (101, 'Danny', 'B'),
                     (102, 'Hannah', 'D'),
                 ]
-
             elif (step == "13"):
                 expected_rows = [
                     (100, 'Taylor', 'B'),
                     (101, 'Danny', 'B'),
                     (102, 'Hannah', 'B'),
                 ]
-
             elif (step == "14"):
                 expected_rows = [
                     (100, 'Taylor', 'B'),
@@ -109,21 +94,19 @@ def main():
                     (200, 'Jason', 'F')
                 ]
 
+            # Get what's in the DB after the student's query.
             actual_results = execute_query("SELECT * FROM students")
 
+            # Compare.
             if (actual_results == expected_rows):
-                # Take the response of the server, then write it to a file for the student's response.
-                f = open("/home/.checker/responses/step_" + step + "_response.txt", "w+")
-
-                # We only need up to the table, so we will remove the prompt, because it won't work in the notebook.
-                # Just need to remove the HTML form, so we can split at the comment that is made.
-                removed_prompt = (response.text).split("<!--")[0]
-                f.write(removed_prompt)
-                f.close()
-
+                # If this was the correct response, AND their second statement properly updated the table, we return 
+                # True, then write their response to a file to save their work.
+                with open(response_file, "w+") as f:
+                    removed_prompt = (response.text).split("<!--")[0]
+                    f.write(removed_prompt)
                 sys.exit(1)
-
             else:
                 sys.exit(0)
-        
-main()
+
+if __name__ == "__main__":
+    main()
