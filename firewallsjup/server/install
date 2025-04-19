@@ -9,7 +9,7 @@ export USER=USERNAME_GOES_HERE
 
 # Installing the required libraries.
 apt-get update
-apt-get install apache2 apache2-bin mariadb-server mariadb-client net-tools iptables -y
+apt-get install apache2 apache2-bin mariadb-server mariadb-client net-tools iptables nmap -y
 
 # Moving the checker scripts over.
 mkdir $CHECKER
