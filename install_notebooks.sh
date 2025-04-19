@@ -49,49 +49,34 @@ fi
 # Excluding the saves/ directory so that students don't lose their saves.
 sudo rsync -a --delete --exclude='saves/' notebooks/ /project/$USER/notebooks/ >/dev/null
 
-# Ensure 'saves/' exists.
-mkdir -p "$LABS/saves"
+# Ensure 'saves/' exists
+mkdir -p $LABS/saves
 
 # Move the lab resources.
-LOG_FILE="${EDUCATION}/${USER}_logs.txt"
-TEMP_LOG="/tmp/${USER}_logs.txt"
-
-if [ -d "$EDUCATION" ]; then
+if [ -d "/home/.education" ]; then
     echo -e "\033[0;31mLab resources for your notebooks already exist. Applying updates...\033[0m"
 
-    # Preserve the log file by copying it to a temporary location
-    if [ -f "$LOG_FILE" ]; then
-        sudo cp "$LOG_FILE" "$TEMP_LOG"
-    fi
-
-    # Delete everything except the log file.
-    sudo find "$EDUCATION" -mindepth 1 ! -name "$(basename "$LOG_FILE")" -exec rm -rf {} +
-
+    # Delete the education directory so that it can be updated. mv will not work if there are already files.
+    sudo rm -rf /home/.education/*
 else
     echo -e "\033[0;31mLab resources do not exist on your XDC. Creating them...\033[0m"
-    sudo mkdir -p "$EDUCATION"
-    sudo chown -R "$USER:$USER" "$EDUCATION"
-fi
-
-# Restore the log file if it was preserved.
-if [ -f "$TEMP_LOG" ]; then
-    sudo mv "$TEMP_LOG" "$EDUCATION/"
-    sudo chown $USER:$USER "$EDUCATION/$(basename "$TEMP_LOG")"
+    sudo mkdir -p "/home/.education"
+    sudo chown -R "$USER:$USER" "/home/.education"
 fi
 
 # Find and copy all directories ending with 'jup' to the $EDUCATION directory
 for dir in $(find . -maxdepth 1 -type d -name "*jup"); do
     dir_name=$(basename "$dir")
-    sudo mv "$dir_name" "$EDUCATION"
+    mv $dir_name $EDUCATION
 done
 
 # Move the grades back for the student.
-[ -f "/tmp/${USER}_logs.txt" ] && sudo mv "/tmp/${USER}_logs.txt" "$EDUCATION"
+[ -f /tmp/"${USER}_logs.txt" ] && mv /tmp/"${USER}_logs.txt" $EDUCATION
 
 # Finally, copy all of the notebook function files (should be four of them) into the student's XDC.
 sudo mv runlab startexp stopexp runr /home
-sudo mv grader.py "$EDUCATION"
-sudo chmod a+x /home/runlab /home/startexp /home/stopexp /home/runr "$EDUCATION/grader.py"
+sudo mv grader.py /home/.education
+sudo chmod a+x /home/runlab /home/startexp /home/stopexp /home/runr /home/.education/grader.py
 
 # Cleanup temporary directory.
 rm -rf "$TEMP_DIR"
@@ -110,7 +95,10 @@ sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/save.py"
 sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/load.py"
 popd > /dev/null 2>&1
 
+# For section_4.py in the resources/firewall/ directory.
+sed -i "s/USERNAME_GOES_HERE/$USER/g" "$LABS/resources/firewall/section_4.py"
+
 # And finally, for the install scripts.
-sudo find "$EDUCATION" -type f -name install -exec sed -i "s/USERNAME_GOES_HERE/$USER/g" {} +
+find /home/.education -type f -name install -exec sed -i "s/USERNAME_GOES_HERE/$(whoami)/g" {} +
 
 echo -e "\033[0;32mDone. You can find your notebooks in $LABS. Please refresh your browser's tab before starting a lab.\033[0m"
