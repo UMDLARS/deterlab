@@ -29,10 +29,11 @@ def main():
         # Split the answers.
         answers = answer.split("\\n")
 
-        print(answers)
+        answer1 = answers[0].strip()
+        answer2 = answers[1].strip()
 
         # Check the two solutions.
-        if (answers[0].strip() == "telnet scse.d.umn.edu 443" and answers[1].strip() == "GET /majors-minors"):
+        if ((answer1 == "telnet localhost 80" or answer1 == "telnet 10.0.1.1 80") and answer2 == "GET /index.html"):
             sys.exit(1)
 
         else:
@@ -48,7 +49,7 @@ def main():
         other_components_present = all(component in answers[0] for component in required_params)
 
         # Check the two solutions.
-        if (answers[0].startswith("nc") and other_components_present and answers[1] == "nc server 10000"):
+        if (answers[0].startswith("nc") and other_components_present and (answers[1] == "nc server 10000" or answers[1] == "nc 10.0.1.1 10000")):
             sys.exit(1)
 
         else:
