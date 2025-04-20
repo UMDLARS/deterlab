@@ -46,10 +46,13 @@ else
     echo -e "\033[0;31mSome (or all) of your notebooks appear to be missing. Adding them...\033[0m"
 fi
 
+# Saving the student's logs.
+[ -f "$EDUCATION/${USER}_logs.txt" ] && mv "$EDUCATION/${USER}_logs.txt" /tmp
+
 # Excluding the saves/ directory so that students don't lose their saves.
 sudo rsync -a --delete --exclude='saves/' notebooks/ /project/$USER/notebooks/ >/dev/null
 
-# Ensure 'saves/' exists
+# Ensure 'saves/' exists.
 mkdir -p $LABS/saves
 
 # Move the lab resources.
@@ -64,7 +67,7 @@ else
     sudo chown -R "$USER:$USER" "/home/.education"
 fi
 
-# Find and copy all directories ending with 'jup' to the $EDUCATION directory
+# Find and copy all directories ending with 'jup' to the $EDUCATION directory.
 for dir in $(find . -maxdepth 1 -type d -name "*jup"); do
     dir_name=$(basename "$dir")
     mv $dir_name $EDUCATION
