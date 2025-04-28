@@ -16,7 +16,7 @@ def main():
 
     # Check Step 9
     if (step == "9"):
-        if (answer == "-t filters"):
+        if (answer == "-t filter"):
             # Correct answer. Save the response so that other steps can refer to it.
             f = open("/home/.checker/responses/step_9_answer.txt", "w+")
             f.write(answer)
