@@ -72,11 +72,11 @@ def main():
 
                     # If the program reaches here, then the program exited. We can see if it crashed.
                     if ("The reactor failed catastrophically" in output):
-                        sys.exit(1)
+                        sys.exit(0)
 
                     # If it doesn't crash, exit it with 0.
                     else:
-                        sys.exit(0)
+                        sys.exit(1)
 
                 # If the timer expires, then the program never crashed.
                 except subprocess.TimeoutExpired:
@@ -151,12 +151,12 @@ def main():
                             sys.exit(4)
 
                         else:
-                            sys.exit(1)
+                            sys.exit(0)
 
                     # If it doesn't crash, exit it with 0.
                     else:
                         print("Process completed successfully.")
-                        sys.exit(0)
+                        sys.exit(1)
 
                 # If the timer expires, then the program never crashed.
                 except subprocess.TimeoutExpired:
@@ -174,10 +174,10 @@ def main():
         pattern = r"^(?:[^%]*%(?:s|d|x|p)){7}[^%]*%(s)(?:[^%]*%(?:s|d|x|p))*[^%]*$"
 
         if (re.search(pattern, payload)):
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
 
 main()

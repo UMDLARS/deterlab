@@ -28,13 +28,13 @@ def main():
 
             subprocess.run("rm -rf /tmp/step10", shell=True)
             # All files exist.
-            sys.exit(1)
+            sys.exit(0)
         
         except subprocess.CalledProcessError:
             # Not a valid .tar.gz file type.
             sys.exit(3)
     else:
         # Tarball not created.
-        sys.exit(0)
+        sys.exit(1)
 
 main()

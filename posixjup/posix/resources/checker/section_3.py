@@ -25,9 +25,9 @@ def main():
 
             # Check to see if the student answered the correct directory.
             if (sys.argv[2] == "/tmp" or sys.argv[2] == "tmp"):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         # Checking step 10.
         elif (sys.argv[1] == "10"):
@@ -43,9 +43,9 @@ def main():
             else:
                 # All files exists. Check permissions.
                 if (get_special_perms(suid) == "4" and get_special_perms(sgid) == "2" and get_special_perms(sticky) == "1"):
-                    sys.exit(1)
-                else:
                     sys.exit(0)
+                else:
+                    sys.exit(1)
 
         # Checking step 11.
         elif (sys.argv[1] == "11"):
@@ -57,9 +57,9 @@ def main():
 
             # Answer cannot be pulled from the students' work, so answer will need to be in plain text.
             if (sys.argv[2] == "4437"):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         # Checking step 12.
         elif (sys.argv[1] == "12"):
@@ -70,9 +70,9 @@ def main():
             
             # Simply just checking true or false.
             if (sys.argv[2] == "False"):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         # In case an invalid step number was given.
         else:

@@ -18,7 +18,7 @@ def find_node_executable():
 def main():
     if (len(sys.argv) != 3):
         print("Usage: ./section_2.py <step_num> <keep_work>")
-        sys.exit(0)
+        sys.exit(1)
 
     # This is used for obtaining the results:
     node_executable = find_node_executable()
@@ -28,7 +28,7 @@ def main():
     if (sys.argv[2] != "1" and sys.argv[2] != "0"
          and int(sys.argv[1]) >= 2 and int(sys.argv[1]) <= 4):
         print("<keep_work> must be 1 (True) or 0 (False). If you are on Step 5, provide the victim's credit card number instead.")
-        sys.exit(0)
+        sys.exit(1)
 
     step = sys.argv[1]
     keep_work = sys.argv[2]
@@ -46,10 +46,10 @@ def main():
 
             # Otherwise, get the output and check it.
             elif ("62\n" in result.stdout):
-                sys.exit(1)
+                sys.exit(0)
 
             else:
-                sys.exit(0)
+                sys.exit(1)
 
         # If a student wants to run a check on their previous work, then a response should've been saved earlier.
         elif (keep_work == "1"):
@@ -74,10 +74,10 @@ def main():
                 stripped_code = re.sub('\s+', '', code)
                 if (re.search(r"(?<=console\.log\()((2\*31)|(31\*2))(?=\))", stripped_code)):
                     # There's a match! Exit successfully.
-                    sys.exit(1)
+                    sys.exit(0)
 
             # If the code reaches here, then the step did not pass.
-            sys.exit(0)
+            sys.exit(1)
 
     # Steps 3 and 4 are super similar.
     elif (step == "3" or step == "4"):
@@ -109,20 +109,20 @@ def main():
             if (responses[0] != responses[1]):
                 # If this was Step 3, then exit with 1.
                 if (step == "3"):
-                    sys.exit(1)
+                    sys.exit(0)
 
                 # If this was Step 4, then we need to do one more check.
                 elif (step == "4"):
                     # Check if the second response contains the URL of the victim.
                     if ("http://10.0.1.1/xss_practice.php?auth=XXX" in responses[1]):
-                        sys.exit(1)
+                        sys.exit(0)
 
                     else:
-                        sys.exit(0)
+                        sys.exit(1)
 
             # Otherwise, the test fails.
             else:
-                sys.exit(0)
+                sys.exit(1)
 
     # Checking Step 5, which is just a SQL call.
     elif (step == "5"):
@@ -152,10 +152,10 @@ def main():
             # variable is acting as the user input here, so we will check with that. Not the best
             # practice, but will keep the code cleaner. Use result[0][0] because it's a tuple.
             if (keep_work in result[0][0]):
-                sys.exit(1)
+                sys.exit(0)
 
             else:
-                sys.exit(0)
+                sys.exit(1)
 
         except mysql.connector.Error as e:
             # print(f"Error executing SQL query: {e}")

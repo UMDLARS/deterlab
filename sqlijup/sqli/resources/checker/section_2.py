@@ -61,7 +61,7 @@ def main():
                         sys.exit(3)
                 
                 # Otherwise, they shouldn't have already passed.
-                sys.exit(0)
+                sys.exit(1)
 
             # If we get here, the response file does NOT exist yet.
             # So we continue with our normal logic:
@@ -104,9 +104,9 @@ def main():
                 with open(response_file, "w+") as f:
                     removed_prompt = (response.text).split("<!--")[0]
                     f.write(removed_prompt)
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
 if __name__ == "__main__":
     main()

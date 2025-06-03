@@ -14,11 +14,11 @@ def main():
     if ret:
         # Check to see if the permissions are correct.
         if (os.access(path, os.X_OK)):
-            sys.exit(1)
+            sys.exit(0)
         else:
             sys.exit(2)
     else:
         # File was (somehow) not made.
-        sys.exit(0)
+        sys.exit(1)
 
 main()

@@ -31,9 +31,9 @@ def main():
 
             # Finally, compare and return.
             if (int(mode) == int(sys.argv[2])):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         sys.exit(2)
 

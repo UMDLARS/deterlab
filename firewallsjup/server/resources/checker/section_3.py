@@ -21,10 +21,10 @@ def main():
             f = open("/home/.checker/responses/step_9_answer.txt", "w+")
             f.write(answer)
             f.close()
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 10.
     if (step == "10"):
@@ -34,10 +34,10 @@ def main():
             f = open("/home/.checker/responses/step_10_answer.txt", "w+")
             f.write(answer)
             f.close()
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 11.
     if (step == "11"):
@@ -47,10 +47,10 @@ def main():
             f = open("/home/.checker/responses/step_11_answer.txt", "w+")
             f.write(answer)
             f.close()
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 12.
     if (step == "12"):
@@ -105,7 +105,7 @@ def main():
                     f.write(answer)
                     f.close()
 
-                    sys.exit(1)
+                    sys.exit(0)
 
             # The IP for Google cannot be found in their answer.
             else:
@@ -114,7 +114,7 @@ def main():
 
         # If the student reaches here, there was never a complete match. Likely due to the incorrect IP
         # address, or not everything was constructed properly.
-        sys.exit(0)
+        sys.exit(1)
 
 
     # Check Step 13.
@@ -124,10 +124,10 @@ def main():
             f = open("/home/.checker/responses/step_13_answer.txt", "w")
             f.write(answer)
             f.close()
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
 
 main()

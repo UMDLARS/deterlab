@@ -51,12 +51,12 @@ def main():
 
         # Checks if the answer is correct.
         if expected_sorted == student_sorted:
-            sys.exit(1)
+            sys.exit(0)
 
         # Answer is incorrect.
         else:
             sys.exit(2)
     else:
-        sys.exit(0)
+        sys.exit(1)
 
 main()

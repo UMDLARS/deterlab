@@ -6,7 +6,7 @@ import mysql.connector
 def main():
     if (len(sys.argv) != 3):
         print("Usage: ./section_1.py <step_num> <input>")
-        sys.exit(0)
+        sys.exit(1)
 
     step = sys.argv[1]
     input = sys.argv[2]
@@ -34,10 +34,10 @@ def main():
 
             # Get the one and only result, then get the first element from it (username).
             if (len(result) == 1 and result[0][0] == "umdsec"):
-                sys.exit(1)
+                sys.exit(0)
 
             else:
-                sys.exit(0)
+                sys.exit(1)
 
         except mysql.connector.Error as e:
             print(f"Error executing SQL query: {e}")

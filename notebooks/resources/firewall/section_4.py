@@ -51,11 +51,11 @@ def main():
         # Checks for Steps 14 and 15.
         if (step == "14" or step == "15"):
             if ("Connected to server" in answers[1]):
-                sys.exit(0)
+                sys.exit(1)
         
             # Otherwise, successful.
             elif (answers[1].endswith("Trying 10.0.1.1...\n")):
-                sys.exit(1)
+                sys.exit(0)
                 
             # Not sure if this will happen, but if it does, return unsuccessful.
             else:
@@ -68,32 +68,32 @@ def main():
 
             # Make sure that only one connection was made. Presumably Stack Overflow.
             if (len(matches) != 1):
-                sys.exit(0)
+                sys.exit(1)
 
             # Make sure that the other three connections failed.
             matches = re.findall(r'telnet: Unable to connect to remote host', answers[1])
 
             if (len(matches) != 3):
-                sys.exit(0)
+                sys.exit(1)
 
             # If the previous conditions were not matched, then it was successful.
-            sys.exit(1)
+            sys.exit(0)
 
         # Checks for Step 17.
         elif (step == "17"):
             if ("ssh: connect to host server port 22:" not in answers[1]):
-                sys.exit(0)
+                sys.exit(1)
 
             else:
-                sys.exit(1)
+                sys.exit(0)
 
         # Checks for Step 18.
         elif (step == "18"):
             if ("Hello!" in answers[1]):
-                sys.exit(0)
+                sys.exit(1)
 
             else:
-                sys.exit(1)
+                sys.exit(0)
         
     # There's no answer for the step. Prepare to do the test.
     else:
@@ -192,7 +192,7 @@ def main():
             # Some checks for Steps 14 and 15.
             if (step == "14" or step == "15"):
                 if ("Connected to server" in stdout):
-                    sys.exit(0)
+                    sys.exit(1)
         
                 # Otherwise, successful. We can write the output as a response.
                 elif (stdout.endswith("Trying 10.0.1.1...\n")):
@@ -200,7 +200,7 @@ def main():
                     content = rules + "\n-DIVIDER-\n" + stdout
                     # The content[:-1] will remove the newline that gets made.
                     result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
-                    sys.exit(1)
+                    sys.exit(0)
 
                 # Shouldn't happen.
                 else:
@@ -213,7 +213,7 @@ def main():
 
                 # Make sure that only one connection was made. Presumably Stack Overflow.
                 if (len(matches) != 1):
-                    sys.exit(0)
+                    sys.exit(1)
 
                 # Make sure that the other three connections failed.
                 matches = re.findall(r'telnet: Unable to connect to remote host', stdout)
@@ -221,26 +221,26 @@ def main():
                 print("Matches: " + str(len(matches)))
 
                 if (len(matches) != 3):
-                    sys.exit(0)
+                    sys.exit(1)
 
                 # If the previous conditions were not matched, then it was successful.
                 # Write the student's response as a file so that it can be used later for quicker checks.
                 content = rules + "\n-DIVIDER-\n" + stdout
                 # The content[:-1] will remove the newline that gets made.
                 result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
-                sys.exit(1)
+                sys.exit(0)
 
             # Simply check to see if the client node was able to connect to the server node.
             elif (step == "17"):
                 if ("ssh: connect to host server port 22:" not in stdout):
-                    sys.exit(0)
+                    sys.exit(1)
 
                 else:
                     # Write the student's response as a file so that it can be used later for quicker checks.
                     content = rules + "\n-DIVIDER-\n" + stdout
                     # The content[:-1] will remove the newline that gets made.
                     result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
-                    sys.exit(1)
+                    sys.exit(0)
                 
             # Not sure if this will happen, but if it does, return unsuccessful.
             else:
@@ -297,7 +297,7 @@ def main():
                 # If the message didn't appear on port 10005, exit unsuccessfully.
                 if ("Hello!" not in stdout and i == 10005):
                     print(stdout)
-                    sys.exit(0)
+                    sys.exit(1)
 
                 # 10005 passed, now checking 10006. If "Hello!" did not appear, we pass.
                 if ("Hello!" not in stdout and i == 10006):
@@ -306,10 +306,10 @@ def main():
                     # The content[:-1] will remove the newline that gets made.
                     # This is going to be a little illegible, but still won't have "Hello!" in it...
                     result = subprocess.run('ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key USERNAME_GOES_HERE@server "echo \'' + content[:-1] + '\' > /home/.checker/responses/step_' + step + '_answer.txt"', capture_output=True, text=True, shell=True)
-                    sys.exit(1)
+                    sys.exit(0)
 
             # Should've exited successfully from here.
-            sys.exit(0)
+            sys.exit(1)
                     
 
 main()

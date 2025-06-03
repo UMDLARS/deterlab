@@ -26,7 +26,7 @@ def main():
             f.close()
 
             # Now exit.
-            sys.exit(1)
+            sys.exit(0)
 
         else:
             # Before exiting unsuccessfully, check to see if the student answered it before.
@@ -36,9 +36,9 @@ def main():
                 f.close()
 
                 if ("-A OUTPUT -p tcp -m tcp --dport 80 -j DROP" in content):
-                    sys.exit(1)
+                    sys.exit(0)
 
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 6.
     if (step == "6"):
@@ -49,10 +49,10 @@ def main():
             sys.exit(2)
 
         if (answers[0].lower() == "output" and answers[1].lower() == "drop"):
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 7.
     if (step == "7"):
@@ -146,7 +146,7 @@ def main():
                                    subprocess.run(f"sudo iptables {line}", shell=True)
 
                        # Now terminate.
-                       sys.exit(1)
+                       sys.exit(0)
 
                     # Student may have used a timeout in their command.
                     else:
@@ -164,7 +164,7 @@ def main():
                         if line.strip():
                             subprocess.run(f"sudo iptables {line}", shell=True)
 
-                sys.exit(0)
+                sys.exit(1)
 
     # Check Step 8.
     if (step == "8"):
@@ -175,10 +175,10 @@ def main():
             f.close()
 
             if (content == "-P INPUT ACCEPT\n-P FORWARD ACCEPT\n-P OUTPUT ACCEPT\n"):
-                sys.exit(1)
+                sys.exit(0)
 
             else:
-                sys.exit(0)
+                sys.exit(1)
 
         else:
             # Just check to make sure that the rule was flushed.
@@ -196,9 +196,9 @@ def main():
                         f = open("/home/.checker/responses/step_8_response.txt", "w+")
                         f.write(result.stdout)
                         f.close()
-                        sys.exit(1)
+                        sys.exit(0)
 
             else:
-                sys.exit(0)
+                sys.exit(1)
 
 main()

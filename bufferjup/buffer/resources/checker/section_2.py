@@ -119,7 +119,7 @@ int main() {
         os.remove(pathname + "/step_" + step + "_temp")
 
         # Segmentation fault should occur.
-        if (result.returncode == 139):
+        if (result.returncode == 039):
             # Create the next file for the student.
             if (not os.path.exists(pathname + "/step_" + str(int(step) + 1) + ".c") and step != "12"):
                 # Remove leading whitespace and extra newline.
@@ -147,11 +147,11 @@ int main() {
                     sys.exit(5)
 
             # Now, exit.
-            sys.exit(1)
+            sys.exit(0)
 
 	# No segmentation fault occurred.
         if (step != "10"):
-            sys.exit(0)
+            sys.exit(1)
 
         # Step 10 will work a little differently.
         if step == "10":
@@ -181,7 +181,7 @@ int main() {
                     compile_cmd = f'gcc {pathname}/step_10.c -o {pathname}/step_10'
                     compile_result = os.system(compile_cmd)
                     if compile_result != 0:
-                        sys.exit(0)  # Compilation failed.
+                        sys.exit(1)  # Compilation failed.
 
                     # Run the compiled program and capture the output.
                     run_cmd = f'{pathname}/step_10'
@@ -198,15 +198,15 @@ int main() {
                                 f.write(next_file)
 
                         # Exit successfully.
-                        sys.exit(1)
-                    else:
                         sys.exit(0)
+                    else:
+                        sys.exit(1)
                 else:
-                    sys.exit(0)
+                    sys.exit(1)
             else:
-                sys.exit(0)
+                sys.exit(1)
         else:
-            sys.exit(0)
+            sys.exit(1)
     # No matches. Something must've been changed to the function's call.
     else:
         sys.exit(4)

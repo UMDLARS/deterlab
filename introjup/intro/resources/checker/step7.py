@@ -10,8 +10,8 @@ def main():
     ret = os.path.exists(path)
 
     if ret:
-        sys.exit(1)
-    else:
         sys.exit(0)
+    else:
+        sys.exit(1)
 
 main()

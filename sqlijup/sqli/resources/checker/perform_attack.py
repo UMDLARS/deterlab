@@ -34,11 +34,11 @@ def main():
     if (response.status_code == 200):
         # If the request was successful, return the response.
         print(response.text)
-        sys.exit(1)
+        sys.exit(0)
 
     # Otherwise, it did not work.
     else:
         print("Error")
-        sys.exit(0)
+        sys.exit(1)
 
 main()

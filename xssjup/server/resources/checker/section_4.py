@@ -155,7 +155,7 @@ def main():
     # If splitting only returned one result, then that means the response was "No response".
     if (len(responses) == 1):
         # Payload did not work.
-        sys.exit(0)
+        sys.exit(1)
 
     # All checks should be done now. Time to parse the results and see if the Eagles category was made.
     pattern = re.compile(f'<a href="category\.php\?id=[0-9]+">Eagles<\/a><\/h3>Where to find those delicious sloths!<\/td><td class="rightpart">')
@@ -170,7 +170,7 @@ def main():
 
             # Check if the sanitization function is in the file and if Eagles is not printed.
             if ("htmlspecialchars" in output and not re.search(pattern, responses[1])):
-                sys.exit(1)
+                sys.exit(0)
 
             # htmlspecialchars was not created. Note, this might pick up from a comment in the file.
             elif ("htmlspecialchars" not in output):
@@ -189,14 +189,14 @@ def main():
         # There should always be two responses after splitting from the divider.
         if ("steal.php" in responses[0]):
             # Should be a valid enough check to ensure that the payload worked.
-            sys.exit(1)
+            sys.exit(0)
 
         else:
             # No occurrence of steal.php means that there was no payload.
-            sys.exit(0)
+            sys.exit(1)
 
     # Otherwise, exit with failure.
     else:
-        sys.exit(0)
+        sys.exit(1)
 
 main()

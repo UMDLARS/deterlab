@@ -25,14 +25,14 @@ def main():
             with open('/home/.checker/inotify_log.txt', 'r') as file:
                 for line in file:
                     if "CREATE,ISDIR jupyterintro" in line:
-                        sys.exit(1)
+                        sys.exit(0)
 
         # If not entered, it was not picked up from the inotifywait. Simply check if it exists with ret.
 
     # If not using a restore, just simply check if it exists.
     if ret:
-        sys.exit(1)
-    else:
         sys.exit(0)
+    else:
+        sys.exit(1)
 
 main()

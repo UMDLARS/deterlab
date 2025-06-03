@@ -23,10 +23,10 @@ def main():
                 # File exists. To check if executable bit exists for each user, each number from the mode must be odd.
                 for permission in get_perms(path):
                     if (int(permission) % 2 == 0):
-                        sys.exit(0)
+                        sys.exit(1)
 
                 # If the loop never failed, then the step passes.
-                sys.exit(1)
+                sys.exit(0)
 
         # Testing Step 2.
         elif (sys.argv[1] == "2"):
@@ -44,12 +44,12 @@ def main():
                 for permission in get_perms(path):
                     if ((permission != "2" and permission != "3" and permission != "6" and permission != "7") and checkOwner) or \
                        ((permission == "2" or permission == "3" or permission == "6" or permission == "7") and not checkOwner):
-                        sys.exit(0)
+                        sys.exit(1)
 
                     checkOwner = False
 
                 # If the loop never failed, then the step passes.
-                sys.exit(1)
+                sys.exit(0)
 
          # Testing Step 3.
         elif (sys.argv[1] == "3"):
@@ -61,8 +61,8 @@ def main():
             else:
                 # Just need to check the specific permissions.
                 if (get_perms(path) != "615"):
-                    sys.exit(0)
-                else:
                     sys.exit(1)
+                else:
+                    sys.exit(0)
 
 main()

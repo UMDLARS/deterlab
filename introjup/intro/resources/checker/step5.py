@@ -18,9 +18,9 @@ def main():
         sys.exit(2)
     elif (filecmp.cmp(check_file, verify_file)):
         subprocess.run(["rm", "-f", verify_file])
-        sys.exit(1)
+        sys.exit(0)
     else:
         subprocess.run(["rm", "-f", verify_file])
-        sys.exit(0)
+        sys.exit(1)
 
 main()

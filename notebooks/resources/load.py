@@ -47,10 +47,10 @@ def main():
         else:
             process = subprocess.run("ssh -i /home/USERNAME_GOES_HERE/.ssh/merge_key " + labname + " '/home/.checker/load" + labname + ".sh'", shell=True, stdout=subprocess.DEVNULL)
             
-        sys.exit(0)
+        sys.exit(1)
 
     # For other return codes.
     else:
-        sys.exit(1)
+        sys.exit(0)
 
 main()

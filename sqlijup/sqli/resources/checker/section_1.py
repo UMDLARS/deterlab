@@ -125,23 +125,23 @@ def main():
     # Step 1: Check if the database exists.
     if step == "1":
         if check_database():
-            sys.exit(1)  # Success
+            sys.exit(0)  # Success
         else:
-            sys.exit(0)  # Failure
+            sys.exit(1)  # Failure
 
     # Step 2: Check table structure.
     elif step == "2":
         if check_table_structure():
-            sys.exit(1)  # Success
+            sys.exit(0)  # Success
         else:
-            sys.exit(0)  # Failure
+            sys.exit(1)  # Failure
 
     # Step 3: Verify inserted data.
     elif step == "3":
         if verify_inserted_data():
-            sys.exit(1)  # Success
+            sys.exit(0)  # Success
         else:
-            sys.exit(0)  # Failure
+            sys.exit(1)  # Failure
 
     # Step 4-9: Checking SQL queries.
     elif step in ["4", "5", "6", "7", "8", "9"]:

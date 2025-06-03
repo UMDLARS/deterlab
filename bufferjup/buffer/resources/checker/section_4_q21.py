@@ -52,7 +52,7 @@ def main():
 
         # Get the return code, which should be 1. Otherwise, if it fails, then this step does not pass.
         if (result.returncode != 1):
-            sys.exit(0)
+            sys.exit(1)
 
         # Now, run the payload through the fixed command.
         command = "/home/.checker/section_4.py " + step + " \'" + payload + "\' 1"
@@ -61,7 +61,7 @@ def main():
         # Check to see if it fails (returning 2 from a time out error).
         if (result.returncode == 2):
             # A success!
-            sys.exit(1)
+            sys.exit(0)
 
         # Otherwise, a failure.
         else:
@@ -88,10 +88,10 @@ def main():
         matches = re.findall(pattern, wormwood, re.MULTILINE | re.DOTALL)
 
         if (matches):
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Invalid input.
     else:

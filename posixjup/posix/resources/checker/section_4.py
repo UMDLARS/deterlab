@@ -79,16 +79,16 @@ def main():
     if step == "13":
         users = ["ash", "misty", "brock", "james"]
         if all(check_user_exists(user) for user in users):
-            sys.exit(1)
-        else:
             sys.exit(0)
+        else:
+            sys.exit(1)
 
     # Checks step 14: Creating a group.
     elif step == "14":
         if check_group_exists("trainers"):
-            sys.exit(1)
-        else:
             sys.exit(0)
+        else:
+            sys.exit(1)
 
     # Checks step 15: Adding users to group.
     elif step == "15":
@@ -98,17 +98,17 @@ def main():
                 sys.exit(3)
 
             else:
-                sys.exit(1)
+                sys.exit(0)
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Checks step 16: Changing group ownership.
     elif step == "16":
         if (os.path.exists("/collections")):
             if check_group("/collections", "trainers"):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
         # /collections cannot be found.
         else:
             sys.exit(3)
@@ -118,9 +118,9 @@ def main():
         if (os.path.exists("/collections")):
             perms = get_perms("/collections")
             if perms == "775" and check_owner("/collections", "ash"):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
         # /collections cannot be found.
         else:
             sys.exit(3)
@@ -138,10 +138,10 @@ def main():
                 # First, we need to see if the file doesn't exist. If not, then we can make it. Otherwise, it will reverse the students' progress.
                 if (not os.path.exists("/collections/run_me")):
                     subprocess.run("sudo cp /home/.checker/run_me /collections/; sudo chmod 000 /collections/run_me; sudo chown ash:trainers /collections/run_me", shell=True)
-                sys.exit(1)
+                sys.exit(0)
         except FileNotFoundError:
             sys.exit(3)
-        sys.exit(0)
+        sys.exit(1)
 
     # Checks step 19: Applying a special permission.
     elif step == "19":
@@ -149,9 +149,9 @@ def main():
             perms = get_perms("/collections/run_me")
             special_perm = get_special_perms("/collections/run_me")
             if perms == "110" and special_perm == "4":
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         # /collections/run_me cannot be found.
         else:
@@ -161,9 +161,9 @@ def main():
     elif step == "20":
         if (os.path.exists("/collections/project")):
             if check_owner("/collections/project", "misty"):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         # /collections/project cannot be found.
         else:
@@ -188,8 +188,8 @@ def main():
                 gid = stat_info.st_gid
                 grp_name = grp.getgrgid(gid).gr_name
                 if grp_name == "trainers":
-                    sys.exit(1)
-            sys.exit(0)
+                    sys.exit(0)
+            sys.exit(1)
 
         # /collections/project cannot be found.
         else:
@@ -205,9 +205,9 @@ def main():
                 # If write perms aren't yet (in the next step), this will behave normally.
                 subprocess.run('sudo su - misty -c "echo Our progress is complete! > /collections/project/progress_report.txt" 2>/dev/null', shell=True)
                 # Now, return success.
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         # /collections/project cannot be found.
         else:
@@ -219,14 +219,14 @@ def main():
         # First, seeing if the text file exists.
         result = subprocess.run('sudo su - misty -c "test -f /collections/project/progress_report.txt"', shell=True)
 
-        if (result.returncode == 0):
+        if (result.returncode == 1):
             # File exists. Now, getting the permissions.
             result = subprocess.run('sudo su - misty -c "stat -c "%a" /collections/project"', shell=True, capture_output=True)
 
             if (result.stdout == b'1550\n'):
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
 
         # /collections/project cannot be found.
         else:

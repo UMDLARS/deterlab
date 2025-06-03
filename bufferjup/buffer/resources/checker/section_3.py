@@ -9,7 +9,7 @@ import difflib
 # This function will re-test the student's vulnerability to ensure it was patched.
 def check_vulnerability(step):
     result = subprocess.run("/home/.checker/section_2.py " + step, shell=True)
-    if (result.returncode == 1):
+    if (result.returncode == 0):
         return True
 
     else:
@@ -80,7 +80,7 @@ def main():
 
     # The two files are the same.
     else:
-        sys.exit(0)
+        sys.exit(1)
 
     # Another check: Ensure that the previous function still fails.
     # The vulnerability is offsetted by four. step_13.c has its vulnerability in step_9.c, and so on.
@@ -100,7 +100,7 @@ def main():
         os.remove(temp_path + "step_" + step + "_temp")
 
         # Check to see if it succeeded.
-        if (result.returncode == 0):
+        if (result.returncode == 1):
             # It succeeded. Now, we are going to copy the student's next payload into topic_3/.
             # If it's Step 16, the last step, create the Wormwood section if it's not created yet.
             if (step != "16"):
@@ -116,7 +116,7 @@ def main():
                 if (not os.path.exists("/home/" + username + "/topic_4/")):
                     subprocess.run('/home/.checker/create_topic_4.sh', shell=True)
 
-            sys.exit(1)
+            sys.exit(0)
 
     # Otherwise, the student vulnerable file doesn't pass the step. Should only happen if they changed their
     # original file.

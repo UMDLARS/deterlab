@@ -12,7 +12,7 @@ def main():
 
     # Check if the file was made yet.
     if (not os.path.exists(copy_file)):
-        sys.exit(0)
+        sys.exit(1)
 
     # File was made.
     else:
@@ -22,7 +22,7 @@ def main():
             # Files are the same.
             # For the next step:
             subprocess.run(f'bash ~/../.checker/create_files.sh "{new_dir}" "{target_file}"', shell=True)
-            sys.exit(1)
+            sys.exit(0)
         # Files are NOT the same.
         else:
             sys.exit(2)

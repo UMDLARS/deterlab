@@ -13,7 +13,7 @@ def check_perms(path):
         f = open("/home/.checker/step2_perms.txt", "w+")
         f.write(permissions)
         f.close()
-        sys.exit(1)
+        sys.exit(0)
 
 def main():
     path = os.path.expanduser("~/jupyterintro/jupytertest.txt")
@@ -38,17 +38,17 @@ def main():
                 if ("jupyterintro/ CREATE jupytertest.txt" in log_contents):
                     # File was created. Check if perms were made.
                     if os.path.exists("/home/.checker/step2_perms.txt"):
-                        sys.exit(1)
+                        sys.exit(0)
                     else:
                         check_perms(path)
                 else:
-                    sys.exit(0)
+                    sys.exit(1)
 
     # If not using a restore, just simply check if it exists.
     # Very likely that this will never occur.
     if ret:
         check_perms(path)
     else:
-        sys.exit(0)
+        sys.exit(1)
 
 main()

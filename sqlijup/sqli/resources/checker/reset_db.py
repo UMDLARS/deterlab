@@ -26,7 +26,7 @@ def execute_query(query):
         # Close the connection/cursor, then return the query result.
         conn.close()
         cursor.close()
-        sys.exit(1)
+        sys.exit(0)
 
     except mysql.connector.Error as e:
         print(f"Error executing SQL query: {e}")
@@ -35,7 +35,7 @@ def execute_query(query):
 def main():
     if (len(sys.argv) != 2):
         print("Usage: ./reset_db.py <step_num>")
-        sys.exit(0)
+        sys.exit(1)
 
     else:
         step_num = int(sys.argv[1])
@@ -117,9 +117,9 @@ def main():
                 execute_query(query)
 
             else:
-                sys.exit(0)
+                sys.exit(1)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
 main()

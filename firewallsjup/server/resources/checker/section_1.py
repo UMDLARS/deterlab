@@ -13,16 +13,16 @@ def main():
     # Check Step 1.
     if (step == "1"):
         if (answer == "nmap yahoo.com"):
-            sys.exit(1)
-        else:
             sys.exit(0)
+        else:
+            sys.exit(1)
 
     # Check Step 2.
     if (step == "2"):
         if (answer == "eth1"):
-            sys.exit(1)
-        else:
             sys.exit(0)
+        else:
+            sys.exit(1)
 
     # Check Step 3.
     if (step == "3"):
@@ -34,10 +34,10 @@ def main():
 
         # Check the two solutions.
         if ((answer1 == "telnet localhost 80" or answer1 == "telnet 10.0.1.1 80") and answer2 == "GET /index.html"):
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 4.
     if (step == "4"):
@@ -50,10 +50,10 @@ def main():
 
         # Check the two solutions.
         if (answers[0].startswith("nc") and other_components_present and (answers[1] == "nc server 10000" or answers[1] == "nc 10.0.1.1 10000")):
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
 
 main()

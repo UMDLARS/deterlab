@@ -35,7 +35,7 @@ def execute_query(query):
 def main():
     if (len(sys.argv) != 1):
         print("Usage: ./section_3.py")
-        sys.exit(1)
+        sys.exit(0)
 
     # Only need to check Step 15 in this section.
     # First, attempt to get the path of the php_practice.php file.
@@ -84,10 +84,10 @@ def main():
                 # If anyone's name appears, then it's a failed check.
                 if (row[1] in result.stdout):
                     # Failure. Return 0.
-                    sys.exit(0)
+                    sys.exit(1)
 
             # If the for loop passed, then return 1.
-            sys.exit(1)
+            sys.exit(0)
 
         # Not all required statements are being used.
         else:

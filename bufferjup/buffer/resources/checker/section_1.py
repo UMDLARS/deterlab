@@ -28,7 +28,7 @@ def main():
         compile_result = subprocess.run('gcc -o ' + pathname + '/step_1 ' + pathname + '/step_1.c 2>/dev/null', shell=True)
 
         # Did not compile correctly.
-        if (compile_result.returncode == 1):
+        if (compile_result.returncode == 0):
             sys.exit(3)
 
         # If it gets to this point, then it did compile correctly.
@@ -39,7 +39,7 @@ def main():
 
         # Checks if the username was printed.
         if (result.stdout == username + "\n" or result.stdout == username):
-            sys.exit(1)
+            sys.exit(0)
 
         # Checks to see if there was an error.
         elif (result.stderr != ""):
@@ -47,20 +47,20 @@ def main():
 
         # This is if there's no error, but did not print the username.
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 2.
     elif (step == "2"):
         # Checking for file existence.
         if (not os.path.exists(pathname + "/step_2")):
-            sys.exit(0)
+            sys.exit(1)
 
         else:
             # Checking to make sure that it's not an empty file that the student may have created to "trick"
             # the notebook.
             result = subprocess.run('file ' + pathname + '/step_2', shell=True, text=True, capture_output=True)
             if ("step_2: ELF 64-bit LSB pie executable" in result.stdout):
-                sys.exit(1)
+                sys.exit(0)
 
             else:
                 sys.exit(2)
@@ -76,7 +76,7 @@ def main():
 
         # Checks if the username was printed.
         if (result.stdout == username + "\n" or result.stdout == username):
-            sys.exit(1)
+            sys.exit(0)
 
         # Checks to see if there was an error.
         elif (result.stderr != ""):
@@ -84,7 +84,7 @@ def main():
 
         # This is if there's no error, but did not print the username.
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Check Step 4.
     elif step == "4":
@@ -194,23 +194,23 @@ def main():
 
                         if expected_sum in output_numbers:
                             # Step is passed.
-                            sys.exit(1)
+                            sys.exit(0)
                         else:
                             # Output does not contain the expected sum.
-                            sys.exit(0)
+                            sys.exit(1)
 
                     except ValueError:
                         # Output does not contain valid integers.
                         sys.exit(4)
                 else:
                     # printf statement not found.
-                    sys.exit(0)
+                    sys.exit(1)
             else:
                 # Addition operation not found.
-                sys.exit(0)
+                sys.exit(1)
         else:
             # Less than two valid variables found.
-            sys.exit(0)
+            sys.exit(1)
 
 
     # Check Step 5.
@@ -257,9 +257,9 @@ def main():
             output = result.stdout.lower()
             expected_phrase = f"hello, {username.lower()}"
             if expected_phrase in output:
-                sys.exit(1)
-            else:
                 sys.exit(0)
+            else:
+                sys.exit(1)
         else:
             # No valid declarations found
             sys.exit(5)
@@ -309,10 +309,10 @@ int main() {
                 f.close()
     
             # Now, exit.
-            sys.exit(1)
+            sys.exit(0)
 
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Checks Step 7.
     elif step == "7":
@@ -396,9 +396,9 @@ int main() {
                             f.write(step_8_outline)
 
                     # Now exit.
-                    sys.exit(1)
-                else:
                     sys.exit(0)
+                else:
+                    sys.exit(1)
             else:
                 # sum() function call is incorrect
                 sys.exit(4)
@@ -496,11 +496,11 @@ int main() {
                                 f.write(step_9_outline)
 
                         # Now exit.
-                        sys.exit(1)
+                        sys.exit(0)
 
                     else:
                         # Output is incorrect.
-                        sys.exit(0)
+                        sys.exit(1)
                 else:
                     # The free statement is missing or incorrect.
                     sys.exit(4)
