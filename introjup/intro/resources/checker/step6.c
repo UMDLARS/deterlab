@@ -61,7 +61,7 @@ int main() {
     // Check if the files were the same.
     if (check == 0) {
         // output.txt is correct.
-        return 1;
+        return 0;
     } else {
         // output.txt is different from the answer.
         return 4;

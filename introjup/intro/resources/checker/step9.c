@@ -38,7 +38,7 @@ int main() {
         // Check to see if the files were the same.
         if (check == 0) {
             // output.txt is correct.
-            return 1;
+            return 0;
         }
         else {
             // output.txt is different from the answer.
@@ -51,5 +51,5 @@ int main() {
     }
 
     // Error with checking.
-    return 0;
+    return 1;
 }
