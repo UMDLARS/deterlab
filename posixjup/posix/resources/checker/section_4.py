@@ -219,7 +219,7 @@ def main():
         # First, seeing if the text file exists.
         result = subprocess.run('sudo su - misty -c "test -f /collections/project/progress_report.txt"', shell=True)
 
-        if (result.returncode == 1):
+        if (result.returncode == 0):
             # File exists. Now, getting the permissions.
             result = subprocess.run('sudo su - misty -c "stat -c "%a" /collections/project"', shell=True, capture_output=True)
 

@@ -13,6 +13,7 @@ def main():
     # (Step 10 doesn't require input, so "foo" will be used for input. It will not be used.)
     if (len(sys.argv) != 3):
         print("Usage: ./section_3.py <step_num> <input>")
+        sys.exit(2)
 
     # Format is correct.
     else:
