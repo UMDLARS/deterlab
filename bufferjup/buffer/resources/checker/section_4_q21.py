@@ -11,7 +11,7 @@ def main():
         sys.exit(2)
 
     step = sys.argv[1]
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
 
     # Before running this step, check to make sure that the topic has been started.
     if (not os.path.exists(f"/home/{username}/topic_4")):
@@ -51,7 +51,7 @@ def main():
         result = subprocess.run(command, shell=True, text=True, capture_output=True)
 
         # Get the return code, which should be 1. Otherwise, if it fails, then this step does not pass.
-        if (result.returncode != 1):
+        if (result.returncode != 0):
             sys.exit(1)
 
         # Now, run the payload through the fixed command.

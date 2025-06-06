@@ -6,7 +6,7 @@ import os
 import textwrap
 
 def main():
-    # Checks the usage. This shouldn't be giving an error, since it's called from the noteboo>
+    # Checks the usage. This shouldn't be giving an error, since it's called from the notebook.
     if (len(sys.argv) != 2):
         print("Usage: ./section_2.py <step_num>")
         sys.exit(2)
@@ -14,7 +14,7 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
     pathname = f"/home/{username}/topic_2"
 
     # Every step in this section is VERY similar to one another. No need for checking the individual steps.
@@ -118,8 +118,10 @@ int main() {
         # Delete the temp file.
         os.remove(pathname + "/step_" + step + "_temp")
 
+        print(result.returncode)
+
         # Segmentation fault should occur.
-        if (result.returncode == 039):
+        if (result.returncode == 139):
             # Create the next file for the student.
             if (not os.path.exists(pathname + "/step_" + str(int(step) + 1) + ".c") and step != "12"):
                 # Remove leading whitespace and extra newline.

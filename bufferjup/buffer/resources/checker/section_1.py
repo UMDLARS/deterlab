@@ -15,7 +15,7 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
     pathname = f"/home/{username}/topic_1"
 
     # Checks Step 1.
@@ -28,7 +28,7 @@ def main():
         compile_result = subprocess.run('gcc -o ' + pathname + '/step_1 ' + pathname + '/step_1.c 2>/dev/null', shell=True)
 
         # Did not compile correctly.
-        if (compile_result.returncode == 0):
+        if (compile_result.returncode == 1):
             sys.exit(3)
 
         # If it gets to this point, then it did compile correctly.
@@ -219,29 +219,30 @@ def main():
         if not os.path.exists(pathname + "/step_5.c") or not os.path.exists(pathname + "/step_5"):
             sys.exit(2)
 
-        # Read the student's code
+        # Read the student's code.
         with open(pathname + "/step_5.c", "r") as f:
             text = f.read()
 
-        # Adjusted regex pattern
-        pattern = r'^\s*char\s*(\*?)\s*(\w+)\s*(\[\s*\d*\s*\])?\s*=\s*"' + re.escape(username) + r'"\s*;'
+        # Adjusted regex pattern.
+        pattern = r'^\s*char\s*(\*?)\s*(\w+)\s*(\[\s*\d*\s*\])?\s*=\s*"([^"]*)"\s*;'
 
         # Find all matches.
         matches = re.findall(pattern, text, re.MULTILINE)
 
-        # Filter valid matches
+        # Filter valid matches.
         valid_matches = []
+        print(matches)
         for ptr, varname, array_brackets, assigned_str in matches:
-            # Check for invalid declarations (both pointer and array brackets)
+            # Check for invalid declarations (both pointer and array brackets).
             if ptr and array_brackets:
-                continue  # Skip invalid declarations
-            # Ensure the assigned string matches the username
+                continue
+            # Ensure the assigned string matches the username.
             if assigned_str == username:
                 valid_matches.append((ptr, varname, array_brackets, assigned_str))
 
-        # Proceed if at least one valid match is found
+        # Proceed if at least one valid match is found.
         if valid_matches:
-            # Run the program and capture the output
+            # Run the program and capture the output.
             result = subprocess.run(
                 pathname + '/step_5',
                 shell=True,
@@ -249,11 +250,11 @@ def main():
                 capture_output=True
             )
 
-            # Handle execution errors (e.g., segmentation fault)
+            # Handle execution errors (e.g., segmentation fault).
             if result.returncode != 0:
                 sys.exit(3)
 
-            # Check if the output contains "Hello, username"
+            # Check if the output contains "Hello, username".
             output = result.stdout.lower()
             expected_phrase = f"hello, {username.lower()}"
             if expected_phrase in output:
@@ -261,7 +262,7 @@ def main():
             else:
                 sys.exit(1)
         else:
-            # No valid declarations found
+            # No valid declarations found.
             sys.exit(5)
 
     # Check Step 6. This requires user input!
@@ -271,7 +272,7 @@ def main():
         completed_files = ["step_1.c", "step_2", "step_4.c", "step_4", "step_5.c", "step_5"]
 
         for file in completed_files:
-            file_path = f"/home/USERNAME_FOR_NODE/topic_1/{file}"
+            file_path = f"/home/USERNAME_GOES_HERE/topic_1/{file}"
             if not os.path.exists(file_path):
                 sys.exit(2)
 

@@ -21,11 +21,11 @@ def compare_files(file1_path, file2_path):
     with open(file1_path, 'r') as file1, open(file2_path, 'r') as file2:
         # Create two lists, which contain each line of the files.
         # Additionally, remove all new lines, so that if students added \n, it won't flag as wrong.
-        file1_content = file1.read().replace('\n', '')
-        file2_content = file2.read().replace('\n', '')
+        file1_content = [line.rstrip() for line in file1]
+        file2_content = [line.rstrip() for line in file2]
 
     # Finds the differences between the two files.
-    diff = list(difflib.ndiff([file1_content], [file2_content]))
+    diff = list(difflib.ndiff(file1_content, file2_content))
     # Any file that has a +/- in front of it means it's different. Add it to the list.
     # Additionally, trim the +/- in front of each different line.
     diff_list = [line[1:].strip() for line in diff if line.startswith('+ ') or line.startswith('- ')]
@@ -42,7 +42,7 @@ def main():
     step = sys.argv[1]
 
     # We need the student's username throughout this entire lab.
-    username = "USERNAME_FOR_NODE"
+    username = "USERNAME_GOES_HERE"
 
     vulnerable = "/home/" + username + "/topic_2/step_" + str(int(step) - 4) + ".c"
     fix = "/home/" + username + "/topic_3/step_" + step + ".c"
@@ -100,7 +100,7 @@ def main():
         os.remove(temp_path + "step_" + step + "_temp")
 
         # Check to see if it succeeded.
-        if (result.returncode == 1):
+        if (result.returncode == 0):
             # It succeeded. Now, we are going to copy the student's next payload into topic_3/.
             # If it's Step 16, the last step, create the Wormwood section if it's not created yet.
             if (step != "16"):
@@ -122,6 +122,5 @@ def main():
     # original file.
     else:
         sys.exit(5)
-
 
 main()
