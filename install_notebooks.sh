@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export USER="$(whoami)"
-export LABS="/project/$USER/notebooks"
+export LABS="/home/$USER"
 export RESOURCES="$LABS/resources"
 export SAVES="$LABS/saves"
 export EDUCATION="/home/.education"
