@@ -13,7 +13,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 # Define the directory where the repository should be checked out.
-REPO_URL="https://github.com/UMDLARS/deterlab"
+REPO_URL="https://github.com/UMDLARS/sphere"
 
 # Installing some dependencies.
 echo "Installing dependencies."
@@ -37,7 +37,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cd deterlab || exit
+cd sphere || exit
 
 # Checking to see if the notebooks have already been made.
 if [ $(find "$LABS" -maxdepth 1 -type f -name "*.ipynb" | wc -l) -eq 8 ]; then
@@ -50,7 +50,7 @@ fi
 [ -f "$EDUCATION/${USER}_logs.txt" ] && mv "$EDUCATION/${USER}_logs.txt" /tmp
 
 # Excluding the saves/ directory so that students don't lose their saves.
-sudo rsync -a --delete --exclude='saves/' notebooks/ /project/$USER/notebooks/ >/dev/null
+sudo rsync -a --delete --exclude='saves/' notebooks/ ~ >/dev/null
 
 # Ensure 'saves/' exists.
 mkdir -p $LABS/saves
