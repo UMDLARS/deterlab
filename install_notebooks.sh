@@ -49,8 +49,11 @@ fi
 # Saving the student's logs.
 [ -f "$EDUCATION/${USER}_logs.txt" ] && mv "$EDUCATION/${USER}_logs.txt" /tmp
 
-# Excluding the saves/ directory so that students don't lose their saves.
-sudo rsync -a --delete --exclude='saves/' notebooks/ ~ >/dev/null
+# Excluding the following files:
+## saves/ so that students don't lose progress.
+## pass.txt so that students don't lose their configuration.
+## .local/ so that the kernel doesn't break when running the command.
+sudo rsync -a --delete --exclude='saves/' --exclude='pass.txt' --exclude='.local/' notebooks/ ~ >/dev/null
 
 # Ensure 'saves/' exists.
 mkdir -p $LABS/saves
