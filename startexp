@@ -26,7 +26,7 @@ proj=$user
 lab=${@: -1} 
 exp=$lab
 run=0
-labpath="home/.education"
+labpath="/home/.education"
 org=""
 while getopts ${OPTSTRING} opt; do    
   case ${opt} in
