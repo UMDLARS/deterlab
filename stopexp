@@ -45,7 +45,7 @@ while getopts ${OPTSTRING} opt; do
 done
 echo "Path $labpath lab $lab name $exp proj $proj";
 
-PATH=$PATH:/home
+PATH=$PATH:/share
 
 if [ -e $HOME/pass.txt ]; then
     pass=$(cat $HOME/pass.txt)
@@ -64,7 +64,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $SCRIPT_DIR/functions
 
 echo Configuring mrg
-mrg config set server grpc.mod.deterlab.net
+mrg config set server grpc.sphere-testbed.net
 
 echo Logging $user into Merge
 runr mrg login $user -p $pass

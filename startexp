@@ -26,7 +26,7 @@ proj=$user
 lab=${@: -1} 
 exp=$lab
 run=0
-labpath="/home/.education"
+labpath="home/.education"
 org=""
 while getopts ${OPTSTRING} opt; do    
   case ${opt} in
@@ -60,7 +60,7 @@ while getopts ${OPTSTRING} opt; do
 done
 echo "Path $labpath lab $lab name $exp proj $proj";
 
-PATH=$PATH:/home
+PATH=$PATH:/share
 
 # load util functions
 . $SCRIPT_DIR/functions
@@ -94,7 +94,7 @@ if [[ -z $pass ]]; then
     exit 1
 fi
 
-mrg config set server grpc.mod.deterlab.net
+mrg config set server grpc.sphere-testbed.net
 
 echo Logging $user into Merge
 runr mrg login $user -p $pass
@@ -118,7 +118,7 @@ if [ $? -ne 0 ]; then
     fi
 
     # echo Pushing $lab model
-    # rev=`mrg push /home/.education/$lab/$lab.model $exp.$proj | awk '{print $4}'`
+    # rev=`mrg push home/.education/$lab/$lab.model $exp.$proj | awk '{print $4}'`
     # runr mrg show revision $exp.$proj $rev
     # if [[ $? -ne 0 ]]; then 
     #     echo Error compiling model.
@@ -134,7 +134,8 @@ if [[ -z $rev ]]; then
     echo No existing realization found.
     sleep 60
     echo Pushing new $lab model.
-    rev=$(mrg push $labpath/$lab/$lab.model $exp.$proj | awk -F"Revision: " '{print $2}' | awk '{print $1}')
+    rev=$(mrg push $labpath/$lab/$lab.model $exp.$proj | head -1 | awk '{print $4}')
+    sleep 2
     runr mrg show revision $exp.$proj $rev
     if [[ $? -ne 0 ]]; then 
         echo Error compiling model.
@@ -203,7 +204,7 @@ status=nope
 tries=0
 while [[ $success != Success && tries -le 40 ]]; do
 
-    status=$(mrg show materialization $mzid -j | jq -r .status.HighestStatus)
+    status=$(mrg show materialization $mzid -j -S | jq -r .taskStatus.HighestStatus)
     echo Materialization status: $status
     if [[ $status == Success ]]; then
         break
