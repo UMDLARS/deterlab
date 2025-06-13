@@ -374,18 +374,18 @@ int main(int argc, char *argv[])
     switch (step) {
         case 2:
             finish_step_2();
-            return 1;
+            return 0;
         case 3:
             finish_step_3();
-            return 1;
+            return 0;
         case 4:
             finish_step_4();
-            return 1;
+            return 0;
         case 5:
             finish_step_5();
-            return 1;
+            return 0;
         default:
             // Unrecognized step.
-            return 0;
+            return 1;
     }
 }
