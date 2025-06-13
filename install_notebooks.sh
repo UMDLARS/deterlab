@@ -26,7 +26,8 @@ echo "Installing required Jupyter extensions."
 # NOTE: New changes to SPHERE moved stuff into a venv. We will need to apply some changes before we can install this.
 
 # Making a change in a config file to fix a known issue, enabling the venv, then installing the packages.
-sed -i "s|include-system-site-packages = false|include-system-site-packages = true|g" /usr/local/jupyter/venv/pyvenv.cfg
+# This "sed" command is a workaround, but apparently doesn't fix the issue when installing ipywidgets.
+sudo sed -i "s|include-system-site-packages = false|include-system-site-packages = true|g" /usr/local/jupyter/venv/pyvenv.cfg
 source /usr/local/jupyter/venv/bin/activate
 sudo pip install -q ipywidgets jupyterlab_widgets 2>/dev/null
 deactivate
