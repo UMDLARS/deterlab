@@ -126,10 +126,10 @@ def main():
         # process_output, process_errors = process.communicate()
 
         if ("daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin" in result):
-            sys.exit(0)
+            sys.exit(1)
 
         else:
-            sys.exit(1)
+            sys.exit(0)
 
     elif (step == "12"):
         with open("/lab/memo.py", 'r') as file1:
@@ -209,10 +209,10 @@ def main():
 
             # Check if the user was redirected properly
             if (result.stdout == "http://127.0.0.1:5010/\n"):
-                sys.exit(0)
+                sys.exit(1)
 
             else:
-                sys.exit(1)
+                sys.exit(0)
 
 
 main()

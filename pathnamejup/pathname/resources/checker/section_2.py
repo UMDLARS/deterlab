@@ -30,10 +30,10 @@ def main():
 
         matches = re.findall(pattern, input)
         if (matches):
-            sys.exit(0)
+            sys.exit(1)
 
         else:
-            sys.exit(1)
+            sys.exit(0)
 
     else:
         sys.exit(2)
