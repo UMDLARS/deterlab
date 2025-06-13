@@ -22,7 +22,14 @@ sudo apt-get -qq install git rsync >/dev/null
 
 # sudo is required for these, since the notebooks are ran as root. Hiding the warning about installing packages as root.
 echo "Installing required Jupyter extensions."
+
+# NOTE: New changes to SPHERE moved stuff into a venv. We will need to apply some changes before we can install this.
+
+# Making a change in a config file to fix a known issue, enabling the venv, then installing the packages.
+sed -i "s|include-system-site-packages = false|include-system-site-packages = true|g" /usr/local/jupyter/venv/pyvenv.cfg
+source /usr/local/jupyter/venv/bin/activate
 sudo pip install -q ipywidgets jupyterlab_widgets 2>/dev/null
+deactivate
 
 echo "Beginning installation of notebooks."
 
