@@ -39,7 +39,7 @@ def main():
             # Checking to make sure that the "Hello, World!" string was printed previously.
             if "<p>Hello, World!</p>" in old_data:
                 # Pass with success. Was completed correctly beforehand.
-                sys.exit(1)
+                sys.exit(0)
             else:
                 # This shouldn't have happened, as the student cannot previously "pass" with the wrong output.
                 # Remove the bad file, then continue with the rest of the check.
@@ -87,7 +87,7 @@ def main():
                 path_3 = f"/home/{user}/step_3.py"
                 if not os.path.exists(path_3):
                     shutil.copyfile(path_2, path_3)
-                sys.exit(1)
+                sys.exit(0)
 
             # Something odd happened. They passed, but something is wrong with the checker script. Return a code of 3.
             else:
@@ -95,7 +95,7 @@ def main():
                 sys.exit(3)
         else:
             # They have the wrong output (shouldn't happen, as the answer is given to them in the step).
-            sys.exit(0)
+            sys.exit(1)
 
     # Checking Step 3.
     elif step == "3":
@@ -109,7 +109,7 @@ def main():
             # Checking the response and seeing if the template was printed.
             if "<h1>Welcome to Step 3!</h1>" in old_data:
                 # Previously passed. Skip the step.
-                sys.exit(1)
+                sys.exit(0)
             else:
                 # This was an invalid response that somehow got passed. Remove and continue with the rest of the check.
                 os.remove(resp_path)
@@ -154,7 +154,7 @@ def main():
                     st_info = os.stat("/lab")
                     if st_info.st_uid == 0:
                         subprocess.run(["sudo", "chown", "-R", user, "/lab"])
-                sys.exit(1)
+                sys.exit(0)
 
             # Something went wrong with the checker script.
             else:
@@ -163,7 +163,7 @@ def main():
                 sys.exit(3)
         else:
             # The student is still returning "<p>Hello, World!</p>" or otherwise incorrect.
-            sys.exit(0)
+            sys.exit(1)
 
     # Checking Step 4.
     elif step == "4":
@@ -190,7 +190,7 @@ def main():
 
                 # There should be two matches for the redirects.
                 if len(matches) >= 2 and has_redirect_html:
-                    sys.exit(1)
+                    sys.exit(0)
 
                 # Their response is actually invalid, but something allowed them to pass. Remove their response.
                 else:
@@ -214,7 +214,7 @@ def main():
 
         # This is in case they forgot to add two of the redirects.
         if len(matches) < 2:
-            sys.exit(0)
+            sys.exit(1)
 
         # Navigating into their /lab directory so that we can run their Flask application, like the previous steps.
         os.chdir("/lab")
@@ -248,14 +248,14 @@ def main():
 
             # This should be working.
             if c_result.returncode == 0:
-                sys.exit(1)
+                sys.exit(0)
 
             # Otherwise, something went wrong with the checker file.
             else:
                 os.remove(resp_path)
                 sys.exit(3)
         else:
-            sys.exit(0)
+            sys.exit(1)
 
     # Checking Step 5.
     elif step == "5":
@@ -274,7 +274,7 @@ def main():
 
                 # This cURL response should be in their correct file.
                 if "< HTTP/1.1 302 FOUND" in old_curl:
-                    sys.exit(1)
+                    sys.exit(0)
 
                 # Otherwise, they somehow passed, but their notebook generated the wrong file.
                 else:
@@ -316,13 +316,13 @@ def main():
             process.wait()
             if os.path.exists(test_memo_path):
                 os.remove(test_memo_path)
-            sys.exit(0)
+            sys.exit(1)
 
         # This shouldn't happen, since this was automatically generated for them.
         if os.path.exists(test_memo_path):
             process.terminate()
             process.wait()
-            sys.exit(0)
+            sys.exit(1)
 
         # At this point, they should've passed the step. Create their "success" file.
         with open(resp_path, "w") as f:
@@ -339,7 +339,7 @@ def main():
 
         # If the next step was correctly generated, exit successfully.
         if c_result.returncode == 0:
-            sys.exit(1)
+            sys.exit(0)
 
         # This will only happen if an error happened with the checker script.
         else:
