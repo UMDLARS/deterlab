@@ -26,10 +26,10 @@ int check_query(const char* str, int step) {
     // Adjust the index to match the step number.
     if (step >= 4 && step <= 9) {
         if (strcmp(str, valid_queries[step - 4]) == 0) {
-            return 1;  // True
+            return 0;
         }
     }
-    return 0;  // False
+    return 1;
 }
 
 int main(int argc, char* argv[]) {
