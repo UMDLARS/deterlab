@@ -13,7 +13,7 @@ apt-get install gcc python3-pip apache2 apache2-bin mariadb-server mariadb-clien
 
 # Additionally, downloaded a couple pip libraries for the checker scripts.
 python3 -m pip install --upgrade pip
-pip install mysql-connector-python requests
+pip install mysql-connector-python requests bs4
 
 # Moving the checker scripts over.
 mkdir $CHECKER
